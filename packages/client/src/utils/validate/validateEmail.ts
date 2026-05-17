@@ -1,8 +1,8 @@
-import { EMAIL_REGEXP } from '../../constants/regexp';
-import { LOGIN_MAX_LENGTH } from '../../constants/constants';
+import { EMAIL_REGEXP } from '../../constants/validation/regexp';
+import { EMAIL_MAX_LENGTH } from '../../constants/validation/constants';
 
 export const validateEmail = (value: string): boolean => {
-  const isLengthValid = value && value.length <= LOGIN_MAX_LENGTH;
+  const isLengthValid = value && value.length <= EMAIL_MAX_LENGTH;
 
   if (!isLengthValid) {
     return false;

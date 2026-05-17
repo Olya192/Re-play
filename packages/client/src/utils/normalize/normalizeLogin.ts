@@ -1,5 +1,5 @@
-import { LOGIN_MAX_LENGTH } from '../../constants/constants';
-import { FORBIDDEN_LOGIN_CHARS_REGEXP } from '../../constants/regexp';
+import { LOGIN_MAX_LENGTH } from '../../constants/validation/constants';
+import { FORBIDDEN_LOGIN_CHARS_REGEXP } from '../../constants/validation/regexp';
 
 export const normalizeLogin = (login: string): string => {
   if (!login) {

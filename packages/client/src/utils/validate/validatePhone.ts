@@ -1,5 +1,5 @@
-import { PHONE_MAX_LENGTH, PHONE_MIN_LENGTH } from '../../constants/constants';
-import { PHONE_REGEXP } from '../../constants/regexp';
+import { PHONE_MAX_LENGTH, PHONE_MIN_LENGTH } from '../../constants/validation/constants';
+import { PHONE_REGEXP } from '../../constants/validation/regexp';
 
 export const validatePhone = (phone: string): boolean => {
   const phoneLength = phone.length;
