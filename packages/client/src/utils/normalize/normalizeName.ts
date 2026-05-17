@@ -1,4 +1,4 @@
-import { NAME_MAX_LENGTH } from '../../constants/constants';
+import { NAME_MAX_LENGTH } from '../../constants/validation/constants';
 
 export const normalizeName = (name: string): string => {
   if (!name) {

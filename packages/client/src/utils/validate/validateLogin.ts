@@ -1,5 +1,5 @@
-import { LOGIN_MAX_LENGTH, LOGIN_MIN_LENGTH } from '../../constants/constants';
-import { DIGITS_REGEXP, LOGIN_CHARS_REGEXP } from '../../constants/regexp';
+import { LOGIN_MAX_LENGTH, LOGIN_MIN_LENGTH } from '../../constants/validation/constants';
+import { DIGITS_REGEXP, LOGIN_CHARS_REGEXP } from '../../constants/validation/regexp';
 
 export const validateLogin = (login: string): boolean => {
   const loginLength = login.length;
