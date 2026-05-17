@@ -4,8 +4,7 @@ import {
   TypedUseSelectorHook,
   useStore as useStoreBase,
 } from 'react-redux'
-import { combineReducers } from 'redux'
-import { configureStore } from '@reduxjs/toolkit'
+import { combineReducers, configureStore } from '@reduxjs/toolkit'
 
 import friendsReducer from './slices/friendsSlice'
 import ssrReducer from './slices/ssrSlice'
