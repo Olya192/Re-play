@@ -10,6 +10,8 @@ import { initGameStartPage, GameStartPage } from './pages/GameStartPage';
 import { initGameEndPage, GameEndPage } from './pages/GameEndPage';
 import { initError404, Error404 } from './pages/Error404';
 import { initError500, Error500 } from './pages/Error500';
+import { initNotFoundPage, NotFoundPage } from './pages/NotFound';
+import { initProfilePage, ProfilePage } from './pages/profile/ProfilePage';
 
 export type PageInitContext = {
   clientToken?: string;
@@ -31,6 +33,11 @@ export const routes = [
     path: '/friends',
     Component: FriendsPage,
     fetchData: initFriendsPage,
+  },
+  {
+    path: '/profile',
+    Component: ProfilePage,
+    fetchData: initProfilePage,
   },
   {
     path: '/login',
