@@ -1,0 +1,20 @@
+.avatarWrapper {
+  display: flex;
+  flex-direction: column;
+  row-gap: 1rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar {
+  margin: 0 auto;
+  width: 8.125rem;
+  height: 8.125rem;
+  border-radius: 50%;
+  background: #efefef url('../../assets/icons/avatar-icon.svg') no-repeat center;
+}
+
+.avatarInput {
+  display: flex;
+  align-items: center;
+}

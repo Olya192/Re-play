@@ -1,4 +1,6 @@
 import { HTTPTransport } from './httpTransport';
+import { User } from '../types/user/user';
+import { convertKeysToCamelCase } from '../utils/convert/convert-keys-to-camel-case';
 
 const userApiInstance = new HTTPTransport();
 
@@ -12,8 +14,10 @@ class ProfileApi {
     });
   }
 
-  request() {
-    return userApiInstance.get('/api/v2/auth/user');
+  async request(): Promise<User> {
+    const response = await userApiInstance.get('/api/v2/auth/user');
+
+    return convertKeysToCamelCase(response) as unknown as User;
   }
 }
 
