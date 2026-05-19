@@ -4,3 +4,6 @@ node_modules/
 .vscode
 dist
 tmp
+*.tsbuildinfo
+packages/client/server/*.js
+packages/client/server/*.d.ts
