@@ -1,8 +1,10 @@
 import { AppDispatch, RootState } from './store'
 
-import { initMainPage, MainPage } from './pages/Main'
+// import { initMainPage, MainPage } from './pages/Main'
+
 import { initFriendsPage, FriendsPage } from './pages/FriendsPage'
 import { initNotFoundPage, NotFoundPage } from './pages/NotFound'
+import { initMainPage, LoginPage } from './pages/LoginPage'
 
 export type PageInitContext = {
   clientToken?: string
@@ -17,7 +19,7 @@ export type PageInitArgs = {
 export const routes = [
   {
     path: '/',
-    Component: MainPage,
+    Component: LoginPage,
     fetchData: initMainPage,
   },
   {
