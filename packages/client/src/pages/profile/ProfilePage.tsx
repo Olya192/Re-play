@@ -4,20 +4,19 @@ import { usePage } from '../../hooks/usePage';
 import { BaseLink } from '../../components/BaseLink';
 import s from './Profile.module.css';
 import { ReactElement, useEffect, useState } from 'react';
-import { profileApi } from '../../api/profileApi';
 import { PROFILE_FIELDS } from '../../constants/profile/constants';
 import { User } from '../../types/user/user';
-import { BASE_API_URL } from '../../constants/api/apiConstants';
 import { AvatarForm } from '../../components/AvatarForm';
+import { useProfile } from './useProfile';
 
 export const ProfilePage = () => {
   usePage({ initPage: initProfilePage });
 
-  const [user, setUser] = useState<User | null>(null);
+  const { user, avatarUrl, handleAvatarChange } = useProfile();
   const [profileFields, setProfileFields] = useState<ReactElement[] | null>(null);
 
   const generateFields = (user: User) => {
-    const inputs = (Object.entries(PROFILE_FIELDS) as [keyof typeof PROFILE_FIELDS, string][]).map(
+    const fields = (Object.entries(PROFILE_FIELDS) as [keyof typeof PROFILE_FIELDS, string][]).map(
       ([key, label]) => {
         return (
           <li className={s.profileItem}>
@@ -28,24 +27,16 @@ export const ProfilePage = () => {
       }
     );
 
-    setProfileFields(inputs);
+    return fields;
   };
 
   useEffect(() => {
     if (user) {
-      console.log(user.avatar);
-      generateFields(user);
+      const fields = generateFields(user);
+
+      setProfileFields(fields);
     }
   }, [user]);
-
-  useEffect(() => {
-    profileApi.request().then((response) => {
-      setUser(response);
-      console.log(response);
-    });
-  }, []);
-
-  const avatarUrl = user?.avatar && `${BASE_API_URL}/api/v2/resources${user.avatar}`;
 
   return (
     <div className="App">
@@ -62,7 +53,7 @@ export const ProfilePage = () => {
           <BaseLink text="Выход" />
         </div>
 
-        <AvatarForm avatarUrl={avatarUrl} />
+        <AvatarForm avatarUrl={avatarUrl} handleAvatarChange={handleAvatarChange} />
 
         <ul className={s.profile}>{profileFields && profileFields}</ul>
       </section>
