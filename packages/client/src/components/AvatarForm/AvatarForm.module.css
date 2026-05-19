@@ -12,6 +12,7 @@
   height: 8.125rem;
   border-radius: 50%;
   background: #efefef url('../../assets/icons/avatar-icon.svg') no-repeat center;
+  object-fit: cover;
 }
 
 .avatarInput {

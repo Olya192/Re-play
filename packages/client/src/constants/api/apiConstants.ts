@@ -6,3 +6,5 @@ export const METHODS = {
   PUT: 'PUT',
   DELETE: 'DELETE',
 } as const;
+
+export const RESOURCE_API_URL = '/api/v2/resources';
