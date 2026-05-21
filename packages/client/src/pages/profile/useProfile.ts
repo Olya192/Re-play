@@ -1,4 +1,4 @@
-import { ChangeEventHandler, useEffect, useState } from 'react';
+import { ChangeEventHandler, FormEvent, useEffect, useState } from 'react';
 import { User } from '../../types/user/user';
 import { profileApi } from '../../api/profileApi';
 import { BASE_API_URL, RESOURCE_API_URL } from '../../constants/api/apiConstants';
@@ -29,20 +29,51 @@ export const useProfile = () => {
     }
   };
 
-  useEffect(() => {
-    profileApi.request().then((response) => {
-      setUser(response);
+  // TODO user - брать из стора. В стор user сохраняется при входе в приложение
+  const getUser = async () => {
+    try {
+      const user = await profileApi.request();
 
-      const imgUrl = response?.avatar
-        ? `${BASE_API_URL}${RESOURCE_API_URL}${response.avatar}`
-        : null;
-      setAvatarUrl(imgUrl);
+      return user;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getUser().then((user) => {
+      if (user) {
+        setUser(user);
+        const imgUrl = user?.avatar ? `${BASE_API_URL}${RESOURCE_API_URL}${user.avatar}` : null;
+        setAvatarUrl(imgUrl);
+      }
     });
   }, []);
+
+  const editAvatar = async (data: FormData) => {
+    try {
+      return await profileApi.editAvatar(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleAvatarSubmit = async (event: FormEvent<HTMLFormElement>): Promise<boolean> => {
+    event.preventDefault();
+    const formData = new FormData(event.target as HTMLFormElement);
+    const user = await editAvatar(formData);
+
+    if (user) {
+      return true;
+    }
+
+    return false;
+  };
 
   return {
     user,
     avatarUrl,
     handleAvatarChange,
+    handleAvatarSubmit,
   };
 };

@@ -14,6 +14,12 @@ class ProfileApi {
     });
   }
 
+  editAvatar(data: FormData) {
+    return userApiInstance.put('/api/v2/user/profile/avatar', {
+      data: data,
+    });
+  }
+
   async request(): Promise<User> {
     const response = await userApiInstance.get('/api/v2/auth/user');
 
