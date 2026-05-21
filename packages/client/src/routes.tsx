@@ -1,24 +1,26 @@
-import { AppDispatch, RootState } from './store'
-import { initMainPage, MainPage } from './pages/Main'
-import { initFriendsPage, FriendsPage } from './pages/FriendsPage'
-import { initLoginPage, LoginPage } from './pages/LoginPage'
-import { initRegisterPage, RegisterPage } from './pages/RegisterPage'
-import { initUserProfile, UserProfile } from './pages/UserProfile'
-import { initLeaderboardPage, LeaderboardPage } from './pages/LeaderboardPage'
-import { initForumPage, ForumPage } from './pages/ForumPage'
-import { initGameStartPage, GameStartPage } from './pages/GameStartPage'
-import { initGameEndPage, GameEndPage } from './pages/GameEndPage'
-import { initError404, Error404 } from './pages/Error404'
-import { initError500, Error500 } from './pages/Error500'
+import { AppDispatch, RootState } from './store';
+import { initMainPage, MainPage } from './pages/Main';
+import { initFriendsPage, FriendsPage } from './pages/FriendsPage';
+import { initLoginPage, LoginPage } from './pages/LoginPage';
+import { initRegisterPage, RegisterPage } from './pages/RegisterPage';
+import { initUserProfile, UserProfile } from './pages/UserProfile';
+import { initLeaderboardPage, LeaderboardPage } from './pages/LeaderboardPage';
+import { initForumPage, ForumPage } from './pages/ForumPage';
+import { initGameStartPage, GameStartPage } from './pages/GameStartPage';
+import { initGameEndPage, GameEndPage } from './pages/GameEndPage';
+import { initError404, Error404 } from './pages/Error404';
+import { initError500, Error500 } from './pages/Error500';
 
 export type PageInitContext = {
-  clientToken?: string
-}
+  clientToken?: string;
+};
+
 export type PageInitArgs = {
-  dispatch: AppDispatch
-  state: RootState
-  ctx: PageInitContext
-}
+  dispatch: AppDispatch;
+  state: RootState;
+  ctx: PageInitContext;
+};
+
 export const routes = [
   {
     path: '/',
@@ -80,4 +82,4 @@ export const routes = [
     Component: Error500,
     fetchData: initError500,
   },
-]
+];
