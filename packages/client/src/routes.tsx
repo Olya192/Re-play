@@ -14,14 +14,14 @@ import { initError404, Error404 } from './pages/Error404'
 import { initError500, Error500 } from './pages/Error500'
 
 export type PageInitContext = {
-  clientToken?: string
-}
+  clientToken?: string;
+};
 
 export type PageInitArgs = {
-  dispatch: AppDispatch
-  state: RootState
-  ctx: PageInitContext
-}
+  dispatch: AppDispatch;
+  state: RootState;
+  ctx: PageInitContext;
+};
 
 export const routes = [
   {
@@ -84,4 +84,4 @@ export const routes = [
     Component: Error500,
     fetchData: initError500,
   },
-]
+];
