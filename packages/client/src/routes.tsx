@@ -1,8 +1,6 @@
 import { AppDispatch, RootState } from './store'
-
 import { initMainPage, MainPage } from './pages/Main'
 import { initFriendsPage, FriendsPage } from './pages/FriendsPage'
-
 import { initLoginPage, LoginPage } from './pages/LoginPage'
 import { initRegisterPage, RegisterPage } from './pages/RegisterPage'
 import { initUserProfile, UserProfile } from './pages/UserProfile'
@@ -16,13 +14,11 @@ import { initError500, Error500 } from './pages/Error500'
 export type PageInitContext = {
   clientToken?: string
 }
-
 export type PageInitArgs = {
   dispatch: AppDispatch
   state: RootState
   ctx: PageInitContext
 }
-
 export const routes = [
   {
     path: '/',
