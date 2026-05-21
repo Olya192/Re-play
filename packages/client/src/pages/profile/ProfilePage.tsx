@@ -12,14 +12,14 @@ import { useProfile } from './useProfile';
 export const ProfilePage = () => {
   usePage({ initPage: initProfilePage });
 
-  const { user, avatarUrl, handleAvatarChange } = useProfile();
+  const { user, avatarUrl, handleAvatarChange, handleAvatarSubmit } = useProfile();
   const [profileFields, setProfileFields] = useState<ReactElement[] | null>(null);
 
   const generateFields = (user: User) => {
     const fields = (Object.entries(PROFILE_FIELDS) as [keyof typeof PROFILE_FIELDS, string][]).map(
       ([key, label]) => {
         return (
-          <li className={s.profileItem}>
+          <li key={key} className={s.profileItem}>
             <div className={s.profileLabel}>{label}</div>
             <div className={s.profileText}>{user[key]}</div>
           </li>
@@ -53,7 +53,11 @@ export const ProfilePage = () => {
           <BaseLink text="Выход" />
         </div>
 
-        <AvatarForm avatarUrl={avatarUrl} handleAvatarChange={handleAvatarChange} />
+        <AvatarForm
+          avatarUrl={avatarUrl}
+          handleAvatarChange={handleAvatarChange}
+          handleAvatarSubmit={handleAvatarSubmit}
+        />
 
         <ul className={s.profile}>{profileFields && profileFields}</ul>
       </section>
