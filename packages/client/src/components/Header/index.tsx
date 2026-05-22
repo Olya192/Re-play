@@ -1,35 +1,51 @@
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom';
+import s from './Header.module.css';
 
 export const Header = () => {
   return (
-    <nav style={{ padding: '20px', background: '#eee', marginBottom: '20px' }}>
-      <ul
-        style={{ display: 'flex', gap: '15px', listStyle: 'none', padding: 0 }}>
-        <li>
-          <Link to="/">Главная</Link>
+    <nav className={s.nav}>
+      <ul className={s.list}>
+        <li className={s.listItem}>
+          <Link to="/" className={s.link}>
+            Главная
+          </Link>
         </li>
-        <li>
-          <Link to="/friends">Друзья</Link>
+        <li className={s.listItem}>
+          <Link to="/friends" className={s.link}>
+            Друзья
+          </Link>
         </li>
-        <li>
-          <Link to="/profile">Профиль</Link>
+        <li className={s.listItem}>
+          <Link to="/profile" className={s.link}>
+            Профиль
+          </Link>
         </li>
-        <li>
-          <Link to="/leaderboard">Лидерборд</Link>
+        <li className={s.listItem}>
+          <Link to="/leaderboard" className={s.link}>
+            Лидерборд
+          </Link>
         </li>
-        <li>
-          <Link to="/forum">Форум</Link>
+        <li className={s.listItem}>
+          <Link to="/forum" className={s.link}>
+            Форум
+          </Link>
         </li>
-        <li style={{ marginLeft: 'auto' }}>
-          <Link to="/game/start">Начать игру</Link>
+        <li className={`${s.listItem} ${s.listItemRight}`}>
+          <Link to="/game/start" className={s.link}>
+            Начать игру
+          </Link>
         </li>
-        <li>
-          <Link to="/login">Вход</Link>
+        <li className={s.listItem}>
+          <Link to="/login" className={s.link}>
+            Вход
+          </Link>
         </li>
-        <li>
-          <Link to="/register">Регистрация</Link>
+        <li className={s.listItem}>
+          <Link to="/register" className={s.link}>
+            Регистрация
+          </Link>
         </li>
       </ul>
     </nav>
-  )
-}
+  );
+};
