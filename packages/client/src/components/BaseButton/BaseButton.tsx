@@ -27,7 +27,7 @@ export const BaseButton = ({
   );
 
   return (
-    <button className={classes} style={style} type={type} disabled={disabled}>
+    <button className={classes} style={style} type={type} disabled={disabled} onClick={onClick}>
       {title}
     </button>
   );
