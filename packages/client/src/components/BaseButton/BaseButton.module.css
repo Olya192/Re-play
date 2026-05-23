@@ -1,9 +1,9 @@
 .baseButton {
   font-family: Inter, Arial, sans-serif;
-  font-weight: 500;
+  font-weight: 400;
   color: #fff;
   cursor: pointer;
-  border-radius: 0.5rem;
+  border-radius: 0.7rem;
   border: 1px solid var(--accent-color);
   background-color: var(--accent-color);
   line-height: var(--base-line-height);
@@ -29,8 +29,8 @@
 }
 
 .baseButtonDefault {
-  padding: 0.75rem 0.4rem;
-  font-size: var(--main-font-size);
+  padding: 0.5rem 0.4rem;
+  font-size: var(--small-font-size);
 }
 
 .baseButtonSmall {

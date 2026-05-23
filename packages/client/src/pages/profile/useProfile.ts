@@ -2,8 +2,10 @@ import { ChangeEventHandler, FormEvent, useEffect, useState } from 'react';
 import { User } from '../../types/user/user';
 import { profileApi } from '../../api/profileApi';
 import { BASE_API_URL, RESOURCE_API_URL } from '../../constants/api/apiConstants';
+import { useEditProfile } from '../../hooks/api/useEditProfile';
 
 export const useProfile = () => {
+  const { editAvatar } = useEditProfile();
   const [user, setUser] = useState<User | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
@@ -49,14 +51,6 @@ export const useProfile = () => {
       }
     });
   }, []);
-
-  const editAvatar = async (data: FormData) => {
-    try {
-      return await profileApi.editAvatar(data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
   const handleAvatarSubmit = async (event: FormEvent<HTMLFormElement>): Promise<boolean> => {
     event.preventDefault();

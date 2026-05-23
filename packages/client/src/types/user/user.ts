@@ -8,3 +8,8 @@ export interface User {
   phone: string;
   avatar?: string;
 }
+
+export interface EditPasswordData {
+  oldPassword: string;
+  newPassword: string;
+}

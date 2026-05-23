@@ -8,6 +8,7 @@ import { PROFILE_FIELDS } from '../../constants/profile/constants';
 import { User } from '../../types/user/user';
 import { AvatarForm } from '../../components/AvatarForm';
 import { useProfile } from './useProfile';
+import { EditPasswordForm } from '../../components/EditPasswordForm';
 
 export const ProfilePage = () => {
   usePage({ initPage: initProfilePage });
@@ -60,6 +61,8 @@ export const ProfilePage = () => {
         />
 
         <ul className={s.profile}>{profileFields && profileFields}</ul>
+
+        <EditPasswordForm />
       </section>
     </div>
   );

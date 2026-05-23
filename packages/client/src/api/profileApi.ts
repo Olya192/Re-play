@@ -1,6 +1,7 @@
 import { HTTPTransport } from './httpTransport';
-import { User } from '../types/user/user';
-import { convertKeysToCamelCase } from '../utils/convert/convert-keys-to-camel-case';
+import { EditPasswordData, User } from '../types/user/user';
+import { convertKeysToCamelCase } from '../utils/convert/convertKeysToCamelCase';
+import { UserDTO } from '../types/api';
 
 const userApiInstance = new HTTPTransport();
 
@@ -14,10 +15,18 @@ class ProfileApi {
     });
   }
 
-  editAvatar(data: FormData) {
-    return userApiInstance.put('/api/v2/user/profile/avatar', {
+  editPassword(data: EditPasswordData): Promise<string> {
+    return userApiInstance.put('/api/v2/user/password', {
+      data: { ...data },
+    });
+  }
+
+  async editAvatar(data: FormData): Promise<User> {
+    const response = await userApiInstance.put('/api/v2/user/profile/avatar', {
       data: data,
     });
+
+    return convertKeysToCamelCase(response) as unknown as User;
   }
 
   async request(): Promise<User> {

@@ -1,7 +1,7 @@
-import { convertCamelToSnake } from './convert-camel-to-snake';
+import { convertSnakeToCamel } from './convertSnakeToCamel';
 import { checkIsObject } from '../checkIsObject';
 
-export const convertKeysToSnakeCase = (obj: Record<string, unknown>): Record<string, unknown> => {
+export const convertKeysToCamelCase = (obj: Record<string, unknown>): Record<string, unknown> => {
   const isObject = checkIsObject(obj);
 
   if (!isObject) {
@@ -11,15 +11,15 @@ export const convertKeysToSnakeCase = (obj: Record<string, unknown>): Record<str
   const arrayFromObject = Object.entries(obj);
 
   const convertedEntries = arrayFromObject.map(([key, value]) => {
-    const snakeKey = convertCamelToSnake(key);
+    const camelKey = convertSnakeToCamel(key);
     let convertedValue = value;
     const isValueObject = checkIsObject(value);
 
     if (isValueObject) {
-      convertedValue = convertKeysToSnakeCase(value as Record<string, unknown>);
+      convertedValue = convertKeysToCamelCase(value as Record<string, unknown>);
     }
 
-    return [snakeKey, convertedValue];
+    return [camelKey, convertedValue];
   });
 
   const convertedObject = Object.fromEntries(convertedEntries);
