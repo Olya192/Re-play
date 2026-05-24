@@ -2,6 +2,7 @@ import { AppDispatch, RootState } from './store';
 import { initMainPage, MainPage } from './pages/Main';
 import { initFriendsPage, FriendsPage } from './pages/FriendsPage';
 import { initNotFoundPage, NotFoundPage } from './pages/NotFound';
+import { initLeaderboardPage, LeaderboardPage } from './pages/leaderboard';
 
 export type PageInitContext = {
   clientToken?: string;
@@ -23,6 +24,11 @@ export const routes = [
     path: '/friends',
     Component: FriendsPage,
     fetchData: initFriendsPage,
+  },
+  {
+    path: '/leaderboard',
+    Component: LeaderboardPage,
+    fetchData: initLeaderboardPage,
   },
   {
     path: '*',

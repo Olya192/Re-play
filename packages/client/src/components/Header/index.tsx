@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom';
 
 export const Header = () => {
   return (
@@ -11,9 +11,15 @@ export const Header = () => {
           <Link to="/friends">Страница со списком друзей</Link>
         </li>
         <li>
+          <Link to="/profile">Профиль</Link>
+        </li>
+        <li>
+          <Link to="/leaderboard">Таблица лидеров</Link>
+        </li>
+        <li>
           <Link to="/404">404</Link>
         </li>
       </ul>
     </nav>
-  )
-}
+  );
+};
