@@ -10,6 +10,7 @@ import { initGameStartPage, GameStartPage } from './pages/GameStartPage';
 import { initGameEndPage, GameEndPage } from './pages/GameEndPage';
 import { initError404, Error404 } from './pages/Error404';
 import { initError500, Error500 } from './pages/Error500';
+import { initError403, Error403 } from './pages/Error403';
 
 export type PageInitContext = {
   clientToken?: string;
@@ -71,6 +72,11 @@ export const routes = [
     path: '/404',
     Component: Error404,
     fetchData: initError404,
+  },
+  {
+    path: '/403',
+    Component: Error403,
+    fetchData: initError403,
   },
   {
     path: '*',
