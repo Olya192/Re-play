@@ -1,0 +1,39 @@
+.baseButton {
+  font-family: Inter, Arial, sans-serif;
+  font-weight: 400;
+  color: #fff;
+  cursor: pointer;
+  border-radius: 0.7rem;
+  border: 1px solid var(--accent-color);
+  background-color: var(--accent-color);
+  line-height: var(--base-line-height);
+  transition: var(--base-transition);
+}
+
+.baseButton:hover {
+  border: 1px solid #6892fd;
+  background-color: #6892fd;
+}
+
+.baseButton:active {
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
+  transform: scale(0.98);
+}
+
+.baseButton:disabled {
+  cursor: not-allowed;
+  background-color: #b2c8ff;
+  border-color: #b2c8ff;
+  transform: scale(1);
+}
+
+.baseButtonDefault {
+  padding: 0.5rem 0.4rem;
+  font-size: var(--small-font-size);
+}
+
+.baseButtonSmall {
+  padding: 0.4rem;
+  font-size: 0.8rem;
+}

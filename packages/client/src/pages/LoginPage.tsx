@@ -1,10 +1,10 @@
-import { Helmet } from 'react-helmet'
-import { Header } from '../components/Header'
-import { usePage } from '../hooks/usePage'
-import { PageInitArgs } from '../routes'
+import { Helmet } from 'react-helmet-async';
+import { Header } from '../components/Header';
+import { usePage } from '../hooks/usePage';
+import { PageInitArgs } from '../routes';
 
 export const LoginPage = () => {
-  usePage({ initPage: initLoginPage })
+  usePage({ initPage: initLoginPage });
 
   return (
     <div>
@@ -15,9 +15,9 @@ export const LoginPage = () => {
       <h1>Вход</h1>
       <p>Форма авторизации будет здесь</p>
     </div>
-  )
-}
+  );
+};
 
 export const initLoginPage = async ({ dispatch, state }: PageInitArgs) => {
   // заглушка
-}
+};
