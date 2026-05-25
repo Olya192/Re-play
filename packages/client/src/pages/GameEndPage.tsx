@@ -1,10 +1,10 @@
-import { Helmet } from 'react-helmet'
-import { Header } from '../components/Header'
-import { usePage } from '../hooks/usePage'
-import { PageInitArgs } from '../routes'
+import { Helmet } from 'react-helmet-async';
+import { Header } from '../components/Header';
+import { usePage } from '../hooks/usePage';
+import { PageInitArgs } from '../routes';
 
 export const GameEndPage = () => {
-  usePage({ initPage: initGameEndPage })
+  usePage({ initPage: initGameEndPage });
 
   return (
     <div>
@@ -14,13 +14,11 @@ export const GameEndPage = () => {
       <Header />
       <h1>Конец</h1>
       <p>Твой счет: 0</p>
-      <button style={{ padding: '10px 20px', fontSize: '18px' }}>
-        🔄 Играть снова
-      </button>
+      <button style={{ padding: '10px 20px', fontSize: '18px' }}>🔄 Играть снова</button>
     </div>
-  )
-}
+  );
+};
 
 export const initGameEndPage = async ({ dispatch, state }: PageInitArgs) => {
   // заглушка
-}
+};

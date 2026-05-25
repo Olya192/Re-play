@@ -21,7 +21,7 @@ export const Header = () => {
           </Link>
         </li>
         <li className={s.listItem}>
-          <Link to="/profile">Профиль пользователя</Link>
+          <Link to="/user-profile">Игровой профиль пользователя</Link>
         </li>
         <li className={s.listItem}>
           <Link to="/leaderboard" className={s.link}>
