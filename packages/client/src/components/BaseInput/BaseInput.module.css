@@ -1,0 +1,36 @@
+.inputLabel {
+  display: flex;
+  flex-direction: column;
+  inline-size: 100%;
+  align-items: baseline;
+  font-size: var(--small-font-size);
+  border-width: 0 0 1px;
+  border-style: solid;
+  border-color: var(--accent-color);
+  padding: 0 0.5rem;
+}
+
+.inputField {
+  inline-size: 100%;
+  font-family: Inter, Arial, sans-serif;
+  font-weight: 400;
+  font-size: var(--small-font-size);
+  line-height: var(--base-line-height);
+  border-width: 0 0 0;
+  padding: 0.5rem 0 0.438rem;
+  color: currentcolor;
+  background-color: transparent;
+  cursor: text;
+  appearance: none;
+}
+
+.inputField::placeholder {
+  color: #dadada;
+  font-size: var(--small-font-size);
+  line-height: var(--base-line-height);
+  font-weight: 200;
+}
+
+.inputField:focus {
+  outline: none;
+}

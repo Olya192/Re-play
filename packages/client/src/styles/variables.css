@@ -1,0 +1,15 @@
+:root {
+  --bg-color: #fff;
+  --bg-color-secondary: #f8f8f8;
+  --main-color: #1e1e1e;
+  --accent-color: #3369f3;
+  --critical-color: #ff2f2f;
+  --muted-color: #999;
+  --light-gray: #f0f0f0;
+  --main-font-size: 1.1rem;
+  --large-font-size: 2rem;
+  --small-font-size: 1rem;
+  --base-line-height: 1;
+  --dark-accent-color: #10379c;
+  --base-transition: background-color 0.3s ease, border-color 0.3s ease;
+}

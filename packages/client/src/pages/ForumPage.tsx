@@ -1,10 +1,10 @@
-import { Helmet } from 'react-helmet'
-import { Header } from '../components/Header'
-import { usePage } from '../hooks/usePage'
-import { PageInitArgs } from '../routes'
+import { Helmet } from 'react-helmet-async';
+import { Header } from '../components/Header';
+import { usePage } from '../hooks/usePage';
+import { PageInitArgs } from '../routes';
 
 export const ForumPage = () => {
-  usePage({ initPage: initForumPage })
+  usePage({ initPage: initForumPage });
 
   return (
     <div>
@@ -15,9 +15,9 @@ export const ForumPage = () => {
       <h1>Форум игры</h1>
       <p>Список тем и обсуждений</p>
     </div>
-  )
-}
+  );
+};
 
 export const initForumPage = async ({ dispatch, state }: PageInitArgs) => {
   // заглушка
-}
+};
