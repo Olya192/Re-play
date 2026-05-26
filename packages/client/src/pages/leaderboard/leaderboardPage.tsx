@@ -7,6 +7,7 @@ import { useLeaderboard } from './useLeaderboard';
 import { Col, Layout, Row, Table, Typography } from 'antd';
 import { LEADERBOARD_FIELDS } from '../../constants/leaderboard/constants';
 import s from './Leaderboard.module.css';
+import { PageInitArgs } from '../../routes';
 
 const { Content } = Layout;
 const { Title } = Typography;
@@ -76,4 +77,6 @@ export const LeaderboardPage = () => {
   );
 };
 
-export const initLeaderboardPage = () => Promise.resolve();
+export const initLeaderboardPage = async ({ dispatch, state }: PageInitArgs) => {
+  // заглушка
+};
