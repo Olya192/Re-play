@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/server';
 import { Provider } from 'react-redux';
-import { Helmet } from 'react-helmet';
+import { HelmetProvider, HelmetServerState } from 'react-helmet-async';
 import { Request as ExpressRequest } from 'express';
 import {
   createStaticHandler,
@@ -56,13 +56,18 @@ export const render = async (req: ExpressRequest) => {
   store.dispatch(setPageHasBeenInitializedOnServer(true));
 
   const router = createStaticRouter(dataRoutes, context);
+
+  const helmetContext: { helmet?: HelmetServerState } = {};
+
   const html = ReactDOM.renderToString(
-    <Provider store={store}>
-      <StaticRouterProvider router={router} context={context} />
-    </Provider>
+    <HelmetProvider context={helmetContext}>
+      <Provider store={store}>
+        <StaticRouterProvider router={router} context={context} />
+      </Provider>
+    </HelmetProvider>
   );
 
-  const helmet = Helmet.renderStatic();
+  const helmet = helmetContext.helmet;
 
   return {
     html,

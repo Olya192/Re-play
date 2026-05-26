@@ -11,6 +11,7 @@ import { initGameEndPage, GameEndPage } from './pages/GameEndPage';
 import { initError404, Error404 } from './pages/Error404';
 import { initError500, Error500 } from './pages/Error500';
 import { initError403, Error403 } from './pages/Error403';
+import { initProfilePage, ProfilePage } from './pages/profile';
 
 export type PageInitContext = {
   clientToken?: string;
@@ -34,6 +35,11 @@ export const routes = [
     fetchData: initFriendsPage,
   },
   {
+    path: '/profile',
+    Component: ProfilePage,
+    fetchData: initProfilePage,
+  },
+  {
     path: '/login',
     Component: LoginPage,
     fetchData: initLoginPage,
@@ -44,7 +50,7 @@ export const routes = [
     fetchData: initRegisterPage,
   },
   {
-    path: '/profile',
+    path: '/user-profile',
     Component: UserProfile,
     fetchData: initUserProfile,
   },
