@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import { HelmetData } from 'react-helmet';
+import type { HelmetServerState } from 'react-helmet-async';
 import express, { Request as ExpressRequest } from 'express';
 import path from 'path';
 import fs from 'fs/promises';
@@ -21,6 +21,7 @@ async function createServer() {
 
   if (isDev) {
     const { createServer: createViteServer } = await import('vite');
+
     vite = await createViteServer({
       server: { middlewareMode: true },
       root: clientPath,
@@ -38,9 +39,12 @@ async function createServer() {
     try {
       // Получаем файл client/index.html который мы правили ранее
       // Создаём переменные
-      let render: (
-        req: ExpressRequest
-      ) => Promise<{ html: string; initialState: unknown; helmet: HelmetData }>;
+      let render: (req: ExpressRequest) => Promise<{
+        html: string;
+        initialState: unknown;
+        helmet: HelmetServerState;
+      }>;
+
       let template: string;
 
       if (vite) {

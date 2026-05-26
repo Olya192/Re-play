@@ -17,12 +17,15 @@ export default defineConfig({
     outDir: path.join(__dirname, 'dist/client'),
   },
   ssr: {
-    noExternal: ['react-helmet'],
+    noExternal: ['react-helmet-async'],
   },
   resolve: {
-    alias: {
-      'react-helmet': path.join(__dirname, '../../node_modules/react-helmet/es/Helmet.js'),
-    },
+    // alias: {
+    //   'react-helmet-async': path.join(
+    //     __dirname,
+    //     '../../node_modules/react-helmet-async/lib/index.js'
+    //   ),
+    // },
   },
   plugins: [react()],
 });
