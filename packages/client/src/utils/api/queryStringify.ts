@@ -1,33 +1,20 @@
-export const queryStringify = (data: Record<string, unknown>) => {
-  if (typeof data !== 'object' || data === null) {
-    throw new Error('Data must be a non-null object');
-  }
+export const queryStringify = (data: Record<string, unknown>): string => {
+  const paramsEntries = Object.entries(data);
 
-  const keys = Object.keys(data);
+  const params = new URLSearchParams();
 
-  if (keys.length === 0) {
-    return '';
-  }
-
-  const queryParams = keys.reduce((result, key, index) => {
-    const value = data[key];
+  for (const [key, value] of paramsEntries) {
     const valueType = typeof value;
-    const isValidValueType =
-      valueType === 'string' || valueType === 'number' || valueType === 'boolean';
 
-    if (!isValidValueType) {
-      return result;
+    if (valueType === 'string' || valueType === 'number' || valueType === 'boolean') {
+      params.append(key, String(value));
+    } else {
+      throw new Error(`Невалидное значение для ключа ${key}`);
     }
+  }
 
-    const encodedKey = encodeURIComponent(key);
-    const encodedValue = encodeURIComponent(value as string | number | boolean);
-
-    const separator = index < keys.length - 1 ? '&' : '';
-
-    return `${result}${encodedKey}=${encodedValue}${separator}`;
-  }, '?');
-
-  const cleanedQueryParams = queryParams.replace(/&$/, '');
+  const result = params.toString();
+  const cleanedQueryParams = result ? `?${result}` : '';
 
   return cleanedQueryParams;
 };
