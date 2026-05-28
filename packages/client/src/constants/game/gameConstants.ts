@@ -1,5 +1,3 @@
-// ИГРОВОЕ ПОЛЕ
-
 // МОНСТР
 
 export const MONSTER_HEIGHT_PERCENT = 15;
