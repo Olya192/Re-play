@@ -34,7 +34,7 @@ export const Header = () => {
           </Link>
         </li>
         <li className={`${s.listItem} ${s.listItemRight}`}>
-          <Link to="/game/start" className={s.link}>
+          <Link to="/game" className={s.link}>
             Начать игру
           </Link>
         </li>

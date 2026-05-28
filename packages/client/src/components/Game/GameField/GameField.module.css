@@ -1,0 +1,13 @@
+.gameField {
+  position: relative;
+  inline-size: 100vw;
+  block-size: 100vh;
+  block-size: 100dvh;
+  min-block-size: 100svh;
+  margin: 0;
+  background: linear-gradient(180deg, #7bc6ff 0%, #9ddfff 38%, #b9efd0 68%, #87c989 100%);
+  overflow: hidden;
+  user-select: none;
+  touch-action: none;
+  isolation: isolate;
+}

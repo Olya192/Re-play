@@ -1,0 +1,32 @@
+.vine {
+  position: absolute;
+  left: 10%;
+  bottom: 0;
+  width: 24px;
+  background: linear-gradient(to top, #1b5e20, #4caf50);
+  border-radius: 12px 12px 0 0;
+  cursor: pointer;
+  transition: height 0.2s ease-out;
+  z-index: 5;
+
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: height;
+  image-rendering: -webkit-optimize-contrast;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+
+  box-shadow: 0 0 0 1px transparent;
+}
+
+.vine::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: inherit;
+  border-radius: inherit;
+  z-index: -1;
+}

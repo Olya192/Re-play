@@ -6,11 +6,10 @@ import { initRegisterPage, RegisterPage } from './pages/RegisterPage';
 import { initUserProfile, UserProfile } from './pages/UserProfile';
 import { initLeaderboardPage, LeaderboardPage } from './pages/LeaderboardPage';
 import { initForumPage, ForumPage } from './pages/ForumPage';
-import { initGameStartPage, GameStartPage } from './pages/GameStartPage';
-import { initGameEndPage, GameEndPage } from './pages/GameEndPage';
 import { initError404, Error404 } from './pages/Error404';
 import { initError500, Error500 } from './pages/Error500';
 import { initProfilePage, ProfilePage } from './pages/profile';
+import { GamePage, initGamePage } from './pages/game';
 
 export type PageInitContext = {
   clientToken?: string;
@@ -64,16 +63,6 @@ export const routes = [
     fetchData: initForumPage,
   },
   {
-    path: '/game/start',
-    Component: GameStartPage,
-    fetchData: initGameStartPage,
-  },
-  {
-    path: '/game/end',
-    Component: GameEndPage,
-    fetchData: initGameEndPage,
-  },
-  {
     path: '/404',
     Component: Error404,
     fetchData: initError404,
@@ -87,5 +76,10 @@ export const routes = [
     path: '/500',
     Component: Error500,
     fetchData: initError500,
+  },
+  {
+    path: '/game',
+    Component: GamePage,
+    fetchData: initGamePage,
   },
 ];
