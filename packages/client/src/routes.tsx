@@ -11,8 +11,6 @@ import { initGameEndPage, GameEndPage } from './pages/GameEndPage';
 import { initError404, Error404 } from './pages/Error404';
 import { initError500, Error500 } from './pages/Error500';
 import { initProfilePage, ProfilePage } from './pages/profile';
-import { ErrorBoundary } from './components/ErrorBoundary';
-import { ComponentType } from 'react';
 
 export type PageInitContext = {
   clientToken?: string;
@@ -24,80 +22,70 @@ export type PageInitArgs = {
   ctx: PageInitContext;
 };
 
-const withErrorBoundary = (Page: ComponentType): ComponentType => {
-  return function PageWithErrorBoundary() {
-    return (
-      <ErrorBoundary>
-        <Page />
-      </ErrorBoundary>
-    );
-  };
-};
-
 export const routes = [
   {
     path: '/',
-    Component: withErrorBoundary(MainPage),
+    Component: MainPage,
     fetchData: initMainPage,
   },
   {
     path: '/friends',
-    Component: withErrorBoundary(FriendsPage),
+    Component: FriendsPage,
     fetchData: initFriendsPage,
   },
   {
     path: '/profile',
-    Component: withErrorBoundary(ProfilePage),
+    Component: ProfilePage,
     fetchData: initProfilePage,
   },
   {
     path: '/login',
-    Component: withErrorBoundary(LoginPage),
+    Component: LoginPage,
     fetchData: initLoginPage,
   },
   {
     path: '/register',
-    Component: withErrorBoundary(RegisterPage),
+    Component: RegisterPage,
     fetchData: initRegisterPage,
   },
   {
     path: '/user-profile',
-    Component: withErrorBoundary(UserProfile),
+    Component: UserProfile,
     fetchData: initUserProfile,
   },
   {
     path: '/leaderboard',
-    Component: withErrorBoundary(LeaderboardPage),
+    Component: LeaderboardPage,
     fetchData: initLeaderboardPage,
   },
   {
     path: '/forum',
-    Component: withErrorBoundary(ForumPage),
+    Component: ForumPage,
     fetchData: initForumPage,
   },
   {
     path: '/game/start',
-    Component: withErrorBoundary(GameStartPage),
+    Component: GameStartPage,
     fetchData: initGameStartPage,
   },
   {
     path: '/game/end',
-    Component: withErrorBoundary(GameEndPage),
+    Component: GameEndPage,
     fetchData: initGameEndPage,
   },
   {
     path: '/404',
-    Component: withErrorBoundary(Error404),
+    Component: Error404,
     fetchData: initError404,
   },
   {
     path: '*',
-    Component: withErrorBoundary(Error404),
+    Component: Error404,
     fetchData: initError404,
   },
   {
     path: '/500',
-    Component: withErrorBoundary(Error500),
+    Component: Error500,
     fetchData: initError500,
   },
 ];
