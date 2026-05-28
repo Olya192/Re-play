@@ -18,15 +18,7 @@ export const GameOverModal = ({
   onBackToMenu,
 }: GameOverModalProps) => {
   return (
-    <Modal
-      open={open}
-      footer={null}
-      closable={false}
-      centered
-      maskClosable={false}
-      width={420}
-      className={styles.modal}
-    >
+    <Modal open={open} footer={null} closable={false} centered width={420} className={styles.modal}>
       <div className={styles.container}>
         <h2 className={styles.title}>Игра завершена</h2>
 
