@@ -2,6 +2,25 @@ import { Helmet } from 'react-helmet-async';
 import { Header } from '../components/Header';
 import { usePage } from '../hooks/usePage';
 import { PageInitArgs } from '../routes';
+import { AuthForm, InputType } from '../components/AuthForm/AuthForm';
+
+const inputsNameRegistr: Array<InputType> = [
+  {
+    type: 'text',
+    text: 'введите логин',
+    logo: 'введите логин',
+  },
+  {
+    type: 'password',
+    text: 'введите пароль',
+    logo: 'введите пароль',
+  },
+  {
+    type: 'password',
+    text: 'повторно введите пароль',
+    logo: 'повторно введите пароль',
+  },
+];
 
 export const RegisterPage = () => {
   usePage({ initPage: initRegisterPage });
@@ -13,7 +32,7 @@ export const RegisterPage = () => {
       </Helmet>
       <Header />
       <h1>Регистрация</h1>
-      <p>Форма создания аккаунта будет здесь</p>
+      <AuthForm inputsName={inputsNameRegistr} />
     </div>
   );
 };
