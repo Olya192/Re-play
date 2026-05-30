@@ -47,7 +47,14 @@ const buildPreloadedState = (): RootState | undefined => {
     return ssrState;
   }
 
-  return { ...ssrState, gameSession: persistedSession };
+  // TODO: убрать форс phase: 'playing' после подключения StartModal —
+  // пока без модалок и без таймера старта надо принудительно стартовать раунд,
+  // иначе сохранённая в localStorage старая фаза (intro/ended/paused)
+  // перевешивает initialState и движок не запускается.
+  return {
+    ...ssrState,
+    gameSession: { ...persistedSession, phase: 'playing' },
+  };
 };
 
 export const store = configureStore({
