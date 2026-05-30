@@ -6,6 +6,7 @@ import { BiomeBackground } from './components/BiomeBackground';
 import { GameCanvas } from './components/GameCanvas';
 import { GameHeader } from './components/hud/GameHeader';
 import { GameFooter } from './components/hud/GameFooter';
+import { GamePlayPlaceholder } from './components/_placeholder/GamePlayPlaceholder';
 import { usePage } from '../../hooks/usePage';
 import { PageInitArgs } from '../../routes';
 
@@ -23,6 +24,7 @@ export const GameRoot = () => {
           <RotatingBackground />
           <BiomeBackground />
           <GameCanvas />
+          <GamePlayPlaceholder />
           <GameHeader />
           <GameFooter />
         </GameStage>
