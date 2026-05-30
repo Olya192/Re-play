@@ -6,12 +6,17 @@ import { BiomeBackground } from './components/BiomeBackground';
 import { GameCanvas } from './components/GameCanvas';
 import { GameHeader } from './components/hud/GameHeader';
 import { GameFooter } from './components/hud/GameFooter';
+import { ModalLayer } from './components/modals/ModalLayer';
 import { GamePlayPlaceholder } from './components/_placeholder/GamePlayPlaceholder';
+import { usePauseOnEsc } from './hooks/usePauseOnEsc';
+import { usePauseOnModal } from './hooks/usePauseOnModal';
 import { usePage } from '../../hooks/usePage';
 import { PageInitArgs } from '../../routes';
 
 export const GameRoot = () => {
   usePage({ initPage: initGameRoot });
+  usePauseOnEsc();
+  usePauseOnModal();
 
   return (
     <>
@@ -27,6 +32,7 @@ export const GameRoot = () => {
           <GamePlayPlaceholder />
           <GameHeader />
           <GameFooter />
+          <ModalLayer />
         </GameStage>
       </GameLayout>
     </>

@@ -1,0 +1,22 @@
+.title {
+  text-align: center;
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.links {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 0.5rem;
+}
+
+.link {
+  color: var(--accent-color);
+  text-decoration: none;
+  font-size: 0.95rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
