@@ -1,0 +1,43 @@
+.profileWrapper {
+  block-size: 100%;
+}
+
+.profileHeader {
+  margin-block-start: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.profileTitle {
+  font-size: 2.5rem;
+  line-height: 1;
+}
+
+.profile {
+  block-size: 100%;
+  padding-block-start: 50px;
+  font-size: var(--main-font-size);
+  margin: 0 auto;
+  inline-size: 80%;
+  max-inline-size: 31.8rem;
+  min-inline-size: 17rem;
+}
+
+.profileItem {
+  display: flex;
+  justify-content: space-between;
+  column-gap: 0.5rem;
+  margin-block-start: 0.5rem;
+  padding: 0.9rem 0.3rem;
+  border-block-end: 1px solid var(--light-gray);
+}
+
+.profileLabel {
+  inline-size: 8rem;
+  min-inline-size: 3rem;
+}
+
+.profileText {
+  color: var(--muted-color);
+}

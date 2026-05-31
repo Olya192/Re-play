@@ -5,7 +5,7 @@ import { initLoginPage, LoginPage } from './pages/LoginPage';
 import { initRegisterPage, RegisterPage } from './pages/RegisterPage';
 import { initUserProfile, UserProfile } from './pages/UserProfile';
 import { initLeaderboardPage, LeaderboardPage } from './pages/LeaderboardPage';
-import { initForumPage, ForumPage } from './pages/ForumPage';
+import { initForumPage, ForumPage } from './pages/forum';
 import { initGameStartPage, GameStartPage } from './pages/GameStartPage';
 import { initGameEndPage, GameEndPage } from './pages/GameEndPage';
 import { initError404, Error404 } from './pages/Error404';
