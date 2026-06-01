@@ -11,5 +11,7 @@ export const validateLogin = (login: string): boolean => {
 
   const isLoginValid = LOGIN_CHARS_REGEXP.test(login) && !DIGITS_REGEXP.test(login);
 
+  console.log('isLoginValid', isLoginValid);
+
   return isLoginValid;
 };

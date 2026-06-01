@@ -9,16 +9,25 @@ const inputsNameRegistr: Array<InputType> = [
     type: 'text',
     text: 'введите логин',
     logo: 'введите логин',
+    name: 'text',
+  },
+  {
+    type: 'email',
+    text: 'введите email',
+    logo: 'введите email',
+    name: 'email',
   },
   {
     type: 'password',
     text: 'введите пароль',
     logo: 'введите пароль',
+    name: 'password',
   },
   {
     type: 'password',
     text: 'повторно введите пароль',
     logo: 'повторно введите пароль',
+    name: 'tow-password',
   },
 ];
 
