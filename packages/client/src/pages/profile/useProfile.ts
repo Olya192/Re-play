@@ -4,13 +4,22 @@ import { profileApi } from '../../api/profileApi';
 import { BASE_API_URL, RESOURCE_API_URL } from '../../constants/api/apiConstants';
 import { useEditProfile } from '../../hooks/api/useEditProfile';
 
-export const useProfile = () => {
+interface UseProfile {
+  user: User | null;
+  avatarUrl: string | null;
+  handleAvatarChange: ChangeEventHandler<HTMLInputElement>;
+  handleAvatarSubmit: (event: FormEvent<HTMLFormElement>) => Promise<boolean>;
+}
+
+export const useProfile = (): UseProfile => {
   const { editAvatar } = useEditProfile();
   const [user, setUser] = useState<User | null>(null);
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [previewAvatar, setPreviewAvatar] = useState<string | null>(null);
+  const avatarUrl =
+    previewAvatar ?? (user?.avatar ? `${BASE_API_URL}${RESOURCE_API_URL}${user.avatar}` : null);
 
   const handleAvatarChange: ChangeEventHandler<HTMLInputElement> = (event) => {
-    const target = event.target;
+    const target = event.currentTarget;
     const file = target.files?.[0];
 
     if (file && file.type.startsWith('image/')) {
@@ -20,49 +29,50 @@ export const useProfile = () => {
         const result = e.target?.result;
 
         if (result && typeof result === 'string') {
-          setAvatarUrl(result);
+          setPreviewAvatar(result);
         }
       };
 
       reader.readAsDataURL(file);
     } else {
-      const imgUrl = user?.avatar ? `${BASE_API_URL}${RESOURCE_API_URL}${user.avatar}` : null;
-      setAvatarUrl(imgUrl);
+      setPreviewAvatar(null);
     }
   };
 
   // TODO user - брать из стора. В стор user сохраняется при входе в приложение
-  const getUser = async () => {
+  const getUser = async (): Promise<User | null> => {
     try {
-      const user = await profileApi.request();
+      const user = await profileApi.getCurrentUser();
 
       return user;
     } catch (error) {
       console.log(error);
+
+      return null;
     }
+  };
+
+  const handleAvatarSubmit = async (event: FormEvent<HTMLFormElement>): Promise<boolean> => {
+    const formData = new FormData(event.currentTarget as HTMLFormElement);
+    const updatedUser = await editAvatar(formData);
+
+    if (updatedUser) {
+      setUser(updatedUser);
+      setPreviewAvatar(null);
+
+      return true;
+    }
+
+    return false;
   };
 
   useEffect(() => {
     getUser().then((user) => {
       if (user) {
         setUser(user);
-        const imgUrl = user?.avatar ? `${BASE_API_URL}${RESOURCE_API_URL}${user.avatar}` : null;
-        setAvatarUrl(imgUrl);
       }
     });
   }, []);
-
-  const handleAvatarSubmit = async (event: FormEvent<HTMLFormElement>): Promise<boolean> => {
-    event.preventDefault();
-    const formData = new FormData(event.target as HTMLFormElement);
-    const user = await editAvatar(formData);
-
-    if (user) {
-      return true;
-    }
-
-    return false;
-  };
 
   return {
     user,

@@ -1,21 +1,25 @@
 import { HTTPTransport } from './httpTransport';
 import { EditPasswordData, User } from '../types/user/user';
 import { convertKeysToCamelCase } from '../utils/convert/convertKeysToCamelCase';
-import { UserDTO } from '../types/api';
 
 const userApiInstance = new HTTPTransport();
+
+interface SigninData {
+  login: string;
+  password: string;
+}
 
 class ProfileApi {
   // TODO здесь будут запросы на обновление пароля и аватара
 
   // TODO Запрос на получение данных пользователя и вход - перенести в хук для user
-  signin(data: Record<string, unknown>) {
+  signin(data: SigninData) {
     return userApiInstance.post('/api/v2/auth/signin', {
       data: { ...data },
     });
   }
 
-  async request(): Promise<User> {
+  async getCurrentUser(): Promise<User> {
     const response = await userApiInstance.get('/api/v2/auth/user');
 
     return convertKeysToCamelCase(response) as unknown as User;

@@ -6,31 +6,32 @@ interface Options {
   headers?: Record<string, string>;
   data?: Record<string, unknown> | FormData;
   timeout?: number;
-  [key: string]: unknown;
 }
+
+type RequestOptions = Omit<Options, 'method'>;
 
 const TIMEOUT = 10000;
 const host = 'https://ya-praktikum.tech';
 
 export class HTTPTransport {
-  get = (url: string, options: Record<string, unknown> = {}) => {
+  get = (url: string, options: RequestOptions = {}) => {
     return this.request(url, { ...options, method: METHODS.GET });
   };
 
-  post = (url: string, options: Record<string, unknown> = {}) => {
+  post = (url: string, options: RequestOptions = {}) => {
     return this.request(url, { ...options, method: METHODS.POST });
   };
 
-  put = (url: string, options: Record<string, unknown> = {}) => {
+  put = (url: string, options: RequestOptions = {}) => {
     return this.request(url, { ...options, method: METHODS.PUT });
   };
 
-  delete = (url: string, options: Record<string, unknown> = {}) => {
+  delete = (url: string, options: RequestOptions = {}) => {
     return this.request(url, { ...options, method: METHODS.DELETE });
   };
 
   request = async (url: string, options: Options = { method: METHODS.GET }) => {
-    const timeout = options.timeout ? options.timeout : TIMEOUT;
+    const timeout = options.timeout ?? TIMEOUT;
 
     const { method, headers = {}, data } = options;
 
@@ -41,11 +42,12 @@ export class HTTPTransport {
       isGet && data && !isFormData ? `${host}${url}${queryStringify(data)}` : `${host}${url}`;
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeout);
+    const timeoutId = setTimeout(
+      () => controller.abort('Запрос превысил допустимое время ожидания'),
+      timeout
+    );
 
-    const fetchHeaders: Record<string, string> = {
-      ...headers,
-    };
+    const fetchHeaders = new Headers(headers);
 
     const fetchOptions: RequestInit = {
       method,
@@ -60,8 +62,8 @@ export class HTTPTransport {
       } else {
         fetchOptions.body = JSON.stringify(data);
 
-        if (!fetchHeaders['Content-Type']) {
-          fetchHeaders['Content-Type'] = 'application/json';
+        if (!fetchHeaders.has('Content-Type')) {
+          fetchHeaders.set('Content-Type', 'application/json');
         }
       }
     }
@@ -73,9 +75,7 @@ export class HTTPTransport {
         const contentType = response.headers.get('Content-Type') || '';
         let data;
 
-        if (contentType.includes('multipart/form-data')) {
-          data = await response.formData();
-        } else if (contentType.includes('application/json')) {
+        if (contentType.includes('application/json')) {
           data = await response.json();
         } else if (
           contentType.startsWith('image/') ||
@@ -92,7 +92,7 @@ export class HTTPTransport {
         // Неуспешный статус (не 2xx)
         const errorResponseText = await response.text();
 
-        console.log('Ошибки нет, статус:', response.status, errorResponseText);
+        throw new Error(`Запрос завершен со статусом: ${response.status}, ${errorResponseText}`);
       }
     } catch (error) {
       console.log('Ошибка запроса: ', error);

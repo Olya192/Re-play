@@ -13,30 +13,26 @@ export const AvatarForm = ({
   handleAvatarChange,
   handleAvatarSubmit,
 }: AvatarFormProps) => {
-  const [isBtnDisabled, setBtnDisabled] = useState(true);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [inputKey, setInputKey] = useState(0);
+  const isBtnDisabled = !selectedFile;
 
   const onChange: ChangeEventHandler<HTMLInputElement> = (event) => {
-    const isFile = event.target.files?.[0];
+    const file = event.target.files?.[0] ?? null;
 
-    if (isFile) {
-      setBtnDisabled(false);
-    } else {
-      setBtnDisabled(true);
-    }
+    setSelectedFile(file);
 
     handleAvatarChange(event);
   };
 
   const onSubmit: FormEventHandler<HTMLFormElement> = async (event) => {
+    event.preventDefault();
+
     const isAvatarSaved = await handleAvatarSubmit(event);
 
     if (isAvatarSaved) {
-      setBtnDisabled(true);
-
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
+      setSelectedFile(null);
+      setInputKey((prev) => prev + 1);
     }
   };
 
@@ -44,12 +40,12 @@ export const AvatarForm = ({
     <form onSubmit={onSubmit}>
       <div className={s.avatarWrapper}>
         <div className={s.avatar}>
-          {avatarUrl && <img src={avatarUrl} className={s.avatar} alt="" />}
+          {avatarUrl && <img src={avatarUrl} className={s.avatar} alt="Аватар" />}
         </div>
 
         <div className={s.avatarInput}>
           <input
-            ref={fileInputRef}
+            key={inputKey}
             id="avatar"
             type="file"
             name="avatar"

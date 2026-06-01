@@ -1,9 +1,8 @@
 import { Helmet } from 'react-helmet-async';
 import { Header } from '../../components/Header';
 import { usePage } from '../../hooks/usePage';
-import { BaseLink } from '../../components/BaseLink';
 import s from './Profile.module.css';
-import { ReactElement, useEffect, useState } from 'react';
+import { ReactElement, useEffect, useMemo, useState } from 'react';
 import { PROFILE_FIELDS } from '../../constants/profile/constants';
 import { User } from '../../types/user/user';
 import { AvatarForm } from '../../components/AvatarForm';
@@ -14,29 +13,22 @@ export const ProfilePage = () => {
   usePage({ initPage: initProfilePage });
 
   const { user, avatarUrl, handleAvatarChange, handleAvatarSubmit } = useProfile();
-  const [profileFields, setProfileFields] = useState<ReactElement[] | null>(null);
 
-  const generateFields = (user: User) => {
+  const profileFields = useMemo(() => {
+    if (!user) {
+      return null;
+    }
+
     const fields = (Object.entries(PROFILE_FIELDS) as [keyof typeof PROFILE_FIELDS, string][]).map(
-      ([key, label]) => {
-        return (
-          <li key={key} className={s.profileItem}>
-            <div className={s.profileLabel}>{label}</div>
-            <div className={s.profileText}>{user[key]}</div>
-          </li>
-        );
-      }
+      ([key, label]) => (
+        <li key={key} className={s.profileItem}>
+          <div className={s.profileLabel}>{label}</div>
+          <div className={s.profileText}>{user[key]}</div>
+        </li>
+      )
     );
 
     return fields;
-  };
-
-  useEffect(() => {
-    if (user) {
-      const fields = generateFields(user);
-
-      setProfileFields(fields);
-    }
   }, [user]);
 
   return (
@@ -50,19 +42,21 @@ export const ProfilePage = () => {
 
       <section className={s.profileWrapper}>
         <div className={s.profileHeader}>
-          <h1 className={'s.profileTitle'}>Профиль</h1>
-          <BaseLink text="Выход" />
+          <h1 className={s.profileTitle}>Профиль</h1>
         </div>
 
-        <AvatarForm
-          avatarUrl={avatarUrl}
-          handleAvatarChange={handleAvatarChange}
-          handleAvatarSubmit={handleAvatarSubmit}
-        />
+        {user && (
+          <>
+            <AvatarForm
+              avatarUrl={avatarUrl}
+              handleAvatarChange={handleAvatarChange}
+              handleAvatarSubmit={handleAvatarSubmit}
+            />
 
-        <ul className={s.profile}>{profileFields && profileFields}</ul>
-
-        <EditPasswordForm />
+            <ul className={s.profile}>{profileFields}</ul>
+            <EditPasswordForm />
+          </>
+        )}
       </section>
     </div>
   );

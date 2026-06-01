@@ -19,13 +19,5 @@ export default defineConfig({
   ssr: {
     noExternal: ['react-helmet-async'],
   },
-  resolve: {
-    // alias: {
-    //   'react-helmet-async': path.join(
-    //     __dirname,
-    //     '../../node_modules/react-helmet-async/lib/index.js'
-    //   ),
-    // },
-  },
   plugins: [react()],
 });
