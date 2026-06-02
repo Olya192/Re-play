@@ -9,11 +9,13 @@ const inputsNameLogin: Array<InputType> = [
     type: 'text',
     text: 'введите логин',
     logo: 'введите логин',
+    name: 'text',
   },
   {
     type: 'password',
     text: 'введите пароль',
     logo: 'введите пароль',
+    name: 'password',
   },
 ];
 

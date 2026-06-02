@@ -11,6 +11,8 @@ import { initGameEndPage, GameEndPage } from './pages/GameEndPage';
 import { initError404, Error404 } from './pages/Error404';
 import { initError500, Error500 } from './pages/Error500';
 import { initProfilePage, ProfilePage } from './pages/profile';
+import { RouteObject } from 'react-router-dom';
+import { ProtectedRoute } from './components/ProtectedRoute';
 
 export type PageInitContext = {
   clientToken?: string;
@@ -22,7 +24,27 @@ export type PageInitArgs = {
   ctx: PageInitContext;
 };
 
-export const routes = [
+export type CustomRouteObject = RouteObject & {
+  Component?: React.ComponentType<any>;
+  fetchData?: (args: PageInitArgs) => Promise<any>;
+};
+
+// Публичные маршруты
+const publicRoutes: CustomRouteObject[] = [
+  {
+    path: '/login',
+    Component: LoginPage,
+    fetchData: initLoginPage,
+  },
+  {
+    path: '/register',
+    Component: RegisterPage,
+    fetchData: initRegisterPage,
+  },
+];
+
+// Защищённые маршруты
+const protectedRoutes: CustomRouteObject[] = [
   {
     path: '/',
     Component: MainPage,
@@ -37,16 +59,6 @@ export const routes = [
     path: '/profile',
     Component: ProfilePage,
     fetchData: initProfilePage,
-  },
-  {
-    path: '/login',
-    Component: LoginPage,
-    fetchData: initLoginPage,
-  },
-  {
-    path: '/register',
-    Component: RegisterPage,
-    fetchData: initRegisterPage,
   },
   {
     path: '/user-profile',
@@ -89,3 +101,12 @@ export const routes = [
     fetchData: initError500,
   },
 ];
+
+// Функция для обёртки защищённых маршрутов
+const withProtection = (routes: CustomRouteObject[]): CustomRouteObject => ({
+  element: <ProtectedRoute />,
+  children: routes as RouteObject[], // Приводим к RouteObject для children
+});
+
+// Итоговые маршруты
+export const routes: CustomRouteObject[] = [...publicRoutes, withProtection(protectedRoutes)];
