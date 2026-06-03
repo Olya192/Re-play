@@ -29,7 +29,7 @@ export const gameSessionSlice = createSlice({
       state.phase = payload;
       stamp(state);
     },
-    setLevel: (state, { payload }: PayloadAction<string>) => {
+    startLevel: (state, { payload }: PayloadAction<string>) => {
       state.levelId = payload;
       state.elapsedMs = 0;
       state.score = 0;
@@ -90,7 +90,7 @@ export const gameSessionSlice = createSlice({
 
 export const {
   setPhase,
-  setLevel,
+  startLevel,
   syncFromEngine,
   incrementCaught,
   incrementMissed,

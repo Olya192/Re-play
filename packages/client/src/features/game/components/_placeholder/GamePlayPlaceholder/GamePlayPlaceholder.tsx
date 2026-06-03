@@ -75,6 +75,9 @@ export const GamePlayPlaceholder = () => {
   const monsterXRef = useRef(0);
   const monsterInitializedRef = useRef(false);
   const lastIdRef = useRef(0);
+  // id предметов, уже обработанных (пойман кликом / съеден / пропущен).
+  // Синхронный источник правды, чтобы клик и RAF-кадр не засчитали один объект дважды.
+  const consumedIdsRef = useRef(new Set<number>());
   const pauseStartRef = useRef<number | null>(null);
   const playStartedAtRef = useRef<number | null>(null);
   const lastElapsedDispatchRef = useRef(0);
@@ -114,6 +117,7 @@ export const GamePlayPlaceholder = () => {
   useEffect(() => {
     if (phase === 'intro' || phase === 'ended') {
       setItems([]);
+      consumedIdsRef.current.clear();
       pauseStartRef.current = null;
       playStartedAtRef.current = null;
       lastElapsedDispatchRef.current = 0;
@@ -235,6 +239,10 @@ export const GamePlayPlaceholder = () => {
       const missedIds: number[] = [];
 
       for (const item of current) {
+        if (consumedIdsRef.current.has(item.id)) {
+          continue;
+        }
+
         const itemTop = computeItemTop(item, now, stage, itemSize);
         const el = itemRefs.current.get(item.id);
 
@@ -244,6 +252,7 @@ export const GamePlayPlaceholder = () => {
 
         if (itemTop >= stage.height) {
           missedIds.push(item.id);
+          consumedIdsRef.current.add(item.id);
 
           continue;
         }
@@ -256,6 +265,7 @@ export const GamePlayPlaceholder = () => {
 
         if (yOverlap && xOverlap) {
           eatenIds.push(item.id);
+          consumedIdsRef.current.add(item.id);
         }
       }
 
@@ -274,8 +284,7 @@ export const GamePlayPlaceholder = () => {
 
       // TODO: доработать поведение, чтобы шёл к ближайшему падающему,
       //       если его взорвали — к следующему ближайшему
-      const consumed = new Set([...eatenIds, ...missedIds]);
-      const remaining = current.filter((it) => !consumed.has(it.id));
+      const remaining = current.filter((it) => !consumedIdsRef.current.has(it.id));
 
       if (remaining.length > 0) {
         let nearestCx = remaining[0].xPx + itemSize / 2;
@@ -313,6 +322,11 @@ export const GamePlayPlaceholder = () => {
   }, [phase, dispatch, meta.durationMs]);
 
   const handleCatch = (id: number) => {
+    if (consumedIdsRef.current.has(id)) {
+      return;
+    }
+
+    consumedIdsRef.current.add(id);
     setItems((prev) => prev.filter((it) => it.id !== id));
     dispatch(incrementCaught());
   };
