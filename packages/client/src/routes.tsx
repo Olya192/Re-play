@@ -1,5 +1,4 @@
 import { AppDispatch, RootState } from './store';
-import { initMainPage, MainPage } from './pages/Main';
 import { initFriendsPage, FriendsPage } from './pages/FriendsPage';
 import { initLoginPage, LoginPage } from './pages/LoginPage';
 import { initRegisterPage, RegisterPage } from './pages/RegisterPage';
@@ -11,6 +10,7 @@ import { initGameEndPage, GameEndPage } from './pages/GameEndPage';
 import { initError404, Error404 } from './pages/Error404';
 import { initError500, Error500 } from './pages/Error500';
 import { initProfilePage, ProfilePage } from './pages/profile';
+import { GameRoot, initGameRoot } from './features/game';
 import { RouteObject } from 'react-router-dom';
 import { ProtectedRoute } from './components/ProtectedRoute';
 
@@ -44,12 +44,22 @@ const publicRoutes: CustomRouteObject[] = [
 ];
 
 // Защищённые маршруты
+/**
+ * === GAME новая архитектура ===
+ * Концепция: единственный экран — GameRoot. Слоистая
+ * мобильная игра, всё игровое UI рисуется поверх Canvas как слои и модалки.
+ * В будущих спринтах легаси-роуты нужно мигрировать в URL модалки поверх GameRoot.
+ *
+ * === LEGACY оставлены пока как есть, нужно превратить в модалки позже ===
+ **/
 const protectedRoutes: CustomRouteObject[] = [
   {
     path: '/',
-    Component: MainPage,
-    fetchData: initMainPage,
+    Component: GameRoot,
+    fetchData: initGameRoot,
   },
+
+  // Нужно мигрировать в модалки
   {
     path: '/friends',
     Component: FriendsPage,
@@ -76,6 +86,18 @@ const protectedRoutes: CustomRouteObject[] = [
     fetchData: initForumPage,
   },
   {
+    path: '/404',
+    Component: Error404,
+    fetchData: initError404,
+  },
+  {
+    path: '/500',
+    Component: Error500,
+    fetchData: initError500,
+  },
+
+  /** LEGACY: Старт/Энд в модалки - игра всегда жива, остальные можно сотавить  **/
+  {
     path: '/game/start',
     Component: GameStartPage,
     fetchData: initGameStartPage,
@@ -86,19 +108,9 @@ const protectedRoutes: CustomRouteObject[] = [
     fetchData: initGameEndPage,
   },
   {
-    path: '/404',
-    Component: Error404,
-    fetchData: initError404,
-  },
-  {
     path: '*',
     Component: Error404,
     fetchData: initError404,
-  },
-  {
-    path: '/500',
-    Component: Error500,
-    fetchData: initError500,
   },
 ];
 
