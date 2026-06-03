@@ -1,12 +1,11 @@
 import { AppDispatch, RootState } from './store';
 import { initFriendsPage, FriendsPage } from './pages/FriendsPage';
 import { initLoginPage, LoginPage } from './pages/LoginPage';
+import { MainPage, initMainPage } from './pages/Main';
 import { initRegisterPage, RegisterPage } from './pages/RegisterPage';
 import { initUserProfile, UserProfile } from './pages/UserProfile';
 import { initLeaderboardPage, LeaderboardPage } from './pages/LeaderboardPage';
 import { initForumPage, ForumPage } from './pages/ForumPage';
-import { initGameStartPage, GameStartPage } from './pages/GameStartPage';
-import { initGameEndPage, GameEndPage } from './pages/GameEndPage';
 import { initError404, Error404 } from './pages/Error404';
 import { initError500, Error500 } from './pages/Error500';
 import { initProfilePage, ProfilePage } from './pages/profile';
@@ -38,6 +37,11 @@ export const routes = [
   },
 
   // Нужно мигрировать в модалки
+  {
+    path: '/Main',
+    Component: MainPage,
+    fetchData: initMainPage,
+  },
   {
     path: '/friends',
     Component: FriendsPage,
@@ -82,18 +86,6 @@ export const routes = [
     path: '/500',
     Component: Error500,
     fetchData: initError500,
-  },
-
-  /** LEGACY: Старт/Энд в модалки - игра всегда жива, остальные можно сотавить  **/
-  {
-    path: '/game/start',
-    Component: GameStartPage,
-    fetchData: initGameStartPage,
-  },
-  {
-    path: '/game/end',
-    Component: GameEndPage,
-    fetchData: initGameEndPage,
   },
   {
     path: '*',

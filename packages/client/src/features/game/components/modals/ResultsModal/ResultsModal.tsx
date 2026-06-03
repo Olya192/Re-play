@@ -32,6 +32,11 @@ export const ResultsModal = () => {
     dispatch(openModal('start'));
   };
 
+  const handleBackToMenu = () => {
+    dispatch(resetSession());
+    window.location.href = '/main';
+  };
+
   return (
     <Modal isOpen={isOpen} onClose={handleAgain} closeOnEsc={false} ariaLabel="Результат уровня">
       <h2 className={s.title}>Уровень пройден</h2>
@@ -65,6 +70,13 @@ export const ResultsModal = () => {
         type="button"
         size="large"
         onClick={handleAgain}
+        style={{ width: '100%', padding: '0.8rem' }}
+      />
+      <BaseButton
+        title="Вернуться на главную"
+        type="button"
+        size="default"
+        onClick={handleBackToMenu}
         style={{ width: '100%', padding: '0.8rem' }}
       />
     </Modal>
