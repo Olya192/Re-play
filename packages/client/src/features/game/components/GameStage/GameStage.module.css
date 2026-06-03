@@ -1,0 +1,15 @@
+.stage {
+  position: relative;
+  width: 100%;
+  max-width: calc(100vh * 9 / 16);
+  height: 100vh;
+  overflow: hidden;
+  isolation: isolate;
+  background-color: #0a0a0a;
+}
+
+@media (min-width: 768px) {
+  .stage {
+    box-shadow: 0 0 1.5rem rgba(0, 0, 0, 0.4);
+  }
+}
