@@ -1,0 +1,1 @@
+export { GameFooter } from './GameFooter';

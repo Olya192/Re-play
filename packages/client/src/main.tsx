@@ -6,6 +6,7 @@ import { HelmetProvider } from 'react-helmet-async';
 import { store } from './store';
 import { routes } from './routes';
 import './index.css';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 const router = createBrowserRouter(routes);
 
@@ -13,7 +14,9 @@ ReactDOM.hydrateRoot(
   document.getElementById('root') as HTMLElement,
   <HelmetProvider>
     <Provider store={store}>
-      <RouterProvider router={router} />
+      <ErrorBoundary>
+        <RouterProvider router={router} />
+      </ErrorBoundary>
     </Provider>
   </HelmetProvider>
 );
