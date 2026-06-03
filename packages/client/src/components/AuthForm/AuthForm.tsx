@@ -5,8 +5,8 @@ import { Rule } from 'antd/es/form';
 import { validatePassword } from '../../utils/validate/validatePassword';
 import { validateLogin } from '../../utils/validate/validateLogin';
 import { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { authApi } from '../../api/authApi';
+import { useLocation } from 'react-router-dom';
+import { useAuth } from '../../hooks/api/useAuth';
 
 export type InputsName = {
   inputsName: Array<InputType>;
@@ -29,10 +29,11 @@ interface FormValues {
 
 export const AuthForm = ({ inputsName }: InputsName) => {
   const [form] = Form.useForm<FormValues>();
-  const [loading, setLoading] = useState(false);
   const [isFormValid, setIsFormValid] = useState(false);
   const location = useLocation();
-  const navigate = useNavigate();
+
+  // Используем наш хук для авторизации
+  const { loading, handleSignin, handleSignup, getButtonText } = useAuth();
 
   // Отслеживаем изменения полей формы для валидации кнопки
   const handleFormChange = () => {
@@ -137,93 +138,14 @@ export const AuthForm = ({ inputsName }: InputsName) => {
 
   // Отправка данных в зависимости от страницы
   const handleSubmit = async (values: FormValues) => {
-    setLoading(true);
+    const isLoginPage = location.pathname === '/login';
+    const isRegisterPage = location.pathname === '/register';
 
-    try {
-      const isLoginPage = location.pathname === '/login';
-      const isRegisterPage = location.pathname === '/register';
-
-      if (isLoginPage) {
-        // Проверяем, что обязательные поля заполнены
-        if (!values.password) {
-          throw new Error('Пароль обязателен для заполнения');
-        }
-
-        // Получаем логин (из поля text или email)
-        const login = values.text || values.email;
-
-        if (!login) {
-          throw new Error('Логин или email обязателен для заполнения');
-        }
-
-        // Отправляем запрос на вход
-        const signinData = {
-          login: login,
-          password: values.password,
-        };
-
-        await authApi.signin(signinData);
-
-        message.success('Вход выполнен успешно!');
-
-        // Перенаправляем на главную страницу или дашборд
-        navigate('/dashboard');
-      } else if (isRegisterPage) {
-        // Проверяем, что все обязательные поля заполнены для регистрации
-        if (!values.email) {
-          throw new Error('Email обязателен для заполнения');
-        }
-
-        if (!values.password) {
-          throw new Error('Пароль обязателен для заполнения');
-        }
-
-        const login = values.text || values.email;
-
-        if (!login) {
-          throw new Error('Логин или email обязателен для заполнения');
-        }
-
-        // Отправляем запрос на регистрацию
-        const signupData = {
-          first_name: 'User',
-          second_name: 'User',
-          login: login,
-          email: values.email,
-          password: values.password,
-          phone: '89276542358',
-        };
-
-        await authApi.signup(signupData);
-
-        message.success('Регистрация прошла успешно!');
-
-        // Перенаправляем на страницу входа
-        navigate('/login');
-      }
-    } catch (error: any) {
-      console.error('Ошибка при отправке формы:', error);
-
-      // Обработка ошибок от сервера
-      if (error.response?.data?.reason) {
-        message.error(error.response.data.reason);
-      } else if (error.message) {
-        message.error(error.message);
-      } else {
-        message.error('Произошла ошибка при отправке данных');
-      }
-    } finally {
-      setLoading(false);
+    if (isLoginPage) {
+      await handleSignin(values);
+    } else if (isRegisterPage) {
+      await handleSignup(values);
     }
-  };
-
-  // Определяем текст кнопки в зависимости от страницы
-  const getButtonText = () => {
-    if (loading) {
-      return 'Загрузка...';
-    }
-
-    return location.pathname === '/login' ? 'Войти' : 'Зарегистрироваться';
   };
 
   return (
