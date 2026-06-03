@@ -1,8 +1,13 @@
-import { LeaderboardItem } from '../../types/leaderboard/leaderboard';
+interface ILeaderboardColumns {
+  order: string;
+  name: string;
+  score: string;
+  team: string;
+}
 
-export const LEADERBOARD_FIELDS: Partial<Record<keyof LeaderboardItem, string>> = {
+export const leaderboardColumns: ILeaderboardColumns = {
   order: '#',
   name: 'Имя',
   score: 'Очки',
   team: 'Команда',
-} as const;
+};

@@ -2,12 +2,13 @@ import { LeaderboardItem } from '../../types/leaderboard';
 import { Helmet } from 'react-helmet-async';
 import { Header } from '../../components/Header';
 import { usePage } from '../../hooks/usePage';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useLeaderboard } from './useLeaderboard';
 import { Col, Layout, Row, Table, Typography } from 'antd';
-import { LEADERBOARD_FIELDS } from '../../constants/leaderboard/constants';
+import { leaderboardColumns } from '../../constants/leaderboard/constants';
 import s from './Leaderboard.module.css';
 import { PageInitArgs } from '../../routes';
+import { ColumnsType } from 'antd/es/table';
 
 const { Content } = Layout;
 const { Title } = Typography;
@@ -16,24 +17,24 @@ export const LeaderboardPage = () => {
   usePage({ initPage: initLeaderboardPage });
 
   const { leaderboardItems } = useLeaderboard();
-  const [leaderboard, setLeaderboard] = useState<LeaderboardItem[] | []>([]);
-  const [columns, setLeaderboardColumns] = useState<[]>([]);
+  const [leaderboard, setLeaderboard] = useState<LeaderboardItem[]>([]);
+  const [columns, setLeaderboardColumns] = useState<ColumnsType<LeaderboardItem>>([]);
 
-  const generateColumns = () => {
-    return (Object.entries(LEADERBOARD_FIELDS) as [keyof typeof LEADERBOARD_FIELDS, string][]).map(
+  const generateColumns = useMemo(() => {
+    return (Object.entries(leaderboardColumns) as [keyof typeof leaderboardColumns, string][]).map(
       ([key, item]) => {
         return {
           title: item,
           dataIndex: key,
           key: key,
-          width: ['name', 'team'].includes(key) ? 999 : 100,
+          width: ['name', 'team'].includes(key) ? 'responsive' : 100,
         };
       }
     );
-  };
+  }, [leaderboardColumns]);
 
-  const generateFields = (): LeaderboardItem[] => {
-    return Array.from({ length: 100 }, (_, i) => i).map((item, index) => {
+  const generateFields = useMemo((): LeaderboardItem[] => {
+    return Array.from({ length: 100 }, (item: number, index: number) => {
       return {
         key: index,
         id: index,
@@ -43,15 +44,13 @@ export const LeaderboardPage = () => {
         team: 'Какаятокоманда',
       };
     });
-  };
+  }, [leaderboardItems]);
 
   useEffect(() => {
-    if (leaderboardItems) {
-      const fields = generateFields();
-      const columns = generateColumns();
-      setLeaderboard([...fields]);
-      setLeaderboardColumns(columns);
-    }
+    const fields = generateFields;
+    const columns = generateColumns;
+    setLeaderboard([...fields]);
+    setLeaderboardColumns(columns);
   }, [leaderboardItems]);
 
   return (
@@ -68,7 +67,7 @@ export const LeaderboardPage = () => {
           <Row justify="center">
             <Col span={12}>
               <Title level={1}>Таблица лидеров</Title>
-              <Table dataSource={leaderboard} columns={columns} />
+              <Table<LeaderboardItem> dataSource={leaderboard} columns={columns} />
             </Col>
           </Row>
         </Content>
@@ -77,6 +76,6 @@ export const LeaderboardPage = () => {
   );
 };
 
-export const initLeaderboardPage = async ({ dispatch, state }: PageInitArgs) => {
+export const initLeaderboardPage = async ({ _dispatch, _state }: PageInitArgs) => {
   // заглушка
 };
