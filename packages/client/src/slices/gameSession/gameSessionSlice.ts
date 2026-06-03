@@ -10,7 +10,9 @@ export const initialGameSessionState: GameSessionState = {
   missedCount: 0,
   eatenCount: 0,
   monsterLength: 1,
-  phase: 'intro',
+  // TODO: вернуть 'intro' после подключения StartModal — пока стартуем сразу
+  // Это в следующем тикете, который я разделил от этого - делал 3 сразу
+  phase: 'playing',
   inventory: {},
   updatedAt: 0,
 };
@@ -27,7 +29,7 @@ export const gameSessionSlice = createSlice({
       state.phase = payload;
       stamp(state);
     },
-    setLevel: (state, { payload }: PayloadAction<string>) => {
+    startLevel: (state, { payload }: PayloadAction<string>) => {
       state.levelId = payload;
       state.elapsedMs = 0;
       state.score = 0;
@@ -65,18 +67,19 @@ export const gameSessionSlice = createSlice({
 
       stamp(state);
     },
-    incrementCaught: (state) => {
-      state.caughtCount += 1;
+    incrementCaught: (state, { payload }: PayloadAction<number | undefined>) => {
+      const count = payload ?? 1;
+      state.caughtCount += count;
       // TODO: Считать score по формулам, формулы крепить к items
-      state.score += 1;
+      state.score += count;
       stamp(state);
     },
-    incrementMissed: (state) => {
-      state.missedCount += 1;
+    incrementMissed: (state, { payload }: PayloadAction<number | undefined>) => {
+      state.missedCount += payload ?? 1;
       stamp(state);
     },
-    incrementEaten: (state) => {
-      state.eatenCount += 1;
+    incrementEaten: (state, { payload }: PayloadAction<number | undefined>) => {
+      state.eatenCount += payload ?? 1;
       // TODO: Механика на съеденные предметы (штраф к score, рост монстра и т.д.)
       stamp(state);
     },
@@ -87,7 +90,7 @@ export const gameSessionSlice = createSlice({
 
 export const {
   setPhase,
-  setLevel,
+  startLevel,
   syncFromEngine,
   incrementCaught,
   incrementMissed,
