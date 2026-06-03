@@ -1,0 +1,33 @@
+.discWrap {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.disc {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 200%;
+  aspect-ratio: 1 / 1;
+  transform: translate(-50%, 50%) rotate(var(--rotate-deg, -90deg));
+  transform-origin: 50% 50%;
+  background-color: transparent;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+  transition: transform 0.4s linear;
+}
+
+.disc:not([style*='background-image']) {
+  background-image: radial-gradient(
+      circle at 50% 4%,
+      #ffd96b 0,
+      #ffd96b 3%,
+      #ffa537 3.6%,
+      transparent 4.5%
+    ),
+    radial-gradient(circle at 50% 50%, #6cb6ff 0%, #2f6bd1 60%, #0d2c66 100%);
+}
