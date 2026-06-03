@@ -1,5 +1,3 @@
-// services/auth.ts
-
 import { authApi } from './authApi';
 import { HTTPTransport } from './httpTransport';
 

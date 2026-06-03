@@ -13,6 +13,7 @@ import { initProfilePage, ProfilePage } from './pages/profile';
 import { GameRoot, initGameRoot } from './features/game';
 import { RouteObject } from 'react-router-dom';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { ReactNode } from 'react';
 
 export type PageInitContext = {
   clientToken?: string;
@@ -25,8 +26,8 @@ export type PageInitArgs = {
 };
 
 export type CustomRouteObject = RouteObject & {
-  Component?: React.ComponentType<any>;
-  fetchData?: (args: PageInitArgs) => Promise<any>;
+  Component?: React.ComponentType<Record<string, unknown>>;
+  fetchData?: (args: PageInitArgs) => Promise<unknown>;
 };
 
 // Публичные маршруты
@@ -116,7 +117,7 @@ const protectedRoutes: CustomRouteObject[] = [
 
 // Функция для обёртки защищённых маршрутов
 const withProtection = (routes: CustomRouteObject[]): CustomRouteObject => ({
-  element: <ProtectedRoute />,
+  element: (<ProtectedRoute />) as ReactNode,
   children: routes as RouteObject[], // Приводим к RouteObject для children
 });
 
