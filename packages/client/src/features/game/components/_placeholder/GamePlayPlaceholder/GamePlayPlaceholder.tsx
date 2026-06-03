@@ -73,6 +73,7 @@ export const GamePlayPlaceholder = () => {
   const itemRefs = useRef(new Map<number, HTMLElement>());
 
   const monsterXRef = useRef(0);
+  const monsterInitializedRef = useRef(false);
   const lastIdRef = useRef(0);
   const pauseStartRef = useRef<number | null>(null);
   const playStartedAtRef = useRef<number | null>(null);
@@ -88,8 +89,9 @@ export const GamePlayPlaceholder = () => {
     const apply = (width: number, height: number) => {
       setStageSize({ width, height });
 
-      if (monsterXRef.current === 0) {
+      if (!monsterInitializedRef.current) {
         monsterXRef.current = width / 2;
+        monsterInitializedRef.current = true;
       }
 
       if (monsterAnchorRef.current) {
@@ -261,12 +263,12 @@ export const GamePlayPlaceholder = () => {
         const toRemove = new Set([...eatenIds, ...missedIds]);
         setItems((prev) => prev.filter((it) => !toRemove.has(it.id)));
 
-        for (let i = 0; i < eatenIds.length; i += 1) {
-          dispatch(incrementEaten());
+        if (eatenIds.length > 0) {
+          dispatch(incrementEaten(eatenIds.length));
         }
 
-        for (let i = 0; i < missedIds.length; i += 1) {
-          dispatch(incrementMissed());
+        if (missedIds.length > 0) {
+          dispatch(incrementMissed(missedIds.length));
         }
       }
 
@@ -336,6 +338,7 @@ export const GamePlayPlaceholder = () => {
               }
             }}
             type="button"
+            tabIndex={-1}
             className={s.item}
             data-kind={item.kind}
             style={{

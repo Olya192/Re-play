@@ -67,18 +67,19 @@ export const gameSessionSlice = createSlice({
 
       stamp(state);
     },
-    incrementCaught: (state) => {
-      state.caughtCount += 1;
+    incrementCaught: (state, { payload }: PayloadAction<number | undefined>) => {
+      const count = payload ?? 1;
+      state.caughtCount += count;
       // TODO: Считать score по формулам, формулы крепить к items
-      state.score += 1;
+      state.score += count;
       stamp(state);
     },
-    incrementMissed: (state) => {
-      state.missedCount += 1;
+    incrementMissed: (state, { payload }: PayloadAction<number | undefined>) => {
+      state.missedCount += payload ?? 1;
       stamp(state);
     },
-    incrementEaten: (state) => {
-      state.eatenCount += 1;
+    incrementEaten: (state, { payload }: PayloadAction<number | undefined>) => {
+      state.eatenCount += payload ?? 1;
       // TODO: Механика на съеденные предметы (штраф к score, рост монстра и т.д.)
       stamp(state);
     },
