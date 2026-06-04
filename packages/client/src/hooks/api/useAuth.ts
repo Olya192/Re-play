@@ -2,7 +2,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { message } from 'antd';
+import { useDispatch } from 'react-redux';
 import { authApi } from '../../api/authApi';
+import { setUser, clearUser, type User } from '../../slices/userSlice';
 
 interface SignupData {
   first_name: string;
@@ -23,15 +25,19 @@ interface FormValues {
   password?: string;
   text?: string;
   confirmPassword?: string;
+  firstName?: string;
+  secondName?: string;
+  phone?: string;
   [key: string]: string | undefined;
 }
 
 export const useAuth = () => {
   const [loading, setLoading] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useDispatch();
 
   // Проверка текущего пользователя при монтировании
   useEffect(() => {
@@ -44,10 +50,16 @@ export const useAuth = () => {
       setIsAuthenticated(true);
       setCurrentUser(user);
 
+      // Сохраняем данные пользователя в Redux
+      dispatch(setUser(user));
+
       return user;
     } catch (error) {
       setIsAuthenticated(false);
       setCurrentUser(null);
+
+      // Очищаем данные пользователя в Redux при ошибке
+      dispatch(clearUser());
 
       return null;
     }
@@ -121,12 +133,12 @@ export const useAuth = () => {
         }
 
         const signupData: SignupData = {
-          first_name: 'User',
-          second_name: 'User',
+          first_name: values.firstName || 'User',
+          second_name: values.secondName || 'User',
           login: login,
           email: values.email,
           password: values.password,
-          phone: '89276542358',
+          phone: values.phone || '89276542358',
         };
 
         await authApi.signup(signupData);
@@ -158,11 +170,15 @@ export const useAuth = () => {
     setLoading(true);
 
     try {
-      // Здесь должен быть вызов API для выхода
+      // Добавьте метод logout в AuthApi если его нет
       // await authApi.logout();
 
       setIsAuthenticated(false);
       setCurrentUser(null);
+
+      // Очищаем данные пользователя в Redux
+      dispatch(clearUser());
+
       message.success('Вы успешно вышли из системы');
       navigate('/login');
 
@@ -174,7 +190,7 @@ export const useAuth = () => {
     } finally {
       setLoading(false);
     }
-  }, [navigate]);
+  }, [navigate, dispatch]);
 
   const getButtonText = useCallback(() => {
     if (loading) {

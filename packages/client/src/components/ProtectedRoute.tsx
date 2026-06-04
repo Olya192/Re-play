@@ -1,10 +1,13 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { checkAuth } from '../api/checkAuth';
 import { useEffect, useState } from 'react';
+import { selectUser } from '../slices/userSlice';
+import { useSelector } from 'react-redux';
 
 export const ProtectedRoute = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
+  const user = useSelector(selectUser);
 
   useEffect(() => {
     const verifyAuth = async () => {
@@ -12,6 +15,8 @@ export const ProtectedRoute = () => {
       setIsAuthenticated(isAuth);
       setLoading(false);
     };
+
+    console.log('user', user);
 
     verifyAuth();
   }, []);

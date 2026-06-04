@@ -1,10 +1,17 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../store';
-import { SERVER_HOST } from '../constants';
+import { authApi } from '../api/authApi';
 
-interface User {
-  name: string;
+// Используйте тот же интерфейс, что и в authApi
+export interface User {
+  id: number;
+  firstName: string;
   secondName: string;
+  displayName: string;
+  login: string;
+  email: string;
+  phone: string;
+  avatar: string;
 }
 
 export interface UserState {
@@ -17,33 +24,46 @@ const initialState: UserState = {
   isLoading: false,
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const fetchUserThunk = createAsyncThunk('user/fetchUserThunk', async (_: void) => {
-  const url = `${SERVER_HOST}/user`;
+// Обновленный thunk с использованием authApi
+export const fetchUserThunk = createAsyncThunk('user/fetchUserThunk', async () => {
+  const user = await authApi.getCurrentUser();
 
-  return fetch(url).then((res) => res.json());
+  return user;
 });
 
 export const userSlice = createSlice({
   name: 'user',
   initialState,
-  reducers: {},
+  reducers: {
+    setUser: (state, action: PayloadAction<User | null>) => {
+      state.data = action.payload;
+      state.isLoading = false;
+    },
+    clearUser: (state) => {
+      state.data = null;
+      state.isLoading = false;
+    },
+  },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchUserThunk.pending.type, (state) => {
+      .addCase(fetchUserThunk.pending, (state) => {
         state.data = null;
         state.isLoading = true;
       })
-      .addCase(fetchUserThunk.fulfilled.type, (state, { payload }: PayloadAction<User>) => {
-        state.data = payload;
+      .addCase(fetchUserThunk.fulfilled, (state, action) => {
+        state.data = action.payload;
         state.isLoading = false;
       })
-      .addCase(fetchUserThunk.rejected.type, (state) => {
+      .addCase(fetchUserThunk.rejected, (state) => {
         state.isLoading = false;
       });
   },
 });
 
+export const { setUser, clearUser } = userSlice.actions;
+
 export const selectUser = (state: RootState) => state.user.data;
+
+export const selectUserLoading = (state: RootState) => state.user.isLoading;
 
 export default userSlice.reducer;
