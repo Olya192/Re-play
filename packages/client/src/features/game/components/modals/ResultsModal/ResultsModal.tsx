@@ -11,12 +11,14 @@ import {
   selectMissedCount,
   selectScore,
 } from '../../../../../slices/gameSession';
+import { useNavigate } from 'react-router-dom';
 import s from './ResultsModal.module.css';
 
 const fmtSec = (ms: number) => Math.round(ms / 1000);
 
 export const ResultsModal = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const activeModal = useSelector(selectActiveModal);
   const meta = useSelector(selectLevelMeta);
   const score = useSelector(selectScore);
@@ -34,7 +36,7 @@ export const ResultsModal = () => {
 
   const handleBackToMenu = () => {
     dispatch(resetSession());
-    window.location.href = '/main';
+    navigate('/main');
   };
 
   return (
@@ -42,7 +44,6 @@ export const ResultsModal = () => {
       <h2 className={s.title}>Уровень пройден</h2>
       <div className={s.grid}>
         <div className={s.row}>
-          {/* TODO: Считать по формулам, формулы крепить к items */}
           <span className={s.label}>Очки</span>
           <span className={s.value}>{score}</span>
         </div>
