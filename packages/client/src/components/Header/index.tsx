@@ -6,7 +6,7 @@ export const Header = () => {
     <nav className={s.nav}>
       <ul className={s.list}>
         <li className={s.listItem}>
-          <Link to="/" className={s.link}>
+          <Link to="/main" className={s.link}>
             Главная
           </Link>
         </li>
@@ -34,7 +34,7 @@ export const Header = () => {
           </Link>
         </li>
         <li className={`${s.listItem} ${s.listItemRight}`}>
-          <Link to="/game/start" className={s.link}>
+          <Link to="/" className={s.link}>
             Начать игру
           </Link>
         </li>

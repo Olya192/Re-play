@@ -10,9 +10,7 @@ export const initialGameSessionState: GameSessionState = {
   missedCount: 0,
   eatenCount: 0,
   monsterLength: 1,
-  // TODO: вернуть 'intro' после подключения StartModal — пока стартуем сразу
-  // Это в следующем тикете, который я разделил от этого - делал 3 сразу
-  phase: 'playing',
+  phase: 'intro',
   inventory: {},
   updatedAt: 0,
 };

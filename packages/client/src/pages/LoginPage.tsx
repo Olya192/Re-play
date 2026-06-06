@@ -8,13 +8,13 @@ const inputsNameLogin: Array<InputType> = [
   {
     type: 'text',
     text: 'введите логин',
-    logo: 'введите логин',
+    label: 'введите логин',
     name: 'text',
   },
   {
     type: 'password',
     text: 'введите пароль',
-    logo: 'введите пароль',
+    label: 'введите пароль',
     name: 'password',
   },
 ];
@@ -28,7 +28,7 @@ export const LoginPage = () => {
         <title>Вход в систему</title>
       </Helmet>
       <Header />
-      <AuthForm inputsName={inputsNameLogin} />
+      <AuthForm inputsName={inputsNameLogin} pageType="login" />
     </div>
   );
 };
