@@ -4,18 +4,21 @@ import { validateEmail } from '../../utils/validate/validateEmail';
 import { Rule } from 'antd/es/form';
 import { validatePassword } from '../../utils/validate/validatePassword';
 import { validateLogin } from '../../utils/validate/validateLogin';
-import { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/api/useAuth';
+import { useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { validatePhone } from '../../utils/validate/validatePhone';
+import { ROUTES } from '../../constants/routes';
 
 export type InputsName = {
   inputsName: Array<InputType>;
+  pageType: string;
 };
 
 export type InputType = {
   type: string;
   text: string;
-  logo: string;
+  label: string;
   name: string;
 };
 
@@ -24,35 +27,37 @@ interface FormValues {
   password?: string;
   text?: string;
   confirmPassword?: string;
+  login?: string;
+  phone?: string;
   [key: string]: string | undefined;
 }
 
-export const AuthForm = ({ inputsName }: InputsName) => {
+export const AuthForm = ({ inputsName, pageType }: InputsName) => {
   const [form] = Form.useForm<FormValues>();
-  const [isFormValid, setIsFormValid] = useState(false);
-  const location = useLocation();
+  const navigate = useNavigate();
 
-  // Используем наш хук для авторизации
+  // Используем хук useAuth
   const { loading, handleSignin, handleSignup, getButtonText } = useAuth();
 
-  // Отслеживаем изменения полей формы для валидации кнопки
-  const handleFormChange = () => {
-    const fields = form.getFieldsValue();
-    const errors = form.getFieldsError();
+  // Отслеживаем все значения полей
+  const values = Form.useWatch([], form);
 
-    // Проверяем, что все обязательные поля заполнены и нет ошибок
-    const hasErrors = errors.some((error) => error.errors.length > 0);
-    const allFieldsFilled = Object.values(fields).every(
+  // Вычисляем валидность
+  const isFormValid = useMemo(() => {
+    if (!values) {
+      return false;
+    }
+
+    // Проверяем, что все поля заполнены
+    const allFieldsFilled = Object.values(values).every(
       (value) => value !== undefined && value !== null && value !== ''
     );
 
-    setIsFormValid(allFieldsFilled && !hasErrors);
-  };
+    // Проверяем, что нет ошибок валидации
+    const hasErrors = form.getFieldsError().some((error) => error.errors.length > 0);
 
-  // Следим за изменениями формы
-  useEffect(() => {
-    handleFormChange();
-  }, [form.getFieldsValue()]);
+    return allFieldsFilled && !hasErrors;
+  }, [values, form]);
 
   const getValidationRules = (inputName: InputType): Rule[] => {
     const baseRules: Rule[] = [
@@ -67,7 +72,7 @@ export const AuthForm = ({ inputsName }: InputsName) => {
         return [
           ...baseRules,
           {
-            validator: async (_: any, value: string) => {
+            validator: async (_rule: Rule, value: string) => {
               if (!value) {
                 return;
               }
@@ -83,7 +88,7 @@ export const AuthForm = ({ inputsName }: InputsName) => {
         return [
           ...baseRules,
           {
-            validator: async (_: any, value: string) => {
+            validator: async (_rule: Rule, value: string) => {
               if (!value) {
                 return;
               }
@@ -97,11 +102,11 @@ export const AuthForm = ({ inputsName }: InputsName) => {
           },
         ];
 
-      case 'text':
+      case 'login':
         return [
           ...baseRules,
           {
-            validator: async (_: any, value: string) => {
+            validator: async (_rule: Rule, value: string) => {
               if (!value) {
                 return;
               }
@@ -113,11 +118,11 @@ export const AuthForm = ({ inputsName }: InputsName) => {
           },
         ];
 
-      case 'confirm-password':
+      case 'tow-password':
         return [
           ...baseRules,
           {
-            validator: async (_: any, value: string) => {
+            validator: async (_rule: Rule, value: string) => {
               if (!value) {
                 return;
               }
@@ -131,20 +136,44 @@ export const AuthForm = ({ inputsName }: InputsName) => {
           },
         ];
 
+      case 'phone':
+        return [
+          ...baseRules,
+          {
+            validator: async (_rule: Rule, value: string) => {
+              if (!value) {
+                return;
+              }
+
+              if (!validatePhone(value)) {
+                throw new Error('Введите номер телефона');
+              }
+            },
+          },
+        ];
+
       default:
         return baseRules;
     }
   };
 
-  // Отправка данных в зависимости от страницы
+  // Отправка данных - просто вызываем соответствующие функции из хука
   const handleSubmit = async (values: FormValues) => {
-    const isLoginPage = location.pathname === '/login';
-    const isRegisterPage = location.pathname === '/register';
+    const isLoginPage = pageType === 'login';
+    const isRegisterPage = pageType === 'registration';
 
     if (isLoginPage) {
-      await handleSignin(values);
+      const result = await handleSignin(values);
+
+      if (result?.success) {
+        navigate(ROUTES.HOME);
+      }
     } else if (isRegisterPage) {
-      await handleSignup(values);
+      const result = await handleSignup(values);
+
+      if (result?.success) {
+        navigate(ROUTES.HOME);
+      }
     }
   };
 
@@ -155,19 +184,18 @@ export const AuthForm = ({ inputsName }: InputsName) => {
           form={form}
           style={{ width: 500 }}
           onFinish={handleSubmit}
-          onFieldsChange={handleFormChange}
-          onFinishFailed={(errorInfo) => {
-            console.log('Ошибки валидации:', errorInfo);
+          onFinishFailed={() => {
             message.error('Пожалуйста, исправьте ошибки в форме');
           }}
         >
-          {inputsName.map((inputName: InputType, key: number) => (
+          {inputsName.map((inputName: InputType) => (
             <Form.Item
-              key={key}
+              key={inputName.name}
               name={inputName.name}
-              label={inputName.logo}
+              label={inputName.label}
               style={{ display: 'flex', flexDirection: 'column' }}
               rules={getValidationRules(inputName)}
+              shouldUpdate
             >
               <Input
                 placeholder={inputName.text}
