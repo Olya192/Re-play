@@ -10,5 +10,11 @@ export const validatePassword = (password: string): boolean => {
 
   const isPasswordValid = isLengthValid && areCharsValid;
 
+  console.log('areCharsValid', areCharsValid);
+
+  console.log('isLengthValid', isLengthValid);
+
+  console.log('isPasswordValid', isPasswordValid);
+
   return isPasswordValid;
 };

@@ -10,5 +10,7 @@ export const validateEmail = (value: string): boolean => {
 
   const isEmailValid = EMAIL_REGEXP.test(value);
 
+  console.log('isEmailValid', isEmailValid);
+
   return isEmailValid;
 };

@@ -11,6 +11,9 @@ import { initError500, Error500 } from './pages/Error500';
 import { initError403, Error403 } from './pages/Error403';
 import { initProfilePage, ProfilePage } from './pages/profile';
 import { GameRoot, initGameRoot } from './features/game';
+import { RouteObject } from 'react-router-dom';
+import { ProtectedRoute } from './components/ProtectedRoute';
+import { ReactNode } from 'react';
 
 export type PageInitContext = {
   clientToken?: string;
@@ -22,6 +25,26 @@ export type PageInitArgs = {
   ctx: PageInitContext;
 };
 
+export type CustomRouteObject = RouteObject & {
+  Component?: React.ComponentType<Record<string, unknown>>;
+  fetchData?: (args: PageInitArgs) => Promise<unknown>;
+};
+
+// Публичные маршруты
+const publicRoutes: CustomRouteObject[] = [
+  {
+    path: '/login',
+    Component: LoginPage,
+    fetchData: initLoginPage,
+  },
+  {
+    path: '/register',
+    Component: RegisterPage,
+    fetchData: initRegisterPage,
+  },
+];
+
+// Защищённые маршруты
 /**
  * === GAME новая архитектура ===
  * Концепция: единственный экран — GameRoot. Слоистая
@@ -30,7 +53,7 @@ export type PageInitArgs = {
  *
  * === LEGACY оставлены пока как есть, нужно превратить в модалки позже ===
  **/
-export const routes = [
+const protectedRoutes: CustomRouteObject[] = [
   {
     path: '/',
     Component: GameRoot,
@@ -52,16 +75,6 @@ export const routes = [
     path: '/profile',
     Component: ProfilePage,
     fetchData: initProfilePage,
-  },
-  {
-    path: '/login',
-    Component: LoginPage,
-    fetchData: initLoginPage,
-  },
-  {
-    path: '/register',
-    Component: RegisterPage,
-    fetchData: initRegisterPage,
   },
   {
     path: '/user-profile',
@@ -104,3 +117,12 @@ export const routes = [
     fetchData: initError404,
   },
 ];
+
+// Функция для обёртки защищённых маршрутов
+const withProtection = (routes: CustomRouteObject[]): CustomRouteObject => ({
+  element: (<ProtectedRoute />) as ReactNode,
+  children: routes as RouteObject[], // Приводим к RouteObject для children
+});
+
+// Итоговые маршруты
+export const routes: CustomRouteObject[] = [...publicRoutes, withProtection(protectedRoutes)];

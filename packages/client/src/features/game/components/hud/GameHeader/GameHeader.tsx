@@ -18,12 +18,7 @@ export const GameHeader = () => {
 
   return (
     <header className={s.header}>
-      <button
-        type="button"
-        className={s.avatarBtn}
-        onClick={handleAvatarClick}
-        aria-label="Пауза"
-      >
+      <button type="button" className={s.avatarBtn} onClick={handleAvatarClick} aria-label="Пауза">
         <span className={s.avatar}>{displayName.slice(0, 1)}</span>
       </button>
       <div className={s.levelInfo}>
