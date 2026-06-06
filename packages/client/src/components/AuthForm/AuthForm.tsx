@@ -4,18 +4,22 @@ import { validateEmail } from '../../utils/validate/validateEmail';
 import { Rule } from 'antd/es/form';
 import { validatePassword } from '../../utils/validate/validatePassword';
 import { validateLogin } from '../../utils/validate/validateLogin';
-import { useEffect, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { authApi } from '../../api/authApi';
+import { validatePhone } from '../../utils/validate/validatePhone';
+import { getErrorMessage } from '../../utils/error/errorHandler';
+import { ROUTES } from '../../constants/routes';
 
 export type InputsName = {
   inputsName: Array<InputType>;
+  pageType: string;
 };
 
 export type InputType = {
   type: string;
   text: string;
-  logo: string;
+  label: string;
   name: string;
 };
 
@@ -27,31 +31,31 @@ interface FormValues {
   [key: string]: string | undefined;
 }
 
-export const AuthForm = ({ inputsName }: InputsName) => {
+export const AuthForm = ({ inputsName, pageType }: InputsName) => {
   const [form] = Form.useForm<FormValues>();
   const [loading, setLoading] = useState(false);
-  const [isFormValid, setIsFormValid] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Отслеживаем изменения полей формы для валидации кнопки
-  const handleFormChange = () => {
-    const fields = form.getFieldsValue();
-    const errors = form.getFieldsError();
+  // Отслеживаем все значения полей
+  const values = Form.useWatch([], form);
 
-    // Проверяем, что все обязательные поля заполнены и нет ошибок
-    const hasErrors = errors.some((error) => error.errors.length > 0);
-    const allFieldsFilled = Object.values(fields).every(
+  // Вычисляем валидность напрямую (без useState!)
+  const isFormValid = useMemo(() => {
+    if (!values) {
+      return false;
+    }
+
+    // Проверяем, что все поля заполнены
+    const allFieldsFilled = Object.values(values).every(
       (value) => value !== undefined && value !== null && value !== ''
     );
 
-    setIsFormValid(allFieldsFilled && !hasErrors);
-  };
+    // Проверяем, что нет ошибок валидации
+    const hasErrors = form.getFieldsError().some((error) => error.errors.length > 0);
 
-  // Следим за изменениями формы
-  useEffect(() => {
-    handleFormChange();
-  }, [form.getFieldsValue()]);
+    return allFieldsFilled && !hasErrors;
+  }, [values, form.getFieldsError()]);
 
   const getValidationRules = (inputName: InputType): Rule[] => {
     const baseRules: Rule[] = [
@@ -66,7 +70,8 @@ export const AuthForm = ({ inputsName }: InputsName) => {
         return [
           ...baseRules,
           {
-            validator: async (_: any, value: string) => {
+            validator: async (_rule: Rule, value: string) => {
+              // ✅ вместо any
               if (!value) {
                 return;
               }
@@ -82,7 +87,8 @@ export const AuthForm = ({ inputsName }: InputsName) => {
         return [
           ...baseRules,
           {
-            validator: async (_: any, value: string) => {
+            validator: async (_rule: Rule, value: string) => {
+              // ✅ вместо any
               if (!value) {
                 return;
               }
@@ -96,11 +102,12 @@ export const AuthForm = ({ inputsName }: InputsName) => {
           },
         ];
 
-      case 'text':
+      case 'login':
         return [
           ...baseRules,
           {
-            validator: async (_: any, value: string) => {
+            validator: async (_rule: Rule, value: string) => {
+              // ✅ вместо any
               if (!value) {
                 return;
               }
@@ -112,11 +119,11 @@ export const AuthForm = ({ inputsName }: InputsName) => {
           },
         ];
 
-      case 'confirm-password':
+      case 'tow-password':
         return [
           ...baseRules,
           {
-            validator: async (_: any, value: string) => {
+            validator: async (_rule: Rule, value: string) => {
               if (!value) {
                 return;
               }
@@ -125,6 +132,22 @@ export const AuthForm = ({ inputsName }: InputsName) => {
 
               if (value !== password) {
                 throw new Error('Пароли не совпадают');
+              }
+            },
+          },
+        ];
+
+      case 'phone':
+        return [
+          ...baseRules,
+          {
+            validator: async (_rule: Rule, value: string) => {
+              if (!value) {
+                return;
+              }
+
+              if (!validatePhone(value)) {
+                throw new Error('Введите номер телефона');
               }
             },
           },
@@ -140,8 +163,8 @@ export const AuthForm = ({ inputsName }: InputsName) => {
     setLoading(true);
 
     try {
-      const isLoginPage = location.pathname === '/login';
-      const isRegisterPage = location.pathname === '/register';
+      const isLoginPage = pageType === 'login';
+      const isRegisterPage = pageType === 'registration';
 
       if (isLoginPage) {
         // Проверяем, что обязательные поля заполнены
@@ -167,7 +190,7 @@ export const AuthForm = ({ inputsName }: InputsName) => {
         message.success('Вход выполнен успешно!');
 
         // Перенаправляем на главную страницу или дашборд
-        navigate('/dashboard');
+        navigate(ROUTES.HOME);
       } else if (isRegisterPage) {
         // Проверяем, что все обязательные поля заполнены для регистрации
         if (!values.email) {
@@ -178,7 +201,9 @@ export const AuthForm = ({ inputsName }: InputsName) => {
           throw new Error('Пароль обязателен для заполнения');
         }
 
-        const login = values.text || values.email;
+        const login = values.login || values.email;
+
+        const phone = values.phone || '89276542358';
 
         if (!login) {
           throw new Error('Логин или email обязателен для заполнения');
@@ -191,7 +216,7 @@ export const AuthForm = ({ inputsName }: InputsName) => {
           login: login,
           email: values.email,
           password: values.password,
-          phone: '89276542358',
+          phone: phone,
         };
 
         await authApi.signup(signupData);
@@ -199,21 +224,10 @@ export const AuthForm = ({ inputsName }: InputsName) => {
         message.success('Регистрация прошла успешно!');
 
         // Перенаправляем на страницу входа
-        navigate('/login');
+        navigate(ROUTES.HOME);
       }
-    } catch (error: any) {
-      console.error('Ошибка при отправке формы:', error);
-
-      // Обработка ошибок от сервера
-      if (error.response?.data?.reason) {
-        message.error(error.response.data.reason);
-      } else if (error.message) {
-        message.error(error.message);
-      } else {
-        message.error('Произошла ошибка при отправке данных');
-      }
-    } finally {
-      setLoading(false);
+    } catch (error: unknown) {
+      message.error(getErrorMessage(error));
     }
   };
 
@@ -233,19 +247,18 @@ export const AuthForm = ({ inputsName }: InputsName) => {
           form={form}
           style={{ width: 500 }}
           onFinish={handleSubmit}
-          onFieldsChange={handleFormChange}
-          onFinishFailed={(errorInfo) => {
-            console.log('Ошибки валидации:', errorInfo);
+          onFinishFailed={() => {
             message.error('Пожалуйста, исправьте ошибки в форме');
           }}
         >
-          {inputsName.map((inputName: InputType, key: number) => (
+          {inputsName.map((inputName: InputType) => (
             <Form.Item
-              key={key}
+              key={inputName.name}
               name={inputName.name}
-              label={inputName.logo}
+              label={inputName.label}
               style={{ display: 'flex', flexDirection: 'column' }}
               rules={getValidationRules(inputName)}
+              shouldUpdate
             >
               <Input
                 placeholder={inputName.text}

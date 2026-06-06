@@ -8,26 +8,32 @@ const inputsNameRegistr: Array<InputType> = [
   {
     type: 'text',
     text: 'введите логин',
-    logo: 'введите логин',
-    name: 'text',
+    label: 'введите логин',
+    name: 'login',
   },
   {
     type: 'email',
     text: 'введите email',
-    logo: 'введите email',
+    label: 'введите email',
     name: 'email',
   },
   {
     type: 'password',
     text: 'введите пароль',
-    logo: 'введите пароль',
+    label: 'введите пароль',
     name: 'password',
   },
   {
     type: 'password',
     text: 'повторно введите пароль',
-    logo: 'повторно введите пароль',
+    label: 'повторно введите пароль',
     name: 'tow-password',
+  },
+  {
+    type: 'tel',
+    text: 'Телефон',
+    label: 'Телефон',
+    name: 'phone',
   },
 ];
 
@@ -41,7 +47,7 @@ export const RegisterPage = () => {
       </Helmet>
       <Header />
       <h1>Регистрация</h1>
-      <AuthForm inputsName={inputsNameRegistr} />
+      <AuthForm inputsName={inputsNameRegistr} pageType="registration" />
     </div>
   );
 };
