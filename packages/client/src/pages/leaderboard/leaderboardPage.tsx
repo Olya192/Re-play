@@ -76,6 +76,6 @@ export const LeaderboardPage = () => {
   );
 };
 
-export const initLeaderboardPage = async ({ _dispatch, _state }: PageInitArgs) => {
+export const initLeaderboardPage = async ({ dispatch, state }: PageInitArgs) => {
   // заглушка
 };

@@ -26,8 +26,8 @@ export const BIOME_META: Record<string, BiomeMeta> = {
     durationMs: 33_000,
     sidePaddingColor: '#1f3a1f',
     accentColor: '#67c267',
-    biomeBackgroundUrl: '/biomes/earth/forest/biome.png',
-    rotatingBackgroundUrl: '/biomes/earth/forest/sky.png',
+    biomeBackgroundUrl: '/biomes/variation/desserts.webp',
+    rotatingBackgroundUrl: '/biomes/variation/desserts.webp',
   },
 };
 
