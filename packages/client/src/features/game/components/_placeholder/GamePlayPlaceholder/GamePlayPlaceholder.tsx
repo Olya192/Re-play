@@ -303,8 +303,7 @@ export const GamePlayPlaceholder = () => {
         }
       }
 
-      // TODO: доработать поведение, чтобы шёл к ближайшему падающему,
-      //       если его взорвали — к следующему ближайшему
+      // Монстр каждый кадр выбирает ближайший активный предмет.
       const remaining = current.filter((it) => !consumedIdsRef.current.has(it.id));
 
       if (remaining.length > 0) {
@@ -357,6 +356,9 @@ export const GamePlayPlaceholder = () => {
 
     consumedIdsRef.current.add(id);
 
+    // Механика разбивания квадрата
+    // Убираем из items square, по которому кликнули
+    // Добавляем новые items shards вместо square
     if (clickedItem.kind === 'square') {
       const now = performance.now();
       const stage = stageSizeRef.current;
