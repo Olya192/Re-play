@@ -27,6 +27,11 @@
   background-color: #4a90e2;
 }
 
+.item[data-kind='shard'] {
+  border-radius: 10% 70% 20% 55%;
+  background-color: #77a822;
+}
+
 .monsterContainer {
   position: absolute;
   inset: 0;
