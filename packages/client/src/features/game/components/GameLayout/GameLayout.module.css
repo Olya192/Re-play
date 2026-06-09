@@ -3,5 +3,5 @@
   display: flex;
   justify-content: center;
   align-items: stretch;
-  background-color: var(--biome-padding-color, #1f3a1f);
+  background-color: #084c53;
 }
