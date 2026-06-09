@@ -32,7 +32,7 @@ interface StageSize {
 }
 
 // TODO брать настройки айтемов и всего прочего из базы
-const ITEM_SIZE_RATIO = 1 / 4;
+export const ITEM_SIZE_RATIO = 1 / 4;
 const MONSTER_SIZE_RATIO = 1 / 3;
 const MONSTER_SEGMENT_OFFSET_RATIO = 0.8;
 const MOUTH_INSET_FROM_HEAD_TOP_RATIO = 0.2;
