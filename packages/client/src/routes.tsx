@@ -1,16 +1,19 @@
 import { AppDispatch, RootState } from './store';
 import { FriendsPage, initFriendsPage } from './pages/FriendsPage';
 import { initLoginPage, LoginPage } from './pages/LoginPage';
+import { initMainPage, MainPage } from './pages/Main';
 import { initRegisterPage, RegisterPage } from './pages/RegisterPage';
 import { initUserProfile, UserProfile } from './pages/UserProfile';
 import { initLeaderboardPage, LeaderboardPage } from './pages/leaderboard';
-import { ForumPage, initForumPage, ForumTopic } from './pages/forum';
-import { GameStartPage, initGameStartPage } from './pages/GameStartPage';
-import { GameEndPage, initGameEndPage } from './pages/GameEndPage';
 import { Error404, initError404 } from './pages/Error404';
 import { Error500, initError500 } from './pages/Error500';
+import { Error403, initError403 } from './pages/Error403';
+import { ForumPage, ForumTopic, initForumPage } from './pages/forum';
 import { initProfilePage, ProfilePage } from './pages/profile';
 import { GameRoot, initGameRoot } from './features/game';
+import { ProtectedRoute } from './components/ProtectedRoute';
+import { RouteObject } from 'react-router-dom';
+import { ReactNode } from 'react';
 import ForumAddTopic from './pages/forum/components/ForumAddTopic';
 
 export type PageInitContext = {
@@ -23,32 +26,13 @@ export type PageInitArgs = {
   ctx: PageInitContext;
 };
 
-/**
- * === GAME новая архитектура ===
- * Концепция: единственный экран — GameRoot. Слоистая
- * мобильная игра, всё игровое UI рисуется поверх Canvas как слои и модалки.
- * В будущих спринтах легаси-роуты нужно мигрировать в URL модалки поверх GameRoot.
- *
- * === LEGACY оставлены пока как есть, нужно превратить в модалки позже ===
- **/
-export const routes = [
-  {
-    path: '/',
-    Component: GameRoot,
-    fetchData: initGameRoot,
-  },
+export type CustomRouteObject = RouteObject & {
+  Component?: React.ComponentType<Record<string, unknown>>;
+  fetchData?: (args: PageInitArgs) => Promise<unknown>;
+};
 
-  // Нужно мигрировать в модалки
-  {
-    path: '/friends',
-    Component: FriendsPage,
-    fetchData: initFriendsPage,
-  },
-  {
-    path: '/profile',
-    Component: ProfilePage,
-    fetchData: initProfilePage,
-  },
+// Публичные маршруты
+const publicRoutes: CustomRouteObject[] = [
   {
     path: '/login',
     Component: LoginPage,
@@ -58,6 +42,40 @@ export const routes = [
     path: '/register',
     Component: RegisterPage,
     fetchData: initRegisterPage,
+  },
+];
+
+// Защищённые маршруты
+/**
+ * === GAME новая архитектура ===
+ * Концепция: единственный экран — GameRoot. Слоистая
+ * мобильная игра, всё игровое UI рисуется поверх Canvas как слои и модалки.
+ * В будущих спринтах легаси-роуты нужно мигрировать в URL модалки поверх GameRoot.
+ *
+ * === LEGACY оставлены пока как есть, нужно превратить в модалки позже ===
+ **/
+const protectedRoutes: CustomRouteObject[] = [
+  {
+    path: '/',
+    Component: GameRoot,
+    fetchData: initGameRoot,
+  },
+
+  // Нужно мигрировать в модалки
+  {
+    path: '/Main',
+    Component: MainPage,
+    fetchData: initMainPage,
+  },
+  {
+    path: '/friends',
+    Component: FriendsPage,
+    fetchData: initFriendsPage,
+  },
+  {
+    path: '/profile',
+    Component: ProfilePage,
+    fetchData: initProfilePage,
   },
   {
     path: '/user-profile',
@@ -94,31 +112,23 @@ export const routes = [
     Component: Error500,
     fetchData: initError500,
   },
-
-  /** LEGACY: Старт/Энд в модалки - игра всегда жива, остальные можно сотавить  **/
   {
-    path: '/game/start',
-    Component: GameStartPage,
-    fetchData: initGameStartPage,
-  },
-  {
-    path: '/game/end',
-    Component: GameEndPage,
-    fetchData: initGameEndPage,
-  },
-  {
-    path: '/404',
-    Component: Error404,
-    fetchData: initError404,
+    path: '/403',
+    Component: Error403,
+    fetchData: initError403,
   },
   {
     path: '*',
     Component: Error404,
     fetchData: initError404,
   },
-  {
-    path: '/500',
-    Component: Error500,
-    fetchData: initError500,
-  },
 ];
+
+// Функция для обёртки защищённых маршрутов
+const withProtection = (routes: CustomRouteObject[]): CustomRouteObject => ({
+  element: (<ProtectedRoute />) as ReactNode,
+  children: routes as RouteObject[], // Приводим к RouteObject для children
+});
+
+// Итоговые маршруты
+export const routes: CustomRouteObject[] = [...publicRoutes, withProtection(protectedRoutes)];
