@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from '../../../../../store';
 import {
   incrementCaught,
@@ -13,7 +13,7 @@ import { openModal } from '../../../../../slices/gameUi';
 import s from './GamePlayPlaceholder.module.css';
 import { randomInteger } from '../../../../../utils/randomeInteger';
 
-type ItemKind = 'edible' | 'inedible';
+type ItemKind = 'edible' | 'inedible' | 'shard';
 
 interface PlayItem {
   id: number;
@@ -21,6 +21,9 @@ interface PlayItem {
   kind: ItemKind;
   xPx: number;
   spawnedAt: number;
+  sizeRatio?: number;
+  fallDurationMs?: number;
+  vxPxPerSec?: number;
 }
 
 interface StageSize {
@@ -42,15 +45,31 @@ const MAX_SPAWN_MS = 3000;
 const MONSTER_SPEED_PER_SEC_RATIO = 0.18;
 const ELAPSED_DISPATCH_THROTTLE_MS = 200;
 
+const SHARD_SIZE_RATIO = ITEM_SIZE_RATIO * 0.5;
+const SHARD_FALL_DURATION_MS = 3500;
+const SHARDS_PER_SQUARE = 3;
+const SHARD_SPREAD_SPEED_RATIO = 0.16;
+
 const FOOD_ITEMS_QUANTITY = 24;
 const INEDIBLE_ITEMS_QUANTITY = 8;
 const DESSERTS_PACK_URL = '/images/desserts/dessert-';
 const INEDIBLE_PACK_URL = '/images/inedible/inedible-';
 
+const getItemSize = (item: PlayItem, stage: StageSize) =>
+  stage.width * (item.sizeRatio ?? ITEM_SIZE_RATIO);
+
 const computeItemTop = (item: PlayItem, now: number, stage: StageSize, itemSize: number) => {
-  const t = (now - item.spawnedAt) / FALL_DURATION_MS;
+  const fallDuration = item.fallDurationMs ?? FALL_DURATION_MS;
+  const t = (now - item.spawnedAt) / fallDuration;
 
   return -itemSize + t * (stage.height + itemSize);
+};
+
+const computeItemLeft = (item: PlayItem, now: number, stage: StageSize, itemSize: number) => {
+  const elapsedSec = (now - item.spawnedAt) / 1000;
+  const rawLeft = item.xPx + (item.vxPxPerSec ?? 0) * elapsedSec;
+
+  return Math.min(Math.max(rawLeft, 0), stage.width - itemSize);
 };
 
 /**
@@ -256,11 +275,14 @@ export const GamePlayPlaceholder = () => {
           continue;
         }
 
-        const itemTop = computeItemTop(item, now, stage, itemSize);
+        const currentItemSize = getItemSize(item, stage);
+        const itemTop = computeItemTop(item, now, stage, currentItemSize);
+        const itemLeft = computeItemLeft(item, now, stage, currentItemSize);
         const el = itemRefs.current.get(item.id);
 
         if (el) {
           el.style.top = `${itemTop}px`;
+          el.style.left = `${itemLeft}px`;
         }
 
         if (itemTop >= stage.height) {
@@ -270,11 +292,11 @@ export const GamePlayPlaceholder = () => {
           continue;
         }
 
-        const itemBottom = itemTop + itemSize;
-        const itemCenterX = item.xPx + itemSize / 2;
+        const itemBottom = itemTop + currentItemSize;
+        const itemCenterX = itemLeft + currentItemSize / 2;
 
         const yOverlap = itemBottom >= mouthZoneTopY && itemTop <= mouthZoneBottomY;
-        const xOverlap = Math.abs(itemCenterX - monsterX) < mouthHalfWidth + itemSize / 2;
+        const xOverlap = Math.abs(itemCenterX - monsterX) < mouthHalfWidth + currentItemSize / 2;
 
         if (yOverlap && xOverlap) {
           eatenIds.push(item.id);
@@ -295,16 +317,17 @@ export const GamePlayPlaceholder = () => {
         }
       }
 
-      // TODO: доработать поведение, чтобы шёл к ближайшему падающему,
-      //       если его взорвали — к следующему ближайшему
+      // Монстр каждый кадр выбирает ближайший активный предмет.
       const remaining = current.filter((it) => !consumedIdsRef.current.has(it.id));
 
       if (remaining.length > 0) {
-        let nearestCx = remaining[0].xPx + itemSize / 2;
+        const firstSize = getItemSize(remaining[0], stage);
+        let nearestCx = computeItemLeft(remaining[0], now, stage, firstSize) + firstSize / 2;
         let nearestDist = Math.abs(nearestCx - monsterX);
 
         for (let i = 1; i < remaining.length; i += 1) {
-          const cx = remaining[i].xPx + itemSize / 2;
+          const currentSize = getItemSize(remaining[i], stage);
+          const cx = computeItemLeft(remaining[i], now, stage, currentSize) + currentSize / 2;
           const dist = Math.abs(cx - monsterX);
 
           if (dist < nearestDist) {
@@ -339,7 +362,50 @@ export const GamePlayPlaceholder = () => {
       return;
     }
 
+    const clickedItem = itemsRef.current.find((it) => it.id === id);
+
+    if (!clickedItem) {
+      return;
+    }
+
     consumedIdsRef.current.add(id);
+
+    // Механика разбивания квадрата
+    // Убираем из items square, по которому кликнули
+    // Добавляем новые items shards вместо square
+    if (clickedItem.kind === 'edible') {
+      const now = performance.now();
+      const stage = stageSizeRef.current;
+
+      const parentSize = getItemSize(clickedItem, stage);
+      const parentTop = computeItemTop(clickedItem, now, stage, parentSize);
+      const parentLeft = computeItemLeft(clickedItem, now, stage, parentSize);
+
+      const shardSize = stage.width * SHARD_SIZE_RATIO;
+      const shardSpeed = stage.width * SHARD_SPREAD_SPEED_RATIO;
+
+      const shards = Array.from({ length: SHARDS_PER_SQUARE }, (_, index) => {
+        lastIdRef.current += 1;
+
+        const direction = index - Math.floor(SHARDS_PER_SQUARE / 2);
+
+        return {
+          id: lastIdRef.current,
+          kind: 'shard' as ItemKind,
+          xPx: parentLeft + parentSize / 2 - shardSize / 2,
+          spawnedAt:
+            now - ((parentTop + shardSize) / (stage.height + shardSize)) * SHARD_FALL_DURATION_MS,
+          sizeRatio: SHARD_SIZE_RATIO,
+          fallDurationMs: SHARD_FALL_DURATION_MS,
+          vxPxPerSec: direction * shardSpeed,
+        };
+      });
+
+      setItems((prev) => [...prev.filter((it) => it.id !== id), ...shards]);
+
+      return;
+    }
+
     setItems((prev) => prev.filter((it) => it.id !== id));
     dispatch(incrementCaught());
   };
@@ -352,11 +418,13 @@ export const GamePlayPlaceholder = () => {
 
     const backgroundImagePath = `url(${foodImg})`;
 
+    const currentItemSize = getItemSize(foodItem, stageSize);
+
     const foodItemStyle = {
       left: `${foodItem.xPx}px`,
-      top: `${-itemSize}px`,
-      width: `${itemSize}px`,
-      height: `${itemSize}px`,
+      top: `${-currentItemSize}px`,
+      width: `${currentItemSize}px`,
+      height: `${currentItemSize}px`,
       backgroundImage: backgroundImagePath,
       backgroundSize: 'contain',
       backgroundRepeat: 'no-repeat',
@@ -366,28 +434,35 @@ export const GamePlayPlaceholder = () => {
     return foodItemStyle;
   };
 
-  const itemSize = stageSize.width * ITEM_SIZE_RATIO;
   const monsterSize = stageSize.width * MONSTER_SIZE_RATIO;
 
-  const foodToCatch = items.map((item) => (
-    <button
-      key={item.id}
-      ref={(el) => {
-        if (el) {
-          itemRefs.current.set(item.id, el);
-        } else {
-          itemRefs.current.delete(item.id);
+  const foodToCatch = items.map((item) => {
+    return (
+      <button
+        key={item.id}
+        ref={(el) => {
+          if (el) {
+            itemRefs.current.set(item.id, el);
+          } else {
+            itemRefs.current.delete(item.id);
+          }
+        }}
+        type="button"
+        tabIndex={-1}
+        className={s.item}
+        data-kind={item.kind}
+        style={getFoodStyle(item)}
+        onPointerDown={() => handleCatch(item.id)}
+        aria-label={
+          item.kind === 'edible'
+            ? 'съедобный'
+            : item.kind === 'inedible'
+            ? 'несъедобный'
+            : 'осколок'
         }
-      }}
-      type="button"
-      tabIndex={-1}
-      className={s.item}
-      data-kind={item.kind}
-      style={getFoodStyle(item)}
-      onPointerDown={() => handleCatch(item.id)}
-      aria-label={item.kind === 'edible' ? 'edible' : 'inedible'}
-    />
-  ));
+      />
+    );
+  });
 
   return (
     <>
