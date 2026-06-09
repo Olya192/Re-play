@@ -3,7 +3,6 @@ import { authApi } from './authApi';
 import { HTTPTransport } from './httpTransport';
 
 // Создаём отдельный экземпляр без интерсепторов если нужно
-const checkAuthInstance = new HTTPTransport();
 
 export const checkAuth = async (): Promise<boolean> => {
   try {
