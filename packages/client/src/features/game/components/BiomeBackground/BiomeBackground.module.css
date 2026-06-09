@@ -1,9 +1,0 @@
-.layer {
-  position: absolute;
-  inset: 0;
-  background-size: cover;
-  background-position: bottom center;
-  background-repeat: no-repeat;
-  z-index: 1;
-  pointer-events: none;
-}

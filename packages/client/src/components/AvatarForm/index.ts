@@ -1,1 +1,0 @@
-export { AvatarForm } from './AvatarForm';

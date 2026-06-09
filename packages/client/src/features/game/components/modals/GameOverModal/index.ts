@@ -1,1 +1,0 @@
-export { GameOverModal } from './GameOverModal';
