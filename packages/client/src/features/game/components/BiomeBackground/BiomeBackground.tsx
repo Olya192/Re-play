@@ -1,4 +1,4 @@
-import { memo, useEffect, useState } from 'react';
+import { memo, useEffect, useLayoutEffect, useState } from 'react';
 import { useSelector } from '../../../../store';
 import { selectElapsedMs } from '../../../../slices/gameSession';
 import s from './BiomeBackground.module.css';
@@ -22,14 +22,22 @@ const backgrounds = [
 
 export const BiomeBackground = memo(() => {
   const elapsedMs = useSelector(selectElapsedMs);
-  const [backgroundUrl, setBackgroundUrl] = useState<string>(backgrounds[0]);
+  const [backgroundUrl, setBackgroundUrl] = useState<string>('');
 
   const getBackgroundUrl = (prevUrl: string) => {
-    const randomNum = randomInteger(0, backgrounds.length - 1);
-
-    if (prevUrl === backgrounds[randomNum] && backgrounds.length > 1) {
-      return getBackgroundUrl(prevUrl);
+    if (backgrounds.length === 0) {
+      return '';
     }
+
+    if (backgrounds.length === 1) {
+      return backgrounds[0];
+    }
+
+    let randomNum;
+
+    do {
+      randomNum = randomInteger(0, backgrounds.length - 1);
+    } while (backgrounds[randomNum] === prevUrl);
 
     return backgrounds[randomNum];
   };
@@ -44,9 +52,10 @@ export const BiomeBackground = memo(() => {
     }
   }, [elapsedMs]);
 
-  if (!backgroundUrl) {
-    return null;
-  }
+  useLayoutEffect(() => {
+    const randomNum = randomInteger(0, backgrounds.length - 1);
+    setBackgroundUrl(backgrounds[randomNum]);
+  }, []);
 
   return <div className={s.layer} style={{ backgroundImage: backgroundUrl }} aria-hidden />;
 });
