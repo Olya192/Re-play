@@ -11,11 +11,13 @@ import {
 } from '../../../../../slices/gameSession';
 import { openModal } from '../../../../../slices/gameUi';
 import s from './GamePlayPlaceholder.module.css';
+import { randomInteger } from '../../../../../utils/randomeInteger';
 
-type ItemKind = 'circle' | 'square' | 'shard';
+type ItemKind = 'edible' | 'inedible' | 'shard';
 
 interface PlayItem {
   id: number;
+  foodId: number;
   kind: ItemKind;
   xPx: number;
   spawnedAt: number;
@@ -30,12 +32,11 @@ interface StageSize {
 }
 
 // TODO брать настройки айтемов и всего прочего из базы
-const ITEM_SIZE_RATIO = 1 / 6;
-const MONSTER_SIZE_RATIO = 1 / 5;
+const ITEM_SIZE_RATIO = 1 / 4;
+const MONSTER_SIZE_RATIO = 1 / 3;
 const MONSTER_SEGMENT_OFFSET_RATIO = 0.8;
 const MOUTH_INSET_FROM_HEAD_TOP_RATIO = 0.2;
 const MOUTH_WIDTH_RATIO = 0.5;
-const MOUTH_HEIGHT_RATIO = 0.07;
 const MOUTH_ZONE_HALF_HEIGHT_RATIO = 0.08;
 
 const FALL_DURATION_MS = 4500;
@@ -48,6 +49,11 @@ const SHARD_SIZE_RATIO = ITEM_SIZE_RATIO * 0.5;
 const SHARD_FALL_DURATION_MS = 3500;
 const SHARDS_PER_SQUARE = 3;
 const SHARD_SPREAD_SPEED_RATIO = 0.16;
+
+const FOOD_ITEMS_QUANTITY = 24;
+const INEDIBLE_ITEMS_QUANTITY = 8;
+const DESSERTS_PACK_URL = '/images/desserts/dessert-';
+const INEDIBLE_PACK_URL = '/images/inedible/inedible-';
 
 const getItemSize = (item: PlayItem, stage: StageSize) =>
   stage.width * (item.sizeRatio ?? ITEM_SIZE_RATIO);
@@ -183,12 +189,19 @@ export const GamePlayPlaceholder = () => {
         const minLeft = itemSize * 0.5;
         const maxLeft = stage.width - itemSize * 1.5;
 
+        const foodKind = Math.random() <= 0.8 ? 'edible' : 'inedible';
+        const randomFoodId =
+          foodKind === 'edible'
+            ? randomInteger(1, FOOD_ITEMS_QUANTITY)
+            : randomInteger(1, INEDIBLE_ITEMS_QUANTITY);
         lastIdRef.current += 1;
+
         setItems((prev) => [
           ...prev,
           {
             id: lastIdRef.current,
-            kind: Math.random() < 0.5 ? 'circle' : 'square',
+            foodId: randomFoodId,
+            kind: foodKind,
             xPx: minLeft + Math.random() * (maxLeft - minLeft),
             spawnedAt: performance.now(),
           },
@@ -242,6 +255,7 @@ export const GamePlayPlaceholder = () => {
         return;
       }
 
+      const itemSize = stage.width * ITEM_SIZE_RATIO;
       const monsterSize = stage.width * MONSTER_SIZE_RATIO;
       const monsterX = monsterXRef.current;
 
@@ -359,7 +373,7 @@ export const GamePlayPlaceholder = () => {
     // Механика разбивания квадрата
     // Убираем из items square, по которому кликнули
     // Добавляем новые items shards вместо square
-    if (clickedItem.kind === 'square') {
+    if (clickedItem.kind === 'edible') {
       const now = performance.now();
       const stage = stageSizeRef.current;
 
@@ -396,45 +410,64 @@ export const GamePlayPlaceholder = () => {
     dispatch(incrementCaught());
   };
 
+  const getFoodStyle = (foodItem: PlayItem) => {
+    const foodImg =
+      foodItem.kind === 'edible'
+        ? `${DESSERTS_PACK_URL}${foodItem.foodId}.webp`
+        : `${INEDIBLE_PACK_URL}${foodItem.foodId}.webp`;
+
+    const backgroundImagePath = `url(${foodImg})`;
+
+    const currentItemSize = getItemSize(foodItem, stageSize);
+
+    const foodItemStyle = {
+      left: `${foodItem.xPx}px`,
+      top: `${-currentItemSize}px`,
+      width: `${currentItemSize}px`,
+      height: `${currentItemSize}px`,
+      backgroundImage: backgroundImagePath,
+      backgroundSize: 'contain',
+      backgroundRepeat: 'no-repeat',
+      backgroundPosition: 'center',
+    };
+
+    return foodItemStyle;
+  };
+
   const monsterSize = stageSize.width * MONSTER_SIZE_RATIO;
-  const headBottom = MONSTER_SEGMENT_OFFSET_RATIO * monsterSize - monsterSize / 2;
-  const mouthTop = MOUTH_INSET_FROM_HEAD_TOP_RATIO * monsterSize;
-  const mouthWidth = monsterSize * MOUTH_WIDTH_RATIO;
-  const mouthHeight = monsterSize * MOUTH_HEIGHT_RATIO;
+
+  const foodToCatch = items.map((item) => {
+    return (
+      <button
+        key={item.id}
+        ref={(el) => {
+          if (el) {
+            itemRefs.current.set(item.id, el);
+          } else {
+            itemRefs.current.delete(item.id);
+          }
+        }}
+        type="button"
+        tabIndex={-1}
+        className={s.item}
+        data-kind={item.kind}
+        style={getFoodStyle(item)}
+        onPointerDown={() => handleCatch(item.id)}
+        aria-label={
+          item.kind === 'edible'
+            ? 'съедобный'
+            : item.kind === 'inedible'
+            ? 'несъедобный'
+            : 'осколок'
+        }
+      />
+    );
+  });
 
   return (
     <>
       <div ref={layerRef} className={s.itemsLayer} aria-hidden>
-        {items.map((item) => {
-          const currentItemSize = getItemSize(item, stageSize);
-
-          return (
-            <button
-              key={item.id}
-              ref={(el) => {
-                if (el) {
-                  itemRefs.current.set(item.id, el);
-                } else {
-                  itemRefs.current.delete(item.id);
-                }
-              }}
-              type="button"
-              tabIndex={-1}
-              className={s.item}
-              data-kind={item.kind}
-              style={{
-                left: `${item.xPx}px`,
-                top: `${-currentItemSize}px`,
-                width: `${currentItemSize}px`,
-                height: `${currentItemSize}px`,
-              }}
-              onPointerDown={() => handleCatch(item.id)}
-              aria-label={
-                item.kind === 'circle' ? 'круг' : item.kind === 'square' ? 'квадрат' : 'осколок'
-              }
-            />
-          );
-        })}
+        {foodToCatch}
       </div>
       <div className={s.monsterContainer} aria-hidden>
         <div
@@ -443,7 +476,7 @@ export const GamePlayPlaceholder = () => {
           style={{ left: `${stageSize.width / 2}px` }}
         >
           <div
-            className={s.body}
+            className={s.monsterBody}
             style={{
               left: `${-monsterSize / 2}px`,
               bottom: `${-monsterSize / 2}px`,
@@ -451,25 +484,6 @@ export const GamePlayPlaceholder = () => {
               height: `${monsterSize}px`,
             }}
           />
-          <div
-            className={s.head}
-            style={{
-              left: `${-monsterSize / 2}px`,
-              bottom: `${headBottom}px`,
-              width: `${monsterSize}px`,
-              height: `${monsterSize}px`,
-            }}
-          >
-            <div
-              className={s.mouth}
-              style={{
-                left: `${(monsterSize - mouthWidth) / 2}px`,
-                top: `${mouthTop}px`,
-                width: `${mouthWidth}px`,
-                height: `${mouthHeight}px`,
-              }}
-            />
-          </div>
         </div>
       </div>
     </>
