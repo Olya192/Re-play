@@ -1,16 +1,17 @@
 import { AppDispatch, RootState } from './store';
-import { initFriendsPage, FriendsPage } from './pages/FriendsPage';
+import { FriendsPage, initFriendsPage } from './pages/FriendsPage';
 import { initLoginPage, LoginPage } from './pages/LoginPage';
 import { initRegisterPage, RegisterPage } from './pages/RegisterPage';
 import { initUserProfile, UserProfile } from './pages/UserProfile';
-import { initLeaderboardPage, LeaderboardPage } from './pages/LeaderboardPage';
-import { initForumPage, ForumPage } from './pages/forum';
-import { initGameStartPage, GameStartPage } from './pages/GameStartPage';
-import { initGameEndPage, GameEndPage } from './pages/GameEndPage';
-import { initError404, Error404 } from './pages/Error404';
-import { initError500, Error500 } from './pages/Error500';
+import { initLeaderboardPage, LeaderboardPage } from './pages/leaderboard';
+import { ForumPage, initForumPage, ForumTopic } from './pages/forum';
+import { GameStartPage, initGameStartPage } from './pages/GameStartPage';
+import { GameEndPage, initGameEndPage } from './pages/GameEndPage';
+import { Error404, initError404 } from './pages/Error404';
+import { Error500, initError500 } from './pages/Error500';
 import { initProfilePage, ProfilePage } from './pages/profile';
 import { GameRoot, initGameRoot } from './features/game';
+import ForumAddTopic from './pages/forum/components/ForumAddTopic';
 
 export type PageInitContext = {
   clientToken?: string;
@@ -72,6 +73,16 @@ export const routes = [
     path: '/forum',
     Component: ForumPage,
     fetchData: initForumPage,
+    children: [
+      {
+        path: ':topicId',
+        Component: ForumTopic,
+      },
+      {
+        path: 'add',
+        Component: ForumAddTopic,
+      },
+    ],
   },
   {
     path: '/404',
