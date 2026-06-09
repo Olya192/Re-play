@@ -1,0 +1,1 @@
+export { BiomeBackground } from './BiomeBackground';

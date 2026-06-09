@@ -1,16 +1,22 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import { Provider } from 'react-redux'
-import { store } from './store'
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { Provider } from 'react-redux';
+import { HelmetProvider } from 'react-helmet-async';
+import { store } from './store';
+import { routes } from './routes';
+import './index.css';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
-import { routes } from './routes'
-
-const router = createBrowserRouter(routes)
+const router = createBrowserRouter(routes);
 
 ReactDOM.hydrateRoot(
   document.getElementById('root') as HTMLElement,
-  <Provider store={store}>
-    <RouterProvider router={router} />
-  </Provider>
-)
+  <HelmetProvider>
+    <Provider store={store}>
+      <ErrorBoundary>
+        <RouterProvider router={router} />
+      </ErrorBoundary>
+    </Provider>
+  </HelmetProvider>
+);

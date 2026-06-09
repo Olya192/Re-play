@@ -1,8 +1,8 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import dotenv from 'dotenv'
-import path from 'path'
-dotenv.config()
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import dotenv from 'dotenv';
+import path from 'path';
+dotenv.config();
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -17,15 +17,7 @@ export default defineConfig({
     outDir: path.join(__dirname, 'dist/client'),
   },
   ssr: {
-    noExternal: ['react-helmet'],
-  },
-  resolve: {
-    alias: {
-      'react-helmet': path.join(
-        __dirname,
-        '../../node_modules/react-helmet/es/Helmet.js'
-      ),
-    },
+    noExternal: ['react-helmet-async'],
   },
   plugins: [react()],
-})
+});

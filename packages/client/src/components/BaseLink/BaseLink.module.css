@@ -1,0 +1,27 @@
+.baseLink {
+  text-decoration: none;
+  font-size: var(--small-font-size);
+  line-height: var(--base-line-height);
+  cursor: default;
+}
+
+.baseLinkPrimary {
+  color: var(--accent-color);
+}
+
+.testPrefix {
+  user-select: none;
+  backdrop-filter: blur(5px);
+}
+
+.baseLink:hover {
+  color: var(--dark-accent-color);
+}
+
+/*.base-link_red {*/
+/*  color: var(--critical-color);*/
+/*}*/
+
+/*.base-link_red:hover {*/
+/*  color: #d70707;*/
+/*}*/

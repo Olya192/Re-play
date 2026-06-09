@@ -1,9 +1,8 @@
-import { useSelector } from './store'
-
-import { fetchUserThunk, selectUser } from './slices/userSlice'
+import { useSelector } from './store';
+import { selectUser } from './slices/userSlice';
 
 const App = () => {
-  const user = useSelector(selectUser)
+  const user = useSelector(selectUser);
 
   return (
     <div>
@@ -16,7 +15,7 @@ const App = () => {
         <p>Пользователь не найден!</p>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default App
+export default App;
