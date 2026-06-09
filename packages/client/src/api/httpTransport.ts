@@ -95,7 +95,8 @@ export class HTTPTransport {
         throw new Error(`Запрос завершен со статусом: ${response.status}, ${errorResponseText}`);
       }
     } catch (error) {
-      console.log('Ошибка запроса: ', error);
+      console.log(error);
+      throw error;
     } finally {
       clearTimeout(timeoutId);
     }

@@ -18,13 +18,9 @@
   filter: brightness(0.85);
 }
 
-.item[data-kind='circle'] {
+.item {
   border-radius: 50%;
-  background-color: #ff6b35;
-}
-
-.item[data-kind='square'] {
-  background-color: #4a90e2;
+  background-color: transparent;
 }
 
 .item[data-kind='shard'] {
@@ -41,15 +37,15 @@
 
 .monsterAnchor {
   position: absolute;
-  bottom: 0;
-  width: 0;
-  height: 0;
+  bottom: 5.5rem;
 }
 
-.body {
+.monsterBody {
   position: absolute;
-  border-radius: 50%;
-  background-color: var(--biome-accent-color, #67c267);
+  background-color: transparent;
+  background-image: url('/images/monster/monster-v2.webp');
+  background-size: contain;
+  background-repeat: no-repeat;
   z-index: 1;
 }
 
