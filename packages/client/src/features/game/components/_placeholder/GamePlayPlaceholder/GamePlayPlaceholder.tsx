@@ -55,17 +55,22 @@ const INEDIBLE_ITEMS_QUANTITY = 8;
 const DESSERTS_PACK_URL = '/images/desserts/dessert-';
 const INEDIBLE_PACK_URL = '/images/inedible/inedible-';
 
-const getItemSize = (item: PlayItem, stage: StageSize) =>
+export const getItemSize = (item: PlayItem, stage: StageSize) =>
   stage.width * (item.sizeRatio ?? ITEM_SIZE_RATIO);
 
-const computeItemTop = (item: PlayItem, now: number, stage: StageSize, itemSize: number) => {
+export const computeItemTop = (item: PlayItem, now: number, stage: StageSize, itemSize: number) => {
   const fallDuration = item.fallDurationMs ?? FALL_DURATION_MS;
   const t = (now - item.spawnedAt) / fallDuration;
 
   return -itemSize + t * (stage.height + itemSize);
 };
 
-const computeItemLeft = (item: PlayItem, now: number, stage: StageSize, itemSize: number) => {
+export const computeItemLeft = (
+  item: PlayItem,
+  now: number,
+  stage: StageSize,
+  itemSize: number
+) => {
   const elapsedSec = (now - item.spawnedAt) / 1000;
   const rawLeft = item.xPx + (item.vxPxPerSec ?? 0) * elapsedSec;
 
@@ -184,6 +189,8 @@ export const GamePlayPlaceholder = () => {
       const delay = MIN_SPAWN_MS + Math.random() * (MAX_SPAWN_MS - MIN_SPAWN_MS);
 
       timerId = window.setTimeout(() => {
+        // TODO Refactor for tests: вынести выбор позиции/типа предмета в чистую функцию с передачей источника случайности
+        //  сейчас Math.random прямо тут
         const stage = stageSizeRef.current;
         const itemSize = stage.width * ITEM_SIZE_RATIO;
         const minLeft = itemSize * 0.5;
@@ -270,6 +277,8 @@ export const GamePlayPlaceholder = () => {
       const eatenIds: number[] = [];
       const missedIds: number[] = [];
 
+      // TODO Refactor for tests: геометрию рта и тип предмета (eaten/missed/none) вынести
+      //  в чистые, к примеру computeMouthZone и classifyItem сейчас все пересечения внутри RAF-кадра и завязаны на DOM и время
       for (const item of current) {
         if (consumedIdsRef.current.has(item.id)) {
           continue;
@@ -317,6 +326,7 @@ export const GamePlayPlaceholder = () => {
         }
       }
 
+      // TODO Refactor for tests: выбор ближайшего предмета и шаг монстра вынести в pickNearestStep
       // Монстр каждый кадр выбирает ближайший активный предмет.
       const remaining = current.filter((it) => !consumedIdsRef.current.has(it.id));
 
@@ -369,6 +379,9 @@ export const GamePlayPlaceholder = () => {
     }
 
     consumedIdsRef.current.add(id);
+
+    // TODO Refactor for tests: разбиение квадрата на осколки вынести в чистую
+    // breakSquareIntoShards -> PlayItem[] (сейчас завязано на performance.now и lastIdRef)
 
     // Механика разбивания квадрата
     // Убираем из items square, по которому кликнули
