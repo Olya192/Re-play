@@ -1,6 +1,6 @@
 import s from './AvatarForm.module.css';
 import { BaseButton } from '../BaseButton';
-import { ChangeEventHandler, FormEvent, FormEventHandler, useRef, useState } from 'react';
+import { ChangeEventHandler, FormEvent, FormEventHandler, useState } from 'react';
 
 interface AvatarFormProps {
   avatarUrl: string | null;
