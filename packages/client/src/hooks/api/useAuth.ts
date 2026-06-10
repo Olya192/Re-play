@@ -28,6 +28,7 @@ interface FormValues {
   firstName?: string;
   secondName?: string;
   phone?: string;
+  login?: string;
   [key: string]: string | undefined;
 }
 
@@ -65,112 +66,106 @@ export const useAuth = () => {
     }
   };
 
-  const handleSignin = useCallback(
-    async (values: FormValues) => {
-      setLoading(true);
+  const handleSignin = useCallback(async (values: FormValues) => {
+    setLoading(true);
 
-      try {
-        const login = values.text || values.email;
+    try {
+      // Получаем логин: приоритет у text, затем login, затем email
+      const login = values.text || values.login || values.email;
 
-        if (!login) {
-          throw new Error('Логин или email обязателен для заполнения');
-        }
-
-        if (!values.password) {
-          throw new Error('Пароль обязателен для заполнения');
-        }
-
-        const signinData: SigninData = {
-          login: login,
-          password: values.password,
-        };
-
-        await authApi.signin(signinData);
-
-        // Получаем данные пользователя после успешного входа
-        await checkCurrentUser();
-
-        message.success('Вход выполнен успешно!');
-        navigate('/dashboard');
-
-        return { success: true };
-      } catch (error: any) {
-        console.error('Ошибка при входе:', error);
-
-        if (error.response?.data?.reason) {
-          message.error(error.response.data.reason);
-        } else if (error.message) {
-          message.error(error.message);
-        } else {
-          message.error('Произошла ошибка при входе');
-        }
-
-        return { success: false, error };
-      } finally {
-        setLoading(false);
+      if (!login) {
+        throw new Error('Логин или email обязателен для заполнения');
       }
-    },
-    [navigate]
-  );
 
-  const handleSignup = useCallback(
-    async (values: FormValues) => {
-      setLoading(true);
-
-      try {
-        if (!values.email) {
-          throw new Error('Email обязателен для заполнения');
-        }
-
-        if (!values.password) {
-          throw new Error('Пароль обязателен для заполнения');
-        }
-
-        const login = values.text || values.email;
-
-        if (!login) {
-          throw new Error('Логин или email обязателен для заполнения');
-        }
-
-        const signupData: SignupData = {
-          first_name: values.firstName || 'User',
-          second_name: values.secondName || 'User',
-          login: login,
-          email: values.email,
-          password: values.password,
-          phone: values.phone || '89276542358',
-        };
-
-        await authApi.signup(signupData);
-
-        message.success('Регистрация прошла успешно!');
-        navigate('/login');
-
-        return { success: true };
-      } catch (error: any) {
-        console.error('Ошибка при регистрации:', error);
-
-        if (error.response?.data?.reason) {
-          message.error(error.response.data.reason);
-        } else if (error.message) {
-          message.error(error.message);
-        } else {
-          message.error('Произошла ошибка при регистрации');
-        }
-
-        return { success: false, error };
-      } finally {
-        setLoading(false);
+      if (!values.password) {
+        throw new Error('Пароль обязателен для заполнения');
       }
-    },
-    [navigate]
-  );
+
+      const signinData: SigninData = {
+        login: login,
+        password: values.password,
+      };
+
+      await authApi.signin(signinData);
+
+      // Получаем данные пользователя после успешного входа
+      await checkCurrentUser();
+
+      message.success('Вход выполнен успешно!');
+
+      return { success: true };
+    } catch (error: any) {
+      console.error('Ошибка при входе:', error);
+
+      if (error.response?.data?.reason) {
+        message.error(error.response.data.reason);
+      } else if (error.message) {
+        message.error(error.message);
+      } else {
+        message.error('Произошла ошибка при входе');
+      }
+
+      return { success: false, error };
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const handleSignup = useCallback(async (values: FormValues) => {
+    setLoading(true);
+
+    try {
+      if (!values.email) {
+        throw new Error('Email обязателен для заполнения');
+      }
+
+      if (!values.password) {
+        throw new Error('Пароль обязателен для заполнения');
+      }
+
+      // Получаем логин: приоритет у text, затем login, затем email
+      const login = values.text || values.login || values.email;
+
+      if (!login) {
+        throw new Error('Логин или email обязателен для заполнения');
+      }
+
+      const signupData: SignupData = {
+        first_name: values.firstName || 'User',
+        second_name: values.secondName || 'User',
+        login: login,
+        email: values.email,
+        password: values.password,
+        phone: values.phone || '89276542358',
+      };
+
+      await authApi.signup(signupData);
+
+      message.success('Регистрация прошла успешно!');
+
+      return { success: true };
+    } catch (error: any) {
+      console.error('Ошибка при регистрации:', error);
+
+      if (error.response?.data?.reason) {
+        message.error(error.response.data.reason);
+      } else if (error.message) {
+        message.error(error.message);
+      } else {
+        message.error('Произошла ошибка при регистрации');
+      }
+
+      return { success: false, error };
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   const handleLogout = useCallback(async () => {
     setLoading(true);
 
     try {
-      // Добавьте метод logout в AuthApi если его нет
+      // Раскомментируйте, когда API будет готов
       // await authApi.logout();
 
       setIsAuthenticated(false);

@@ -2,7 +2,7 @@ import { Helmet } from 'react-helmet-async';
 import { Header } from '../components/Header';
 import { usePage } from '../hooks/usePage';
 import { PageInitArgs } from '../routes';
-import { GameOverModal } from '../components/GameOverModal';
+import { GameOverModal } from '../features/game/components/modals/GameOverModal';
 import { useState } from 'react';
 
 export const GameStartPage = () => {

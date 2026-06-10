@@ -1,19 +1,19 @@
+import { ErrorHandler } from '../utils/error/errorHandler';
 import { authApi } from './authApi';
 import { HTTPTransport } from './httpTransport';
 
 // Создаём отдельный экземпляр без интерсепторов если нужно
-const checkAuthInstance = new HTTPTransport();
 
 export const checkAuth = async (): Promise<boolean> => {
   try {
-    // Пытаемся получить текущего пользователя
     await authApi.getCurrentUser();
 
-    return true; // Если запрос успешен - пользователь авторизован
+    return true;
   } catch (error) {
     console.error('Auth check failed:', error);
+    ErrorHandler.showUserError(error, 'checkAuth');
 
-    return false; // Если ошибка (обычно 401) - не авторизован
+    return false;
   }
 };
 

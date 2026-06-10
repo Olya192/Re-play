@@ -11,12 +11,14 @@ import {
   selectMissedCount,
   selectScore,
 } from '../../../../../slices/gameSession';
+import { useNavigate } from 'react-router-dom';
 import s from './ResultsModal.module.css';
 
 const fmtSec = (ms: number) => Math.round(ms / 1000);
 
 export const ResultsModal = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const activeModal = useSelector(selectActiveModal);
   const meta = useSelector(selectLevelMeta);
   const score = useSelector(selectScore);
@@ -32,12 +34,16 @@ export const ResultsModal = () => {
     dispatch(openModal('start'));
   };
 
+  const handleBackToMenu = () => {
+    dispatch(resetSession());
+    navigate('/main');
+  };
+
   return (
     <Modal isOpen={isOpen} onClose={handleAgain} closeOnEsc={false} ariaLabel="Результат уровня">
       <h2 className={s.title}>Уровень пройден</h2>
       <div className={s.grid}>
         <div className={s.row}>
-          {/* TODO: Считать по формулам, формулы крепить к items */}
           <span className={s.label}>Очки</span>
           <span className={s.value}>{score}</span>
         </div>
@@ -65,6 +71,13 @@ export const ResultsModal = () => {
         type="button"
         size="large"
         onClick={handleAgain}
+        style={{ width: '100%', padding: '0.8rem' }}
+      />
+      <BaseButton
+        title="Вернуться на главную"
+        type="button"
+        size="default"
+        onClick={handleBackToMenu}
         style={{ width: '100%', padding: '0.8rem' }}
       />
     </Modal>
