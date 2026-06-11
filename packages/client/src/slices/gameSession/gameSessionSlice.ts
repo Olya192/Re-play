@@ -15,6 +15,7 @@ export const initialGameSessionState: GameSessionState = {
   updatedAt: 0,
 };
 
+// TODO Refactor for tests: убрать Date.now() из редьюсера, а то результат зависит от текущего времени
 const stamp = (state: GameSessionState) => {
   state.updatedAt = Date.now();
 };
