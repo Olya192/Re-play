@@ -8,9 +8,8 @@ const ASSETS_TO_CACHE = [
 
 // 1. Install Event: Cache essential files
 self.addEventListener('install', (event) => {
+  console.log('install')
   event.waitUntil(
-
-
     caches.open(CACHE_NAME).then((cache) => {
       console.log('Caching core assets')
 
@@ -21,6 +20,7 @@ self.addEventListener('install', (event) => {
 
 // 2. Activate Event: Clean up old caches
 self.addEventListener('activate', (event) => {
+  console.log('activate')
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
@@ -44,6 +44,7 @@ self.addEventListener('fetch', (event) => {
         // If network fails, try matching the asset in the cache
 
         return caches.match(event.request).then((response) => {
+          
           // If asset is found in cache, return it; otherwise return offline page
           return response || caches.match('/offline.html')
         })
