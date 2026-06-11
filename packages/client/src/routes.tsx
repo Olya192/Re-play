@@ -1,19 +1,20 @@
 import { AppDispatch, RootState } from './store';
-import { initFriendsPage, FriendsPage } from './pages/FriendsPage';
+import { FriendsPage, initFriendsPage } from './pages/FriendsPage';
 import { initLoginPage, LoginPage } from './pages/LoginPage';
-import { MainPage, initMainPage } from './pages/Main';
+import { initMainPage, MainPage } from './pages/Main';
 import { initRegisterPage, RegisterPage } from './pages/RegisterPage';
 import { initUserProfile, UserProfile } from './pages/UserProfile';
 import { initLeaderboardPage, LeaderboardPage } from './pages/leaderboard';
-import { initForumPage, ForumPage } from './pages/ForumPage';
-import { initError404, Error404 } from './pages/Error404';
-import { initError500, Error500 } from './pages/Error500';
-import { initError403, Error403 } from './pages/Error403';
+import { Error404, initError404 } from './pages/Error404';
+import { Error500, initError500 } from './pages/Error500';
+import { Error403, initError403 } from './pages/Error403';
+import { ForumPage, ForumTopic, initForumPage } from './pages/forum';
 import { initProfilePage, ProfilePage } from './pages/profile';
 import { GameRoot, initGameRoot } from './features/game';
-import { RouteObject } from 'react-router-dom';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { RouteObject } from 'react-router-dom';
 import { ReactNode } from 'react';
+import ForumAddTopic from './pages/forum/components/ForumAddTopic';
 
 export type PageInitContext = {
   clientToken?: string;
@@ -90,6 +91,16 @@ const protectedRoutes: CustomRouteObject[] = [
     path: '/forum',
     Component: ForumPage,
     fetchData: initForumPage,
+    children: [
+      {
+        path: ':topicId',
+        Component: ForumTopic,
+      },
+      {
+        path: 'add',
+        Component: ForumAddTopic,
+      },
+    ],
   },
   {
     path: '/404',
@@ -100,11 +111,6 @@ const protectedRoutes: CustomRouteObject[] = [
     path: '/500',
     Component: Error500,
     fetchData: initError500,
-  },
-  {
-    path: '/404',
-    Component: Error404,
-    fetchData: initError404,
   },
   {
     path: '/403',
