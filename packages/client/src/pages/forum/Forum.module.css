@@ -1,0 +1,12 @@
+.forum {
+  block-size: 100%;
+  padding-block-start: 50px;
+  padding-block-end: 50px;
+  font-size: var(--main-font-size);
+  background-color: transparent;
+  margin: 0 auto;
+}
+
+.forumHeader h1 {
+  text-align: center;
+}
