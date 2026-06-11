@@ -373,7 +373,7 @@ export const GamePlayPlaceholder = () => {
     // Механика разбивания квадрата
     // Убираем из items square, по которому кликнули
     // Добавляем новые items shards вместо square
-    if (clickedItem.kind === 'edible') {
+    if (clickedItem.kind === 'inedible') {
       const now = performance.now();
       const stage = stageSizeRef.current;
 
@@ -391,6 +391,7 @@ export const GamePlayPlaceholder = () => {
 
         return {
           id: lastIdRef.current,
+          foodId: clickedItem.foodId,
           kind: 'shard' as ItemKind,
           xPx: parentLeft + parentSize / 2 - shardSize / 2,
           spawnedAt:

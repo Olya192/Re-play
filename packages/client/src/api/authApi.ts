@@ -1,3 +1,4 @@
+import { AUTH_ROUTES } from '../constants/api/apiConstants';
 import { convertKeysToCamelCase } from '../utils/convert/convertKeysToCamelCase';
 import { HTTPTransport } from './httpTransport';
 
@@ -30,19 +31,19 @@ const authApiInstance = new HTTPTransport();
 
 class AuthApi {
   signup(data: SignupData): Promise<{ id: number }> {
-    return authApiInstance.post('/api/v2/auth/signup', {
+    return authApiInstance.post(AUTH_ROUTES.SIGNUP, {
       data: { ...data },
     });
   }
 
-  signin(data: SigninData) {
-    return authApiInstance.post('/api/v2/auth/signin', {
+  signin(data: SigninData): Promise<unknown> {
+    return authApiInstance.post(AUTH_ROUTES.SIGNIN, {
       data: { ...data },
     });
   }
 
   async getCurrentUser(): Promise<User> {
-    const response = await authApiInstance.get('/api/v2/auth/user');
+    const response = await authApiInstance.get(AUTH_ROUTES.USER);
 
     return convertKeysToCamelCase(response) as unknown as User;
   }
