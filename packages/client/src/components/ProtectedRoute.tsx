@@ -1,6 +1,8 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { checkAuth } from '../api/checkAuth';
 import { useEffect, useState } from 'react';
+import { selectUser } from '../slices/userSlice';
+import { useSelector } from 'react-redux';
 
 export const ProtectedRoute = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
