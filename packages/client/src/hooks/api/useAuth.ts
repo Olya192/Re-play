@@ -40,7 +40,6 @@ export const useAuth = () => {
   const location = useLocation();
   const dispatch = useDispatch();
 
-  // Проверка текущего пользователя при монтировании
   useEffect(() => {
     checkCurrentUser();
   }, []);
@@ -51,7 +50,6 @@ export const useAuth = () => {
       setIsAuthenticated(true);
       setCurrentUser(user);
 
-      // Сохраняем данные пользователя в Redux
       dispatch(setUser(user));
 
       return user;
@@ -59,7 +57,6 @@ export const useAuth = () => {
       setIsAuthenticated(false);
       setCurrentUser(null);
 
-      // Очищаем данные пользователя в Redux при ошибке
       dispatch(clearUser());
 
       return null;
@@ -70,7 +67,6 @@ export const useAuth = () => {
     setLoading(true);
 
     try {
-      // Получаем логин: приоритет у text, затем login, затем email
       const login = values.text || values.login || values.email;
 
       if (!login) {
@@ -88,7 +84,6 @@ export const useAuth = () => {
 
       await authApi.signin(signinData);
 
-      // Получаем данные пользователя после успешного входа
       await checkCurrentUser();
 
       message.success('Вход выполнен успешно!');
@@ -123,8 +118,7 @@ export const useAuth = () => {
         throw new Error('Пароль обязателен для заполнения');
       }
 
-      // Получаем логин: приоритет у text, затем login, затем email
-      const login = values.text || values.login || values.email;
+      const login = values.text;
 
       if (!login) {
         throw new Error('Логин или email обязателен для заполнения');
@@ -165,13 +159,9 @@ export const useAuth = () => {
     setLoading(true);
 
     try {
-      // Раскомментируйте, когда API будет готов
-      // await authApi.logout();
-
       setIsAuthenticated(false);
       setCurrentUser(null);
 
-      // Очищаем данные пользователя в Redux
       dispatch(clearUser());
 
       message.success('Вы успешно вышли из системы');

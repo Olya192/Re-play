@@ -24,7 +24,6 @@ const initialState: UserState = {
   isLoading: false,
 };
 
-// Обновленный thunk с использованием authApi
 export const fetchUserThunk = createAsyncThunk('user/fetchUserThunk', async () => {
   const user = await authApi.getCurrentUser();
 
