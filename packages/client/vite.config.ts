@@ -15,6 +15,7 @@ export default defineConfig({
     __INTERNAL_SERVER_URL__: JSON.stringify(process.env.INTERNAL_SERVER_URL),
   },
   build: {
+    manifest: 'manifest.json',
     outDir: path.join(__dirname, 'dist/client'),
   },
   ssr: {
