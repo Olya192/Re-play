@@ -44,11 +44,13 @@ export const render = async (req: ExpressRequest) => {
   ] = foundRoutes;
 
   try {
-    await fetchData({
-      dispatch: store.dispatch,
-      state: store.getState(),
-      ctx: createContext(req),
-    });
+    if (fetchData) {
+      await fetchData({
+        dispatch: store.dispatch,
+        state: store.getState(),
+        ctx: createContext(req),
+      });
+    }
   } catch (e) {
     console.log('Инициализация страницы произошла с ошибкой', e);
   }
