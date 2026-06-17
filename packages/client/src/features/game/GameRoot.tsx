@@ -53,6 +53,13 @@ export const GameRoot = () => {
           <FloatButton
             onClick={toggleFullScreen}
             icon={isFullsreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />}
+            tooltip={
+              isFullsreen ? (
+                <div>Выйти из полноэкранного режима</div>
+              ) : (
+                <div>Полноэкранный режим</div>
+              )
+            }
           />
         </GameStage>
       </GameLayout>
