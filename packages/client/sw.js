@@ -35,7 +35,6 @@ self.addEventListener('activate', (event) => {
 
 // 3. Fetch Event: Network-first fallback to cache strategy
 self.addEventListener('fetch', (event) => {
-  console.log('fetch')
   event.respondWith(
     (async() => {
       try {
