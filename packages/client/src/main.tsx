@@ -10,13 +10,26 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 
 const router = createBrowserRouter(routes);
 
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker
+      .register('/sw.js')
+      .then((registration) => {
+        console.log('Service Worker успешно зарегистрирован: ', registration.scope);
+      })
+      .catch((error) => {
+        console.log('Ошибка при регистрации Service Worker: ', error);
+      });
+  });
+}
+
 ReactDOM.hydrateRoot(
   document.getElementById('root') as HTMLElement,
-  <HelmetProvider>
-    <Provider store={store}>
-      <ErrorBoundary>
+  <ErrorBoundary>
+    <HelmetProvider>
+      <Provider store={store}>
         <RouterProvider router={router} />
-      </ErrorBoundary>
-    </Provider>
-  </HelmetProvider>
+      </Provider>
+    </HelmetProvider>
+  </ErrorBoundary>
 );

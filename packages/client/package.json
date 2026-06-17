@@ -43,7 +43,8 @@
     "postcss": "^8.5.14",
     "prettier": "^2.7.1",
     "ts-jest": "^29.0.0",
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "vite-plugin-static-copy": "^4.1.1"
   },
   "license": "MIT"
 }
