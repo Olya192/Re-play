@@ -47,6 +47,12 @@ class AuthApi {
 
     return convertKeysToCamelCase(response) as unknown as User;
   }
+
+  async ServiceID(): Promise<any> {
+    const response = await authApiInstance.get(AUTH_ROUTES.OAUTH);
+
+    return response;
+  }
 }
 
 export const authApi = new AuthApi();

@@ -1,6 +1,5 @@
 import { ErrorHandler } from '../utils/error/errorHandler';
 import { authApi } from './authApi';
-import { HTTPTransport } from './httpTransport';
 
 // Создаём отдельный экземпляр без интерсепторов если нужно
 
