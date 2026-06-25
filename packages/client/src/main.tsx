@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { StrictMode } from 'react';
 import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { Provider } from 'react-redux';
@@ -7,8 +7,10 @@ import { store } from './store';
 import { routes } from './routes';
 import './index.css';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { observeLCP } from './performanceMonitor';
 
 const router = createBrowserRouter(routes);
+observeLCP();
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
@@ -49,11 +51,13 @@ if ('serviceWorker' in navigator) {
 
 ReactDOM.hydrateRoot(
   document.getElementById('root') as HTMLElement,
-  <ErrorBoundary>
-    <HelmetProvider>
-      <Provider store={store}>
-        <RouterProvider router={router} />
-      </Provider>
-    </HelmetProvider>
-  </ErrorBoundary>
+  <StrictMode>
+    <ErrorBoundary>
+      <HelmetProvider>
+        <Provider store={store}>
+          <RouterProvider router={router} />
+        </Provider>
+      </HelmetProvider>
+    </ErrorBoundary>
+  </StrictMode>
 );

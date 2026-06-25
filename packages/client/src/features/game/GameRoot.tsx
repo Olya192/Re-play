@@ -10,16 +10,35 @@ import { ModalLayer } from './components/modals/ModalLayer';
 import { GamePlayPlaceholder } from './components/_placeholder/GamePlayPlaceholder';
 import { usePauseOnEsc } from './hooks/usePauseOnEsc';
 import { usePauseOnModal } from './hooks/usePauseOnModal';
-import { usePage } from '../../hooks/usePage';
+import { usePage } from '../../hooks';
 import { PageInitArgs } from '../../routes';
 import { FloatButton } from 'antd';
 import { FullscreenExitOutlined, FullscreenOutlined } from '@ant-design/icons';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { MINUTES_IN_MS } from '../../constants';
 
 export const GameRoot = () => {
   usePage({ initPage: initGameRoot });
   usePauseOnEsc();
   usePauseOnModal();
+
+  // Время, проведенное на странице игры
+  useEffect(() => {
+    performance.mark('start-game');
+
+    return () => {
+      performance.mark('finish-game');
+      const gameDetail = performance.measure('game', 'start-game', 'finish-game');
+      const duration = (gameDetail.duration / MINUTES_IN_MS).toFixed(2);
+      console.group('Метрики игры');
+      console.log(`Длительность игры: ${duration} мин`);
+      console.groupEnd();
+
+      performance.clearMeasures('game');
+      performance.clearMarks('start-game');
+      performance.clearMarks('finish-game');
+    };
+  }, []);
 
   const [isFullsreen, setIsFullsreen] = useState(false);
 

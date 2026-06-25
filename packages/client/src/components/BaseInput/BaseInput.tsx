@@ -1,11 +1,10 @@
 import s from './BaseInput.module.css';
+import { Input } from 'antd';
+import type { InputProps } from 'antd';
 
-interface BaseInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  label: string;
-  type?: string;
-  placeholder?: string;
-  name: string;
-  autofocus?: boolean;
+interface BaseInputProps extends Omit<InputProps, 'autoFocus'> {
+  label?: string;
+  autofocus?: boolean; // кастомный проп с маленькой буквы
 }
 
 export const BaseInput = ({
@@ -16,12 +15,13 @@ export const BaseInput = ({
   autofocus = false,
   ...restProps
 }: BaseInputProps) => {
+  const InputComponent = type === 'password' ? Input.Password : Input;
+
   return (
     <label className={s.inputLabel}>
       <span className={s.inputLabelText}>{label}</span>
-      <input
-        className={s.inputField}
-        type={type}
+      <InputComponent
+        type={type === 'password' ? undefined : type}
         placeholder={placeholder}
         name={name}
         autoFocus={autofocus}
