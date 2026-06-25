@@ -11,6 +11,10 @@ interface SignupData {
   phone: string;
 }
 
+type ServiceID = {
+  service_id: string;
+};
+
 interface SigninData {
   login: string;
   password: string;
@@ -48,10 +52,28 @@ class AuthApi {
     return convertKeysToCamelCase(response) as unknown as User;
   }
 
-  async ServiceID(): Promise<any> {
-    const response = await authApiInstance.get(AUTH_ROUTES.OAUTH);
+  async getServiceID(redirectUri: string): Promise<string> {
+    const response = await fetch(
+      `https://ya-praktikum.tech/oauth/yandex/service-id?redirect_uri=${redirectUri}`
+    );
+    // authApiInstance.get(
+    //   AUTH_ROUTES.OAUTH,
+    //   {
+    //     data: { redirect_uri: redirectUri }
+    //   }
+    // );
+    const data: ServiceID = await response.json();
 
-    return response;
+    return data.service_id;
+  }
+
+  async exchangeCodeForToken(code: string, redirectUri: string): Promise<unknown> {
+    return authApiInstance.post(AUTH_ROUTES.OAUTH_TOKEN, {
+      data: {
+        code,
+        redirect_uri: redirectUri,
+      },
+    });
   }
 }
 

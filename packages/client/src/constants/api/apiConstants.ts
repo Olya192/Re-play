@@ -12,6 +12,7 @@ export const AUTH_ROUTES = {
   SIGNIN: '/api/v2/auth/signin',
   USER: '/api/v2/auth/user',
   OAUTH: '/oauth/yandex/service-id',
+  OAUTH_TOKEN: '/api/v2/oauth/yandex',
 } as const;
 
 export const RESOURCE_API_URL = '/api/v2/resources';

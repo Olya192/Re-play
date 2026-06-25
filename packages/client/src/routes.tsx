@@ -1,8 +1,6 @@
 import { AppDispatch, RootState } from './store';
 import { FriendsPage, initFriendsPage } from './pages/FriendsPage';
-import { initLoginPage, LoginPage } from './pages/LoginPage';
 import { initMainPage, MainPage } from './pages/Main';
-import { initRegisterPage, RegisterPage } from './pages/RegisterPage';
 import { initUserProfile, UserProfile } from './pages/UserProfile';
 import { initLeaderboardPage, LeaderboardPage } from './pages/leaderboard';
 import { Error404, initError404 } from './pages/Error404';
@@ -30,20 +28,6 @@ export type CustomRouteObject = RouteObject & {
   Component?: React.ComponentType<Record<string, unknown>>;
   fetchData?: (args: PageInitArgs) => Promise<unknown>;
 };
-
-// Публичные маршруты
-const publicRoutes: CustomRouteObject[] = [
-  {
-    path: '/login',
-    Component: LoginPage,
-    fetchData: initLoginPage,
-  },
-  {
-    path: '/register',
-    Component: RegisterPage,
-    fetchData: initRegisterPage,
-  },
-];
 
 // Защищённые маршруты
 /**
@@ -131,4 +115,4 @@ const withProtection = (routes: CustomRouteObject[]): CustomRouteObject => ({
 });
 
 // Итоговые маршруты
-export const routes: CustomRouteObject[] = [...publicRoutes, withProtection(protectedRoutes)];
+export const routes: CustomRouteObject[] = [withProtection(protectedRoutes)];
