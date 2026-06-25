@@ -49,11 +49,11 @@ if ('serviceWorker' in navigator) {
 
 ReactDOM.hydrateRoot(
   document.getElementById('root') as HTMLElement,
-  <HelmetProvider>
-    <Provider store={store}>
-      <ErrorBoundary>
+  <ErrorBoundary>
+    <HelmetProvider>
+      <Provider store={store}>
         <RouterProvider router={router} />
-      </ErrorBoundary>
-    </Provider>
-  </HelmetProvider>
+      </Provider>
+    </HelmetProvider>
+  </ErrorBoundary>
 );

@@ -2,7 +2,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { message } from 'antd';
+import { useDispatch } from 'react-redux';
 import { authApi } from '../../api/authApi';
+import { setUser, clearUser, type User } from '../../slices/userSlice';
 
 interface SignupData {
   first_name: string;
@@ -23,19 +25,21 @@ interface FormValues {
   password?: string;
   text?: string;
   confirmPassword?: string;
-  login?: string;
+  firstName?: string;
+  secondName?: string;
   phone?: string;
+  login?: string;
   [key: string]: string | undefined;
 }
 
 export const useAuth = () => {
   const [loading, setLoading] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useDispatch();
 
-  // Проверка текущего пользователя при монтировании
   useEffect(() => {
     checkCurrentUser();
   }, []);
@@ -46,10 +50,14 @@ export const useAuth = () => {
       setIsAuthenticated(true);
       setCurrentUser(user);
 
+      dispatch(setUser(user));
+
       return user;
     } catch (error) {
       setIsAuthenticated(false);
       setCurrentUser(null);
+
+      dispatch(clearUser());
 
       return null;
     }
@@ -59,7 +67,6 @@ export const useAuth = () => {
     setLoading(true);
 
     try {
-      // Получаем логин: приоритет у text, затем login, затем email
       const login = values.text || values.login || values.email;
 
       if (!login) {
@@ -77,7 +84,6 @@ export const useAuth = () => {
 
       await authApi.signin(signinData);
 
-      // Получаем данные пользователя после успешного входа
       await checkCurrentUser();
 
       message.success('Вход выполнен успешно!');
@@ -112,16 +118,15 @@ export const useAuth = () => {
         throw new Error('Пароль обязателен для заполнения');
       }
 
-      // Получаем логин: приоритет у text, затем login, затем email
-      const login = values.text || values.login || values.email;
+      const login = values.text;
 
       if (!login) {
         throw new Error('Логин или email обязателен для заполнения');
       }
 
       const signupData: SignupData = {
-        first_name: values.first_name || 'User',
-        second_name: values.second_name || 'User',
+        first_name: values.firstName || 'User',
+        second_name: values.secondName || 'User',
         login: login,
         email: values.email,
         password: values.password,
@@ -154,11 +159,11 @@ export const useAuth = () => {
     setLoading(true);
 
     try {
-      // Раскомментируйте, когда API будет готов
-      // await authApi.logout();
-
       setIsAuthenticated(false);
       setCurrentUser(null);
+
+      dispatch(clearUser());
+
       message.success('Вы успешно вышли из системы');
       navigate('/login');
 
@@ -170,7 +175,7 @@ export const useAuth = () => {
     } finally {
       setLoading(false);
     }
-  }, [navigate]);
+  }, [navigate, dispatch]);
 
   const getButtonText = useCallback(() => {
     if (loading) {

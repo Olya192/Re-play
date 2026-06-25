@@ -12,11 +12,28 @@ import { usePauseOnEsc } from './hooks/usePauseOnEsc';
 import { usePauseOnModal } from './hooks/usePauseOnModal';
 import { usePage } from '../../hooks/usePage';
 import { PageInitArgs } from '../../routes';
+import { FloatButton } from 'antd';
+import { FullscreenExitOutlined, FullscreenOutlined } from '@ant-design/icons';
+import { useState } from 'react';
 
 export const GameRoot = () => {
   usePage({ initPage: initGameRoot });
   usePauseOnEsc();
   usePauseOnModal();
+
+  const [isFullsreen, setIsFullsreen] = useState(false);
+
+  const toggleFullScreen = () => {
+    if (!document.fullscreenElement) {
+      if (document.getElementById('game')) {
+        setIsFullsreen(true);
+        document.getElementById('game')?.requestFullscreen();
+      }
+    } else {
+      setIsFullsreen(false);
+      document.exitFullscreen?.();
+    }
+  };
 
   return (
     <>
@@ -33,6 +50,17 @@ export const GameRoot = () => {
           <GameHeader />
           <GameFooter />
           <ModalLayer />
+          <FloatButton
+            onClick={toggleFullScreen}
+            icon={isFullsreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />}
+            tooltip={
+              isFullsreen ? (
+                <div>Выйти из полноэкранного режима</div>
+              ) : (
+                <div>Полноэкранный режим</div>
+              )
+            }
+          />
         </GameStage>
       </GameLayout>
     </>

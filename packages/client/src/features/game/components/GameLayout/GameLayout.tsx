@@ -6,5 +6,9 @@ interface GameLayoutProps {
 }
 
 export const GameLayout = ({ children }: GameLayoutProps) => {
-  return <div className={s.layout}>{children}</div>;
+  return (
+    <div id="game" className={s.layout}>
+      {children}
+    </div>
+  );
 };
