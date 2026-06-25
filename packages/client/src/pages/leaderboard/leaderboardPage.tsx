@@ -4,7 +4,7 @@ import { Header } from '../../components/Header';
 import { usePage } from '../../hooks/usePage';
 import { useEffect, useMemo, useState } from 'react';
 import { useLeaderboard } from './useLeaderboard';
-import { Col, Layout, Row, Table, Typography } from 'antd';
+import { Button, Col, Flex, Layout, notification, Row, Space, Table, Typography } from 'antd';
 import { leaderboardColumns } from '../../constants/leaderboard/constants';
 import s from './Leaderboard.module.css';
 import { PageInitArgs } from '../../routes';
@@ -16,10 +16,14 @@ const { Title } = Typography;
 export const LeaderboardPage = () => {
   usePage({ initPage: initLeaderboardPage });
 
-  const { getLeaderboard } = useLeaderboard();
+  const { getLeaderboard, loading } = useLeaderboard();
+  const [api, contextHolder] = notification.useNotification();
 
   const [leaderboard, setLeaderboard] = useState<LeaderboardItem[]>([]);
   const [columns, setLeaderboardColumns] = useState<ColumnsType<LeaderboardItem>>([]);
+  const [cursor, setCursor] = useState<number>(0);
+  const [perPage] = useState<number>(20);
+  const [isButtonLoadmoreVisible, setIsButtonLoadmoreVisible] = useState<boolean>(true);
 
   const generateColumns = useMemo(() => {
     return (Object.entries(leaderboardColumns) as [keyof typeof leaderboardColumns, string][]).map(
@@ -34,49 +38,89 @@ export const LeaderboardPage = () => {
     );
   }, [leaderboardColumns]);
 
+  const loadPage = (page: number, perPage: number): void => {
+    getLeaderboard(page, perPage).then((response) => {
+      if (response.length < perPage) {
+        setIsButtonLoadmoreVisible(false);
+        openNotification();
+      }
+
+      if (response.length) {
+        const merged: LeaderboardItem[] = [
+          ...leaderboard,
+          ...response.map((item: LeaderboardResult) => {
+            return {
+              ...item.data,
+            };
+          }),
+        ];
+        setLeaderboard([
+          ...merged.map((item: LeaderboardItem, index: number) => {
+            return {
+              ...item,
+              order: index + 1,
+            };
+          }),
+        ]);
+      }
+    });
+    setCursor(cursor + perPage);
+  };
+
+  const openNotification = () => {
+    api.open({
+      title: 'Вы достилги дна.. ⚓',
+      placement: 'bottomRight',
+      type: 'info',
+      duration: 3,
+    });
+  };
+
   useEffect(() => {
     setLeaderboardColumns(generateColumns);
-    try {
-      getLeaderboard(0).then((response) => {
-        if (response) {
-          console.log(response);
-          setLeaderboard([
-            ...response
-              .sort((a: LeaderboardResult, b: LeaderboardResult) => a.data.score > b.data.score)
-              .map((item: LeaderboardResult, index: number) => {
-                return {
-                  ...item.data,
-                  order: index + 1,
-                };
-              }),
-          ]);
-        }
-      });
-    } catch (error) {
-      console.warn(error);
-    }
+    loadPage(cursor, perPage);
   }, []);
 
   return (
-    <div className="App">
-      <Helmet>
-        <meta charSet="utf-8" />
-        <title>Таблица лидеров</title>
-        <meta name="description" content="Таблица лидеров" />
-      </Helmet>
-      <Header />
+    <>
+      {contextHolder}
+      <div className="App">
+        <Helmet>
+          <meta charSet="utf-8" />
+          <title>Таблица лидеров</title>
+          <meta name="description" content="Таблица лидеров" />
+        </Helmet>
+        <Header />
 
-      <Layout className={s.leaderboard}>
-        <Content>
-          <Row justify="center">
-            <Col span={12}>
-              <Title level={1}>Таблица лидеров</Title>
-              <Table<LeaderboardItem> dataSource={leaderboard} columns={columns} />
-            </Col>
-          </Row>
-        </Content>
-      </Layout>
-    </div>
+        <Layout className={s.leaderboard}>
+          <Content>
+            <Row justify="center">
+              <Col span={12}>
+                <Title level={1}>Таблица лидеров</Title>
+                <Space orientation="vertical" size="medium" style={{ display: 'flex' }}>
+                  <Table<LeaderboardItem>
+                    dataSource={leaderboard}
+                    columns={columns}
+                    pagination={{ placement: ['none', 'none'] }}
+                  />
+                  <Flex justify={'center'}>
+                    <Button
+                      className={isButtonLoadmoreVisible ? '' : 'hidden'}
+                      loading={loading}
+                      onClick={() => {
+                        loadPage(cursor, perPage);
+                      }}
+                    >
+                      Загрузить еще
+                    </Button>
+                  </Flex>
+                </Space>
+              </Col>
+            </Row>
+          </Content>
+        </Layout>
+      </div>
+    </>
   );
 };
 
