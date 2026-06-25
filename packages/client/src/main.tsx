@@ -11,15 +11,39 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 const router = createBrowserRouter(routes);
 
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker
-      .register('/sw.js')
-      .then((registration) => {
-        console.log('Service Worker успешно зарегистрирован: ', registration.scope);
-      })
-      .catch((error) => {
-        console.log('Ошибка при регистрации Service Worker: ', error);
-      });
+  window.addEventListener('load', async () => {
+    if (import.meta.env.MODE === 'development') {
+      navigator.serviceWorker.ready
+        .then((registration) => {
+          registration.unregister();
+
+          if ('caches' in window) {
+            caches.keys().then((cacheNames) => {
+              cacheNames.forEach((cacheName) => {
+                caches.delete(cacheName);
+                console.log(`Service Worker Кэш удален: ${cacheName}`);
+                window.location.reload();
+              });
+            });
+          }
+        })
+        .then(() => {
+          console.log('Service Worker отменен и кэш очищен');
+          window.location.reload();
+        })
+        .catch((error) => {
+          console.error('Service Worker: ', error);
+        });
+    } else {
+      navigator.serviceWorker
+        .register('/sw.js')
+        .then((registration) => {
+          console.log('Service Worker успешно зарегистрирован: ', registration.scope);
+        })
+        .catch((error) => {
+          console.error('Ошибка при регистрации Service Worker: ', error);
+        });
+    }
   });
 }
 
