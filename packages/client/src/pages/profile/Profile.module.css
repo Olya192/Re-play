@@ -1,9 +1,9 @@
 .profileWrapper {
   block-size: 100%;
+  padding: 2rem;
 }
 
 .profileHeader {
-  margin-block-start: 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;

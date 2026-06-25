@@ -2,7 +2,7 @@ import { Helmet } from 'react-helmet-async';
 import { useSelector } from '../store';
 import { fetchUserThunk, selectUser } from '../slices/userSlice';
 import { Header } from '../components/Header';
-import { usePage } from '../hooks/usePage';
+import { usePage } from '../hooks';
 import { PageInitArgs } from '../routes';
 
 export const MainPage = () => {
@@ -20,7 +20,7 @@ export const MainPage = () => {
       <Header />
       {user ? (
         <div>
-          <p>{user.name}</p>
+          <p>{user.firstName}</p>
           <p>{user.secondName}</p>
         </div>
       ) : (
