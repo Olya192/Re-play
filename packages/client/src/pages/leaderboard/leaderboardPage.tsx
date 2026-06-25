@@ -1,4 +1,4 @@
-import { LeaderboardItem } from '../../types/leaderboard';
+import { LeaderboardItem, LeaderboardResult } from '../../types/leaderboard';
 import { Helmet } from 'react-helmet-async';
 import { Header } from '../../components/Header';
 import { usePage } from '../../hooks/usePage';
@@ -16,7 +16,8 @@ const { Title } = Typography;
 export const LeaderboardPage = () => {
   usePage({ initPage: initLeaderboardPage });
 
-  const { leaderboardItems } = useLeaderboard();
+  const { getLeaderboard } = useLeaderboard();
+
   const [leaderboard, setLeaderboard] = useState<LeaderboardItem[]>([]);
   const [columns, setLeaderboardColumns] = useState<ColumnsType<LeaderboardItem>>([]);
 
@@ -33,25 +34,28 @@ export const LeaderboardPage = () => {
     );
   }, [leaderboardColumns]);
 
-  const generateFields = useMemo((): LeaderboardItem[] => {
-    return Array.from({ length: 100 }, (item: number, index: number) => {
-      return {
-        key: index,
-        id: index,
-        order: index + 1,
-        name: 'Какоетоимя',
-        score: Math.floor(Math.random() * 100000) + 1,
-        team: 'Какаятокоманда',
-      };
-    });
-  }, [leaderboardItems]);
-
   useEffect(() => {
-    const fields = generateFields;
-    const columns = generateColumns;
-    setLeaderboard([...fields]);
-    setLeaderboardColumns(columns);
-  }, [leaderboardItems]);
+    setLeaderboardColumns(generateColumns);
+    try {
+      getLeaderboard(0).then((response) => {
+        if (response) {
+          console.log(response);
+          setLeaderboard([
+            ...response
+              .sort((a: LeaderboardResult, b: LeaderboardResult) => a.data.score > b.data.score)
+              .map((item: LeaderboardResult, index: number) => {
+                return {
+                  ...item.data,
+                  order: index + 1,
+                };
+              }),
+          ]);
+        }
+      });
+    } catch (error) {
+      console.warn(error);
+    }
+  }, []);
 
   return (
     <div className="App">

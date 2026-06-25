@@ -44,6 +44,11 @@ export const Header = () => {
           </Link>
         </li>
         <li className={s.listItem}>
+          <Link to="/logout" className={s.link}>
+            Выход
+          </Link>
+        </li>
+        <li className={s.listItem}>
           <Link to="/register" className={s.link}>
             Регистрация
           </Link>
