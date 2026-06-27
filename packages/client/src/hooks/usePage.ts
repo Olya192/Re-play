@@ -38,14 +38,10 @@ export const usePage = ({ initPage }: PageProps) => {
 
   useEffect(() => {
     if (isOAuthLoading) {
-      console.log('OAuth в процессе, инициализация страницы отложена');
-
       return;
     }
 
     if (!isAuthenticated) {
-      console.log(' Пользователь не авторизован, ожидаем редирект...');
-
       return;
     }
 
@@ -65,13 +61,11 @@ export const usePage = ({ initPage }: PageProps) => {
         return;
       }
 
-      console.log(' Инициализация страницы...');
       await initPage({
         dispatch,
         state: store.getState(),
         ctx: createContext(),
       });
-      console.log('Страница инициализирована');
       setIsPageInitialized(true);
     } catch (error) {
       console.error('Page initialization failed:', error);

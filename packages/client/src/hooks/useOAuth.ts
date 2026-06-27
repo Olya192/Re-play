@@ -29,11 +29,8 @@ export const useOAuth = () => {
       setError(null);
 
       const redirectUri = window.location.origin;
-      console.log('🔐 Redirect URI:', redirectUri);
 
       const clientId = await authApi.getServiceID(redirectUri);
-
-      console.log('📝 Client ID:', clientId);
 
       // Редирект на Яндекс
       const yandexAuthUrl = `https://oauth.yandex.ru/authorize?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(
@@ -77,7 +74,6 @@ export const useOAuth = () => {
         throw new Error('Не удалось получить данные пользователя');
       }
     } catch (error) {
-      console.error(' OAuth callback failed:', error);
       setError('Не удалось завершить авторизацию через Яндекс');
       sessionStorage.removeItem('oauth_in_progress');
       sessionStorage.removeItem('oauth_redirect_uri');
@@ -92,23 +88,26 @@ export const useOAuth = () => {
       const isAuth = await checkAuth();
       setIsAuthenticated(isAuth);
 
+      if (!isAuth) {
+        sessionStorage.setItem('oauth_in_progress', 'false');
+      }
+
       return isAuth;
     } catch (error) {
       console.error('Auth check failed:', error);
       setIsAuthenticated(false);
+      sessionStorage.setItem('oauth_in_progress', 'false');
 
       return false;
     }
   };
 
-  // Главный эффект
   useEffect(() => {
     const handleAuth = async () => {
       const searchParams = new URLSearchParams(location.search);
       const code = searchParams.get('code');
 
       if (code) {
-        console.log('🔑 Найден code в URL:', code);
         await handleOAuthCallback(code);
 
         return;
@@ -119,11 +118,10 @@ export const useOAuth = () => {
       const isAuth = await checkUserAuth();
       setIsLoading(false);
 
-      // Если не авторизованы и OAuth не в процессе - запускаем OAuth
+      // Если не авторизован и OAuth не в процессе - запускаем OAuth
       const oauthInProgress = sessionStorage.getItem('oauth_in_progress');
 
-      if (!isAuth && !oauthInProgress) {
-        console.log('Пользователь не авторизован, запуск OAuth...');
+      if (!isAuth && oauthInProgress === 'false') {
         await initiateOAuth();
       }
     };

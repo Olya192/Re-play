@@ -54,7 +54,9 @@ class AuthApi {
 
   async getServiceID(redirectUri: string): Promise<string> {
     const response = await fetch(
-      `https://ya-praktikum.tech/oauth/yandex/service-id?redirect_uri=${redirectUri}`
+      encodeURI(
+        `https://ya-praktikum.tech/api/v2/oauth/yandex/service-id?redirect_uri=${redirectUri}`
+      )
     );
     // authApiInstance.get(
     //   AUTH_ROUTES.OAUTH,

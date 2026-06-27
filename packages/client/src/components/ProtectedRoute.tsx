@@ -1,6 +1,4 @@
 import { Navigate, Outlet } from 'react-router-dom';
-import { checkAuth } from '../api/checkAuth';
-import { useEffect, useState } from 'react';
 import { usePage } from '../hooks/usePage';
 import { PageInitArgs } from '../routes';
 
