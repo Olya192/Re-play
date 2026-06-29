@@ -7,28 +7,34 @@ export const useLeaderboard = () => {
 
   const getLeaderboard = async (cursor: number, perPage: number) => {
     setLoading(true);
-    try {
-      return await leaderboardApi
-        .getLeaderboard({
-          ratingFieldName: 'score',
-          cursor: cursor,
-          limit: perPage,
-        })
-        .finally(() => {
-          setLoading(false);
-        });
-    } catch (error) {
-      console.warn('error:', error);
-    }
+    let resp = [];
+    await leaderboardApi
+      .getLeaderboard({
+        ratingFieldName: 'score',
+        cursor: cursor,
+        limit: perPage,
+      })
+      .then((response) => {
+        setLoading(false);
+        resp = response;
+      })
+      .catch((error) => {
+        console.warn('error:', error);
+        setLoading(false);
+      });
+
+    return resp;
   };
 
   const addToLeaderboard = async (score: number) => {
     const user = await authApi.getCurrentUser();
     try {
+      const id = new Date().getTime();
+
       return await leaderboardApi.addToLeaderboard({
         data: {
-          id: new Date().getTime(),
-          key: new Date().getTime(),
+          id: id,
+          key: id,
           userName: user.firstName,
           userId: user.id,
           score: score,

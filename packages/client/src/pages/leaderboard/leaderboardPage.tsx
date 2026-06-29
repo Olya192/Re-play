@@ -13,6 +13,16 @@ import { ColumnsType } from 'antd/es/table';
 const { Content } = Layout;
 const { Title } = Typography;
 
+const openNotification = (api) => {
+  api.open({
+    title: 'Вы достигли дна.. ⚓',
+    description: 'или конца списка',
+    placement: 'bottomRight',
+    type: 'info',
+    duration: 3,
+  });
+};
+
 export const LeaderboardPage = () => {
   usePage({ initPage: initLeaderboardPage });
 
@@ -42,7 +52,7 @@ export const LeaderboardPage = () => {
     getLeaderboard(page, perPage).then((response) => {
       if (response.length < perPage) {
         setIsButtonLoadmoreVisible(false);
-        openNotification();
+        openNotification(api);
       }
 
       if (response.length) {
@@ -65,15 +75,6 @@ export const LeaderboardPage = () => {
       }
     });
     setCursor(cursor + perPage);
-  };
-
-  const openNotification = () => {
-    api.open({
-      title: 'Вы достилги дна.. ⚓',
-      placement: 'bottomRight',
-      type: 'info',
-      duration: 3,
-    });
   };
 
   useEffect(() => {
@@ -102,17 +103,23 @@ export const LeaderboardPage = () => {
                     dataSource={leaderboard}
                     columns={columns}
                     pagination={{ placement: ['none', 'none'] }}
+                    loading={loading}
+                    rowKey={new Date().getTime * (Math.floor(Math.random() * 100) + 1)}
                   />
                   <Flex justify={'center'}>
-                    <Button
-                      className={isButtonLoadmoreVisible ? '' : 'hidden'}
-                      loading={loading}
-                      onClick={() => {
-                        loadPage(cursor, perPage);
-                      }}
-                    >
-                      Загрузить еще
-                    </Button>
+                    {isButtonLoadmoreVisible ? (
+                      ''
+                    ) : (
+                      <Button
+                        className={isButtonLoadmoreVisible ? '' : 'hidden'}
+                        loading={loading}
+                        onClick={() => {
+                          loadPage(cursor, perPage);
+                        }}
+                      >
+                        Загрузить еще
+                      </Button>
+                    )}
                   </Flex>
                 </Space>
               </Col>
@@ -124,6 +131,6 @@ export const LeaderboardPage = () => {
   );
 };
 
-export const initLeaderboardPage = async ({ dispatch, state }: PageInitArgs) => {
+export const initLeaderboardPage = async ({ _dispatch, _state }: PageInitArgs) => {
   // заглушка
 };
