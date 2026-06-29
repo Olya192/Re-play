@@ -118,7 +118,7 @@ export const useAuth = () => {
         throw new Error('Пароль обязателен для заполнения');
       }
 
-      const login = values.text;
+      const login = values.login;
 
       if (!login) {
         throw new Error('Логин или email обязателен для заполнения');
@@ -159,6 +159,7 @@ export const useAuth = () => {
     setLoading(true);
 
     try {
+      authApi.logout();
       setIsAuthenticated(false);
       setCurrentUser(null);
 

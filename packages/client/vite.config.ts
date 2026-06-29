@@ -21,15 +21,15 @@ export default defineConfig({
   ssr: {
     noExternal: ['react-helmet-async'],
   },
-  plugins: [
-    react(),
-    viteStaticCopy({
-      targets: [
-        {
-          src: './sw.js',
-          dest: '',
-        },
-      ],
-    }),
-  ],
+  // plugins: [
+  //   react(),
+  //   viteStaticCopy({
+  //     targets: [
+  //       {
+  //         src: './sw.js',
+  //         dest: '',
+  //       },
+  //     ],
+  //   }),
+  // ],
 });

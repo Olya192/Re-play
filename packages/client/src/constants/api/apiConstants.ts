@@ -10,6 +10,7 @@ export const METHODS = {
 export const AUTH_ROUTES = {
   SIGNUP: '/api/v2/auth/signup',
   SIGNIN: '/api/v2/auth/signin',
+  LOGOUT: '/api/v2/auth/logout',
   USER: '/api/v2/auth/user',
 } as const;
 

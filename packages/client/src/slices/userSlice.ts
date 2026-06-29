@@ -63,6 +63,8 @@ export const { setUser, clearUser } = userSlice.actions;
 
 export const selectUser = (state: RootState) => state.user.data;
 
+export const getUser = (state: RootState) => state.user;
+
 export const selectUserLoading = (state: RootState) => state.user.isLoading;
 
 export default userSlice.reducer;
