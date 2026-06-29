@@ -10,12 +10,12 @@ import { ModalLayer } from './components/modals/ModalLayer';
 import { GamePlayPlaceholder } from './components/_placeholder/GamePlayPlaceholder';
 import { usePauseOnEsc } from './hooks/usePauseOnEsc';
 import { usePauseOnModal } from './hooks/usePauseOnModal';
-import { usePage } from '../../hooks';
-import { PageInitArgs } from '../../routes';
+import { usePage } from '@/hooks';
+import { PageInitArgs } from '@/routes';
 import { FloatButton } from 'antd';
 import { FullscreenExitOutlined, FullscreenOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
-import { MINUTES_IN_MS } from '../../constants';
+import { MINUTES_IN_MS } from '@/constants';
 
 export const GameRoot = () => {
   usePage({ initPage: initGameRoot });

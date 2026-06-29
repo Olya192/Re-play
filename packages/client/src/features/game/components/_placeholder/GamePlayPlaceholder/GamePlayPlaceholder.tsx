@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useDispatch, useSelector } from '../../../../../store';
+import { useDispatch, useSelector } from '@/store';
 import {
   incrementCaught,
   incrementEaten,
@@ -8,11 +8,11 @@ import {
   selectPhase,
   setPhase,
   syncFromEngine,
-} from '../../../../../slices/gameSession';
-import { openModal } from '../../../../../slices/gameUi';
+} from '@/slices/gameSession';
+import { openModal } from '@/slices/gameUi';
 import s from './GamePlayPlaceholder.module.css';
-import { randomInteger } from '../../../../../utils/randomeInteger';
-import { useRenderPerformance } from '../../../../../performanceMonitor';
+import { randomInteger } from '@/utils/randomeInteger';
+import { useRenderPerformance } from '@/performanceMonitor';
 
 type ItemKind = 'edible' | 'inedible' | 'shard';
 

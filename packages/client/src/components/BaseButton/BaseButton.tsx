@@ -18,7 +18,6 @@ export const BaseButton = ({
   style = {},
   onClick,
 }: BaseButtonProps) => {
-  // antd использует 'middle' для стандартного размера вместо 'default'
   const antdSize = size === 'default' ? 'middle' : size;
 
   return (

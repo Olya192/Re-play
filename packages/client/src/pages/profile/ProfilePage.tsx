@@ -1,13 +1,13 @@
 import { Helmet } from 'react-helmet-async';
-import { Header } from '../../components/Header';
-import { usePage } from '../../hooks';
+import { Header } from '@/components/Header';
+import { usePage } from '@/hooks';
 import s from './Profile.module.css';
 import { useEffect, useMemo } from 'react';
-import { PROFILE_FIELDS } from '../../constants/profile/constants';
-import { AvatarForm } from '../../components/AvatarForm';
+import { PROFILE_FIELDS } from '@/constants/profile/constants';
+import { AvatarForm } from '@/components/AvatarForm';
 import { useProfile } from './useProfile';
-import { EditPasswordForm } from '../../components/EditPasswordForm';
-import { showAllResources } from '../../performanceMonitor';
+import { EditPasswordForm } from '@/components/EditPasswordForm';
+import { showAllResources } from '@/performanceMonitor';
 
 export const ProfilePage = () => {
   usePage({ initPage: initProfilePage });
