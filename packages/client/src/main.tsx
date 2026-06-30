@@ -7,10 +7,8 @@ import { store } from './store';
 import { routes } from './routes';
 import './index.css';
 import { ErrorBoundary } from './components/ErrorBoundary';
-import { observeLCP } from './performanceMonitor';
 
 const router = createBrowserRouter(routes);
-observeLCP();
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {

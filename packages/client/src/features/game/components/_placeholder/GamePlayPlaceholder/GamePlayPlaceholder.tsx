@@ -12,7 +12,7 @@ import {
 import { openModal } from '@/slices/gameUi';
 import s from './GamePlayPlaceholder.module.css';
 import { randomInteger } from '@/utils/randomeInteger';
-import { useRenderPerformance } from '@/performanceMonitor';
+import { useComponentMountDuration } from '@/performanceMonitor';
 
 type ItemKind = 'edible' | 'inedible' | 'shard';
 
@@ -86,7 +86,7 @@ export const computeItemLeft = (
  * делал по статье learn.javascript.ru/js-animation
  */
 export const GamePlayPlaceholder = () => {
-  useRenderPerformance('GamePlayPlaceholder');
+  useComponentMountDuration('GamePlayPlaceholder');
 
   const dispatch = useDispatch();
   const phase = useSelector(selectPhase);

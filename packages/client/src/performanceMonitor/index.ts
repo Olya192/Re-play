@@ -1,4 +1,4 @@
-export { useRenderPerformance } from './useRenderPerformance';
+export { useComponentMountDuration } from './useComponentMountDuration';
 
 export { observeLCP } from './observeLCP';
 

@@ -14,31 +14,14 @@ import { usePage } from '@/hooks';
 import { PageInitArgs } from '@/routes';
 import { FloatButton } from 'antd';
 import { FullscreenExitOutlined, FullscreenOutlined } from '@ant-design/icons';
-import { useEffect, useState } from 'react';
-import { MINUTES_IN_MS } from '@/constants';
+import { useState } from 'react';
+import { useMetrics } from '@/features/game/hooks/useMetrics';
 
 export const GameRoot = () => {
   usePage({ initPage: initGameRoot });
   usePauseOnEsc();
   usePauseOnModal();
-
-  // Время, проведенное на странице игры
-  useEffect(() => {
-    performance.mark('start-game');
-
-    return () => {
-      performance.mark('finish-game');
-      const gameDetail = performance.measure('game', 'start-game', 'finish-game');
-      const duration = (gameDetail.duration / MINUTES_IN_MS).toFixed(2);
-      console.group('Метрики игры');
-      console.log(`Длительность игры: ${duration} мин`);
-      console.groupEnd();
-
-      performance.clearMeasures('game');
-      performance.clearMarks('start-game');
-      performance.clearMarks('finish-game');
-    };
-  }, []);
+  useMetrics();
 
   const [isFullsreen, setIsFullsreen] = useState(false);
 
