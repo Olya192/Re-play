@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { StrictMode } from 'react';
 import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { Provider } from 'react-redux';
@@ -49,11 +49,13 @@ if ('serviceWorker' in navigator) {
 
 ReactDOM.hydrateRoot(
   document.getElementById('root') as HTMLElement,
-  <ErrorBoundary>
-    <HelmetProvider>
-      <Provider store={store}>
-        <RouterProvider router={router} />
-      </Provider>
-    </HelmetProvider>
-  </ErrorBoundary>
+  <StrictMode>
+    <ErrorBoundary>
+      <HelmetProvider>
+        <Provider store={store}>
+          <RouterProvider router={router} />
+        </Provider>
+      </HelmetProvider>
+    </ErrorBoundary>
+  </StrictMode>
 );

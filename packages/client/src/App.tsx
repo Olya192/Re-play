@@ -8,8 +8,7 @@ const App = () => {
     <div>
       {user ? (
         <div>
-          <p>{user.name}</p>
-          <p>{user.secondName}</p>
+          <p>{user.firstName}</p>
         </div>
       ) : (
         <p>Пользователь не найден!</p>

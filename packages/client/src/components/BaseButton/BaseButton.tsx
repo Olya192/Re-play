@@ -1,10 +1,9 @@
-import s from './BaseButton.module.css';
-import { CSSProperties, MouseEventHandler } from 'react';
-import classnames from 'classnames';
+import { Button } from 'antd';
+import type { CSSProperties, MouseEventHandler } from 'react';
 
-interface BaseLinkProps {
+interface BaseButtonProps {
   title: string;
-  type: 'button' | 'submit' | 'reset';
+  type?: 'button' | 'submit' | 'reset';
   disabled?: boolean;
   size?: 'large' | 'default' | 'small';
   style?: CSSProperties;
@@ -18,17 +17,19 @@ export const BaseButton = ({
   disabled = false,
   style = {},
   onClick,
-}: BaseLinkProps) => {
-  const classes = classnames(
-    s.baseButton,
-    size === 'default' && s.baseButtonDefault,
-    size === 'small' && s.baseButtonSmall,
-    size === 'large' && s.baseButtonLarge
-  );
+}: BaseButtonProps) => {
+  const antdSize = size === 'default' ? 'middle' : size;
 
   return (
-    <button className={classes} style={style} type={type} disabled={disabled} onClick={onClick}>
+    <Button
+      type="primary"
+      htmlType={type}
+      disabled={disabled}
+      size={antdSize}
+      style={style}
+      onClick={onClick}
+    >
       {title}
-    </button>
+    </Button>
   );
 };
