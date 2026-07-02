@@ -1,10 +1,14 @@
 import React from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { useOAuth } from '../hooks/useOAuth';
 
 export const OAuthCallback: React.FC = () => {
-  // Используем useOAuth напрямую для обработки callback
+  const navigate = useNavigate();
   const { isLoading, error, isAuthenticated } = useOAuth();
+
+  const handleNavigateHome = () => {
+    navigate('/', { replace: true });
+  };
 
   if (isLoading) {
     return (
@@ -19,14 +23,11 @@ export const OAuthCallback: React.FC = () => {
       <div className="oauth-callback error">
         <h2>Ошибка авторизации</h2>
         <p>{error}</p>
-        <button onClick={() => (window.location.href = '/')}>Вернуться на главную</button>
+        <button onClick={handleNavigateHome}>Вернуться на главную</button>
       </div>
     );
   }
 
-  if (isAuthenticated) {
-    return <Navigate to="/" replace />;
-  }
-
-  return <div>Ожидание авторизации...</div>;
+  // После завершения авторизации всегда перенаправляем
+  return <Navigate to="/" replace />;
 };
