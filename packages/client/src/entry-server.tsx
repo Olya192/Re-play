@@ -12,7 +12,7 @@ import { matchRoutes } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
 import { createContext, createFetchRequest, createUrl } from './entry-server.utils';
 import { reducer } from './store';
-import { routes } from './routes';
+import { routes, CustomRouteObject } from './routes';
 import './index.css';
 import { setPageHasBeenInitializedOnServer } from './slices/ssrSlice';
 
@@ -37,20 +37,24 @@ export const render = async (req: ExpressRequest) => {
     throw new Error('Страница не найдена!');
   }
 
-  const [
-    {
-      route: { fetchData },
-    },
-  ] = foundRoutes;
+  // Собираем fetchData всех совпавших роутов (включая вложенные/leaf), а не только первого совпадения:
+  // у защищённых роутов первым идёт ProtectedRoute обёртка без fetchData,
+  // из-за чего data-init самой страницы на сервере не запускался
+  const ctx = createContext(req);
 
   try {
-    if (fetchData) {
-      await fetchData({
-        dispatch: store.dispatch,
-        state: store.getState(),
-        ctx: createContext(req),
-      });
-    }
+    await Promise.all(
+      foundRoutes
+        .map(({ route }) => (route as CustomRouteObject).fetchData)
+        .filter((fetchData): fetchData is NonNullable<typeof fetchData> => Boolean(fetchData))
+        .map((fetchData) =>
+          fetchData({
+            dispatch: store.dispatch,
+            state: store.getState(),
+            ctx,
+          })
+        )
+    );
   } catch (e) {
     console.log('Инициализация страницы произошла с ошибкой', e);
   }

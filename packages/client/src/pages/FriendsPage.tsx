@@ -2,7 +2,7 @@ import { Helmet } from 'react-helmet-async';
 import { useSelector } from '../store';
 import { Header } from '../components/Header';
 import { fetchFriendsThunk, selectFriends, selectIsLoadingFriends } from '../slices/friendsSlice';
-import { fetchUserThunk, selectUser } from '../slices/userSlice';
+import { selectUser } from '../slices/userSlice';
 import { PageInitArgs } from '../routes';
 import { usePage } from '../hooks/usePage';
 
@@ -49,12 +49,9 @@ export const FriendsPage = () => {
   );
 };
 
-export const initFriendsPage = ({ dispatch, state }: PageInitArgs) => {
-  const queue: Array<Promise<unknown>> = [dispatch(fetchFriendsThunk())];
-
-  if (!selectUser(state)) {
-    queue.push(dispatch(fetchUserThunk()));
-  }
-
-  return Promise.all(queue);
+// Друзья — публичные данные с нашего сервера, их можно префетчить на сервере
+// Пользователь грузится в ProtectedRoute (клиентская кука), здесь его не тянем (нужно делать нормальое проксирование,
+// или жадть, пока Яндекс выполнит заявку, и сделает куку паршл =/
+export const initFriendsPage = ({ dispatch }: PageInitArgs) => {
+  return dispatch(fetchFriendsThunk());
 };

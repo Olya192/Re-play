@@ -16,6 +16,7 @@ async function createServer() {
   const app = express();
 
   app.use(cookieParser());
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let vite: any;
 
@@ -33,7 +34,7 @@ async function createServer() {
     app.use(express.static(path.join(clientPath, 'dist/client'), { index: false }));
   }
 
-  app.get('*', async (req, res, next) => {
+  app.get('/{*splat}', async (req, res, next) => {
     const url = req.originalUrl;
 
     try {
