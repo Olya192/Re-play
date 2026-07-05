@@ -1,20 +1,39 @@
 import { Navigate, Outlet } from 'react-router-dom';
-import { checkAuth } from '../api/checkAuth';
 import { useEffect, useState } from 'react';
-import { selectUser } from '../slices/userSlice';
-import { useSelector } from 'react-redux';
+import { fetchUserThunk, selectUser } from '../slices/userSlice';
+import { useDispatch, useSelector } from '../store';
 
 export const ProtectedRoute = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const dispatch = useDispatch();
+  const user = useSelector(selectUser);
+  // Если пользователь уже в сторе (напр. после клиентской навигации) — считаем
+  // авторизованным сразу, без лишней проверки и мигания лоадером.
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(user ? true : null);
 
   useEffect(() => {
-    const verifyAuth = async () => {
-      const isAuth = await checkAuth();
-      setIsAuthenticated(isAuth);
-    };
+    let cancelled = false;
 
-    verifyAuth();
-  }, []);
+    // Пользователя тянем на клиенте: кука авторизации принадлежит домену
+    // ya-praktikum.tech (third-party) и на наш SSR не приходит, поэтому
+    // серверный префетч пользователя невозможен до появления собственного
+    // бэкенд-прокси (запланировано на 9 спринт) - возможно сделаю раньше, задолбался проверять на старом firefox
+    dispatch(fetchUserThunk())
+      .unwrap()
+      .then(() => {
+        if (!cancelled) {
+          setIsAuthenticated(true);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setIsAuthenticated(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [dispatch]);
 
   if (isAuthenticated === null) {
     return <div>Проверка авторизации...</div>;

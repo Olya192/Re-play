@@ -1,9 +1,8 @@
 import { Helmet } from 'react-helmet-async';
 import { useSelector } from '@/store';
-import { fetchUserThunk, selectUser } from '@/slices/userSlice';
+import { selectUser } from '@/slices/userSlice';
 import { Header } from '@/components/Header';
 import { usePage } from '@/hooks';
-import { PageInitArgs } from '@/routes';
 
 export const MainPage = () => {
   const user = useSelector(selectUser);
@@ -18,6 +17,8 @@ export const MainPage = () => {
         <meta name="description" content="Главная страница с информацией о пользователе" />
       </Helmet>
       <Header />
+      <h1>Удалить - в ней нет смысла. Главная страница - это игра.</h1>
+      <h2>Но можно использовать помоечку для тестов.</h2>
       {user ? (
         <div>
           <p>{user.firstName}</p>
@@ -30,8 +31,6 @@ export const MainPage = () => {
   );
 };
 
-export const initMainPage = async ({ dispatch, state }: PageInitArgs) => {
-  if (!selectUser(state)) {
-    return dispatch(fetchUserThunk());
-  }
-};
+// Пользователь грузится централизованно в ProtectedRoute (клиентская кука),
+// серверный префетч пользователя невозможен — см. комментарий там
+export const initMainPage = () => Promise.resolve();
