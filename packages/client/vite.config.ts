@@ -2,7 +2,6 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import dotenv from 'dotenv';
 import path from 'path';
-import { viteStaticCopy } from 'vite-plugin-static-copy';
 dotenv.config();
 
 // https://vitejs.dev/config/
@@ -26,15 +25,5 @@ export default defineConfig({
   ssr: {
     noExternal: ['react-helmet-async'],
   },
-  // plugins: [
-  //   react(),
-  //   viteStaticCopy({
-  //     targets: [
-  //       {
-  //         src: './sw.js',
-  //         dest: '',
-  //       },
-  //     ],
-  //   }),
-  // ],
+  plugins: [react()],
 });

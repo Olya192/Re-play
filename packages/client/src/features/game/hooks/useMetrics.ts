@@ -1,6 +1,6 @@
 import { observeLCP } from '@/performanceMonitor';
 import { useEffect } from 'react';
-import { MINUTES_IN_MS } from '@/constants';
+import { MINUTES_TO_MS } from '@/constants';
 
 export const useMetrics = () => {
   const cleanupObserver = observeLCP();
@@ -20,7 +20,7 @@ export const useMetrics = () => {
 
         try {
           const gameDetail = performance.measure('game', 'start-game', 'finish-game');
-          const duration = (gameDetail.duration / MINUTES_IN_MS).toFixed(2);
+          const duration = (gameDetail.duration / MINUTES_TO_MS).toFixed(2);
           console.group('Метрики игры');
           console.log(`Длительность игры: ${duration} мин`);
           console.groupEnd();
