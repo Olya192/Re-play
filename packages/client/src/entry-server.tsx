@@ -42,22 +42,25 @@ export const render = async (req: ExpressRequest) => {
   // из-за чего data-init самой страницы на сервере не запускался
   const ctx = createContext(req);
 
-  try {
-    await Promise.all(
-      foundRoutes
-        .map(({ route }) => (route as CustomRouteObject).fetchData)
-        .filter((fetchData): fetchData is NonNullable<typeof fetchData> => Boolean(fetchData))
-        .map((fetchData) =>
-          fetchData({
-            dispatch: store.dispatch,
-            state: store.getState(),
-            ctx,
-          })
-        )
-    );
-  } catch (e) {
-    console.log('Инициализация страницы произошла с ошибкой', e);
-  }
+  // allSettled: один упавший fetchData не должен обрывать инициализацию остальных
+  const results = await Promise.allSettled(
+    foundRoutes
+      .map(({ route }) => (route as CustomRouteObject).fetchData)
+      .filter((fetchData): fetchData is NonNullable<typeof fetchData> => Boolean(fetchData))
+      .map((fetchData) =>
+        fetchData({
+          dispatch: store.dispatch,
+          state: store.getState(),
+          ctx,
+        })
+      )
+  );
+
+  results.forEach((result) => {
+    if (result.status === 'rejected') {
+      console.log('Инициализация страницы произошла с ошибкой', result.reason);
+    }
+  });
 
   store.dispatch(setPageHasBeenInitializedOnServer(true));
 

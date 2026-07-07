@@ -1,45 +1,32 @@
 import { Navigate, Outlet } from 'react-router-dom';
-import { useEffect, useState } from 'react';
-import { fetchUserThunk, selectUser } from '../slices/userSlice';
+import { useEffect } from 'react';
+import { fetchUserThunk, selectUser, selectUserStatus } from '../slices/userSlice';
 import { useDispatch, useSelector } from '../store';
 
 export const ProtectedRoute = () => {
   const dispatch = useDispatch();
   const user = useSelector(selectUser);
-  // Если пользователь уже в сторе (напр. после клиентской навигации) — считаем
-  // авторизованным сразу, без лишней проверки и мигания лоадером.
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(user ? true : null);
+  const status = useSelector(selectUserStatus);
 
   useEffect(() => {
-    let cancelled = false;
-
     // Пользователя тянем на клиенте: кука авторизации принадлежит домену
     // ya-praktikum.tech (third-party) и на наш SSR не приходит, поэтому
     // серверный префетч пользователя невозможен до появления собственного
     // бэкенд-прокси (запланировано на 9 спринт) - возможно сделаю раньше, задолбался проверять на старом firefox
-    dispatch(fetchUserThunk())
-      .unwrap()
-      .then(() => {
-        if (!cancelled) {
-          setIsAuthenticated(true);
-        }
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setIsAuthenticated(false);
-        }
-      });
+    // Повтор запроса при наличии пользователя отсекается condition в самом thunk.
+    const promise = dispatch(fetchUserThunk());
 
+    // Отменяем реальный запрос при размонтировании (signal доходит до fetch).
     return () => {
-      cancelled = true;
+      promise.abort();
     };
   }, [dispatch]);
 
-  if (isAuthenticated === null) {
+  if (status === 'idle' || status === 'loading') {
     return <div>Проверка авторизации...</div>;
   }
 
-  if (!isAuthenticated) {
+  if (!user) {
     return <Navigate to="/login" replace />;
   }
 
