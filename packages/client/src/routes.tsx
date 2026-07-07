@@ -13,6 +13,7 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { RouteObject } from 'react-router-dom';
 import { ReactNode } from 'react';
 import ForumAddTopic from './pages/forum/components/ForumAddTopic';
+import { initLogoutPage, LogoutPage } from './pages/LogoutPage';
 
 export type PageInitContext = {
   clientToken?: string;
@@ -28,6 +29,25 @@ export type CustomRouteObject = RouteObject & {
   Component?: React.ComponentType<Record<string, unknown>>;
   fetchData?: (args: PageInitArgs) => Promise<unknown>;
 };
+
+// Публичные маршруты
+const publicRoutes: CustomRouteObject[] = [
+  {
+    path: '/login',
+    Component: LoginPage,
+    fetchData: initLoginPage,
+  },
+  {
+    path: '/logout',
+    Component: LogoutPage,
+    fetchData: initLogoutPage,
+  },
+  {
+    path: '/register',
+    Component: RegisterPage,
+    fetchData: initRegisterPage,
+  },
+];
 
 // Защищённые маршруты
 /**
@@ -115,4 +135,4 @@ const withProtection = (routes: CustomRouteObject[]): CustomRouteObject => ({
 });
 
 // Итоговые маршруты
-export const routes: CustomRouteObject[] = [withProtection(protectedRoutes)];
+export const routes: CustomRouteObject[] = [...publicRoutes, withProtection(protectedRoutes)];

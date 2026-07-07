@@ -27,6 +27,10 @@ ul {
   font-weight: 500;
 }
 
+.hidden {
+  display: none !important;
+}
+
 .visuallyHidden {
   position: absolute;
   width: 1px;

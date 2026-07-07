@@ -14,6 +14,11 @@ export default defineConfig({
     __EXTERNAL_SERVER_URL__: JSON.stringify(process.env.EXTERNAL_SERVER_URL),
     __INTERNAL_SERVER_URL__: JSON.stringify(process.env.INTERNAL_SERVER_URL),
   },
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'), // указываем папку src
+    },
+  },
   build: {
     manifest: 'manifest.json',
     outDir: path.join(__dirname, 'dist/client'),
@@ -21,15 +26,15 @@ export default defineConfig({
   ssr: {
     noExternal: ['react-helmet-async'],
   },
-  plugins: [
-    react(),
-    viteStaticCopy({
-      targets: [
-        {
-          src: './sw.js',
-          dest: '',
-        },
-      ],
-    }),
-  ],
+  // plugins: [
+  //   react(),
+  //   viteStaticCopy({
+  //     targets: [
+  //       {
+  //         src: './sw.js',
+  //         dest: '',
+  //       },
+  //     ],
+  //   }),
+  // ],
 });

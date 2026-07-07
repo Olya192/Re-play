@@ -52,7 +52,7 @@ export const AvatarForm = ({
             accept="image/*"
             onChange={onChange}
           />
-          <BaseButton title="Сохранить" type="submit" size="small" disabled={isBtnDisabled} />
+          <BaseButton title="Сохранить" type="submit" size="default" disabled={isBtnDisabled} />
         </div>
       </div>
     </form>

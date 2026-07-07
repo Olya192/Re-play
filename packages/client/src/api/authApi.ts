@@ -46,6 +46,10 @@ class AuthApi {
     });
   }
 
+  logout(): Promise<unknown> {
+    return authApiInstance.post(AUTH_ROUTES.LOGOUT);
+  }
+
   async getCurrentUser(): Promise<User> {
     const response = await authApiInstance.get(AUTH_ROUTES.USER);
 

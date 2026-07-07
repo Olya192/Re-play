@@ -10,16 +10,18 @@ import { ModalLayer } from './components/modals/ModalLayer';
 import { GamePlayPlaceholder } from './components/_placeholder/GamePlayPlaceholder';
 import { usePauseOnEsc } from './hooks/usePauseOnEsc';
 import { usePauseOnModal } from './hooks/usePauseOnModal';
-import { usePage } from '../../hooks/usePage';
-import { PageInitArgs } from '../../routes';
+import { usePage } from '@/hooks';
+import { PageInitArgs } from '@/routes';
 import { FloatButton } from 'antd';
 import { FullscreenExitOutlined, FullscreenOutlined } from '@ant-design/icons';
 import { useState } from 'react';
+import { useMetrics } from '@/features/game/hooks/useMetrics';
 
 export const GameRoot = () => {
   usePage({ initPage: initGameRoot });
   usePauseOnEsc();
   usePauseOnModal();
+  useMetrics();
 
   const [isFullsreen, setIsFullsreen] = useState(false);
 

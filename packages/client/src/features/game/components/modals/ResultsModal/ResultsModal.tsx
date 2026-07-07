@@ -13,6 +13,7 @@ import {
 } from '../../../../../slices/gameSession';
 import { useNavigate } from 'react-router-dom';
 import s from './ResultsModal.module.css';
+import { useLeaderboard } from '../../../../../pages/leaderboard/useLeaderboard';
 
 const fmtSec = (ms: number) => Math.round(ms / 1000);
 
@@ -26,17 +27,22 @@ export const ResultsModal = () => {
   const missed = useSelector(selectMissedCount);
   const eaten = useSelector(selectEatenCount);
   const elapsedMs = useSelector(selectElapsedMs);
+  const { addToLeaderboard } = useLeaderboard();
 
   const isOpen = activeModal === 'results';
 
   const handleAgain = () => {
-    dispatch(resetSession());
-    dispatch(openModal('start'));
+    addToLeaderboard(score).then(() => {
+      dispatch(resetSession());
+      dispatch(openModal('start'));
+    });
   };
 
   const handleBackToMenu = () => {
-    dispatch(resetSession());
-    navigate('/main');
+    addToLeaderboard(score).then(() => {
+      dispatch(resetSession());
+      navigate('/main');
+    });
   };
 
   return (

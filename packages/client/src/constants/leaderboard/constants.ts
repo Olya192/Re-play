@@ -1,13 +1,13 @@
 interface ILeaderboardColumns {
   order: string;
-  name: string;
+  userName: string;
   score: string;
-  team: string;
+  teamName: string;
 }
 
 export const leaderboardColumns: ILeaderboardColumns = {
   order: '#',
-  name: 'Имя',
+  userName: 'Имя',
   score: 'Очки',
-  team: 'Команда',
+  teamName: 'Команда',
 };
