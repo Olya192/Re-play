@@ -6,6 +6,7 @@ interface Options {
   headers?: Record<string, string>;
   data?: Record<string, unknown> | FormData;
   timeout?: number;
+  signal?: AbortSignal;
 }
 
 type RequestOptions = Omit<Options, 'method'>;
@@ -33,7 +34,7 @@ export class HTTPTransport {
   request = async (url: string, options: Options = { method: METHODS.GET }) => {
     const timeout = options.timeout ?? TIMEOUT;
 
-    const { method, headers = {}, data } = options;
+    const { method, headers = {}, data, signal } = options;
 
     const isGet = method === METHODS.GET;
     const isFormData = data instanceof FormData;
@@ -46,6 +47,15 @@ export class HTTPTransport {
       () => controller.abort('Запрос превысил допустимое время ожидания'),
       timeout
     );
+
+    // Пробрасываем внешнюю отмену (напр. при размонтировании компонента) на fetch
+    if (signal) {
+      if (signal.aborted) {
+        controller.abort(signal.reason);
+      } else {
+        signal.addEventListener('abort', () => controller.abort(signal.reason), { once: true });
+      }
+    }
 
     const fetchHeaders = new Headers(headers);
 

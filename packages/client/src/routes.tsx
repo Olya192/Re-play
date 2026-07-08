@@ -67,7 +67,7 @@ const protectedRoutes: CustomRouteObject[] = [
 
   // Нужно мигрировать в модалки
   {
-    path: '/Main',
+    path: '/main',
     Component: MainPage,
     fetchData: initMainPage,
   },

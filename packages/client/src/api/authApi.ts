@@ -50,8 +50,8 @@ class AuthApi {
     return authApiInstance.post(AUTH_ROUTES.LOGOUT);
   }
 
-  async getCurrentUser(): Promise<User> {
-    const response = await authApiInstance.get(AUTH_ROUTES.USER);
+  async getCurrentUser(signal?: AbortSignal): Promise<User> {
+    const response = await authApiInstance.get(AUTH_ROUTES.USER, { signal });
 
     return convertKeysToCamelCase(response) as unknown as User;
   }
