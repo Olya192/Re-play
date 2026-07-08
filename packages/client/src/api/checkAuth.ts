@@ -1,8 +1,5 @@
 import { ErrorHandler } from '../utils/error/errorHandler';
 import { authApi } from './authApi';
-import { HTTPTransport } from './httpTransport';
-
-// Создаём отдельный экземпляр без интерсепторов если нужно
 
 export const checkAuth = async (): Promise<boolean> => {
   try {
@@ -17,7 +14,6 @@ export const checkAuth = async (): Promise<boolean> => {
   }
 };
 
-// Получаем данные пользователя (если нужны)
 export const getCurrentUser = async () => {
   try {
     const user = await authApi.getCurrentUser();

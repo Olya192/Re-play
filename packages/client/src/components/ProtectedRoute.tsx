@@ -1,34 +1,23 @@
 import { Navigate, Outlet } from 'react-router-dom';
-import { useEffect } from 'react';
-import { fetchUserThunk, selectUser, selectUserStatus } from '../slices/userSlice';
-import { useDispatch, useSelector } from '../store';
+import { usePage } from '../hooks/usePage';
+import { PageInitArgs } from '../routes';
 
 export const ProtectedRoute = () => {
-  const dispatch = useDispatch();
-  const user = useSelector(selectUser);
-  const status = useSelector(selectUserStatus);
+  // Используем usePage для проверки авторизации
+  const { isLoading, isAuthenticated } = usePage({ initPage: initError500 });
 
-  useEffect(() => {
-    // Пользователя тянем на клиенте: кука авторизации принадлежит домену
-    // ya-praktikum.tech (third-party) и на наш SSR не приходит, поэтому
-    // серверный префетч пользователя невозможен до появления собственного
-    // бэкенд-прокси (запланировано на 9 спринт) - возможно сделаю раньше, задолбался проверять на старом firefox
-    // Повтор запроса при наличии пользователя отсекается condition в самом thunk.
-    const promise = dispatch(fetchUserThunk());
-
-    // Отменяем реальный запрос при размонтировании (signal доходит до fetch).
-    return () => {
-      promise.abort();
-    };
-  }, [dispatch]);
-
-  if (status === 'idle' || status === 'loading') {
-    return <div>Проверка авторизации...</div>;
+  if (isLoading) {
+    return <div className="loader">Проверка авторизации...</div>;
   }
 
-  if (!user) {
-    return <Navigate to="/login" replace />;
+  if (!isAuthenticated) {
+    // useOAuth сам сделает редирект, но на всякий случай
+    return <Navigate to="/" replace />;
   }
 
   return <Outlet />;
+};
+
+export const initError500 = async ({ dispatch, state }: PageInitArgs) => {
+  // заглушка
 };

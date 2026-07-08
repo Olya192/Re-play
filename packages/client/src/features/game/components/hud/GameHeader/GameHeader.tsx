@@ -14,7 +14,7 @@ export const GameHeader = () => {
     dispatch(openModal('pause'));
   };
 
-  const displayName = user ? user.name : ANON_NAME;
+  const displayName = user ? user.displayName : ANON_NAME;
 
   return (
     <header className={s.header}>

@@ -1,8 +1,6 @@
 import { AppDispatch, RootState } from './store';
 import { FriendsPage, initFriendsPage } from './pages/FriendsPage';
-import { initLoginPage, LoginPage } from './pages/LoginPage';
 import { initMainPage, MainPage } from './pages/Main';
-import { initRegisterPage, RegisterPage } from './pages/RegisterPage';
 import { initUserProfile, UserProfile } from './pages/UserProfile';
 import { initLeaderboardPage, LeaderboardPage } from './pages/leaderboard';
 import { Error404, initError404 } from './pages/Error404';
@@ -35,19 +33,9 @@ export type CustomRouteObject = RouteObject & {
 // Публичные маршруты
 const publicRoutes: CustomRouteObject[] = [
   {
-    path: '/login',
-    Component: LoginPage,
-    fetchData: initLoginPage,
-  },
-  {
     path: '/logout',
     Component: LogoutPage,
     fetchData: initLogoutPage,
-  },
-  {
-    path: '/register',
-    Component: RegisterPage,
-    fetchData: initRegisterPage,
   },
 ];
 
