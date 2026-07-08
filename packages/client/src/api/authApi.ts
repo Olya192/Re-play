@@ -56,6 +56,7 @@ class AuthApi {
     return convertKeysToCamelCase(response) as unknown as User;
   }
 
+  //остаила на доработку на неделе доработок.
   async getServiceID(redirectUri: string): Promise<string> {
     const response = await fetch(
       encodeURI(
