@@ -33,19 +33,9 @@ export type CustomRouteObject = RouteObject & {
 // Публичные маршруты
 const publicRoutes: CustomRouteObject[] = [
   {
-    path: '/login',
-    Component: LoginPage,
-    fetchData: initLoginPage,
-  },
-  {
     path: '/logout',
     Component: LogoutPage,
     fetchData: initLogoutPage,
-  },
-  {
-    path: '/register',
-    Component: RegisterPage,
-    fetchData: initRegisterPage,
   },
 ];
 
