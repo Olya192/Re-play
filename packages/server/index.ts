@@ -3,13 +3,15 @@ import cors from 'cors';
 dotenv.config();
 
 import express from 'express';
-import { createClientAndConnect } from './db';
+// import { createClientAndConnect } from './db';
+import { startApp } from './db/startApp';
 
 const app = express();
 app.use(cors());
 const port = Number(process.env.SERVER_PORT) || 3001;
 
-createClientAndConnect();
+// createClientAndConnect();
+startApp();
 
 app.get('/friends', (_, res) => {
   res.json([
