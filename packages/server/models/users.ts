@@ -7,35 +7,27 @@ import {
   AutoIncrement,
   AllowNull,
 } from 'sequelize-typescript';
+import type { Optional } from 'sequelize';
 
-export interface IUserAttributes {
+export interface UserAttributes {
   id?: number;
   firstName: string;
   lastName?: string;
 }
 
-export interface IUserUpdate {
+type UserCreationAttributes = Optional<UserAttributes, 'id'>;
+
+export interface UserUpdate {
   firstName: string;
   lastName: string;
 }
 
-// Пример с object model
-// export const userModel: ModelAttributes<Model, IUser> = {
-//   firstName: {
-//     type: DataType.STRING,
-//     allowNull: false,
-//   },
-//   lastName: {
-//     type: DataType.STRING,
-//   },
-// };
-
 // пример с классовой моделью
 @Table({
-  tableName: 'Users',
+  tableName: 'users',
   timestamps: true, // для created_at / updated_at
 })
-export class User extends Model<IUserAttributes, IUserAttributes> {
+export class User extends Model<UserAttributes, UserCreationAttributes> {
   @AutoIncrement
   @PrimaryKey
   @Column(DataType.INTEGER)

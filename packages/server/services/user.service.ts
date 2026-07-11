@@ -1,4 +1,4 @@
-import { type IUserUpdate, User } from '../models/users';
+import { type UserUpdate, User } from '../models/users';
 
 // Создание пользователя
 export async function createUser(firstName: string, lastName: string) {
@@ -6,7 +6,7 @@ export async function createUser(firstName: string, lastName: string) {
 }
 
 // Обновление пользователя по ID
-export async function updateUserById(id: number, data: IUserUpdate) {
+export async function updateUserById(id: number, data: UserUpdate) {
   return User.update(data, { where: { id } });
 }
 
@@ -23,4 +23,9 @@ export async function getUserById(id: number) {
 // Получение пользователей по ID
 export async function getUsersByFirstName(firstName: string) {
   return User.findAll({ where: { firstName } });
+}
+
+// Получение всех пользователей
+export async function getAllUsers() {
+  return User.findAll();
 }
