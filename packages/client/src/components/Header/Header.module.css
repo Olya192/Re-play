@@ -1,15 +1,22 @@
 .nav {
-  padding: 20px;
-  background: #eee;
+  padding: 12px 20px;
+  background: var(--bg-color);
   margin-bottom: 20px;
 }
 
 .list {
   display: flex;
   gap: 15px;
+  align-items: center;
+  height: 100%;
   list-style: none;
   padding: 0;
   margin: 0;
+}
+
+.listItem {
+  display: flex;
+  align-items: center;
 }
 
 .listItemRight {
@@ -17,6 +24,17 @@
 }
 
 .link {
+  display: inline-block;
+  transition: transform 0.2s ease, color 0.2s ease;
   text-decoration: none;
-  color: inherit;
+  color: var(--text-color);
+}
+
+.link:hover {
+  transform: translateY(-2px);
+  color: var(--accent-color);
+}
+
+.themeToggleButton {
+  margin-left: 15px;
 }
