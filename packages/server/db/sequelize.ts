@@ -1,5 +1,6 @@
 import { Sequelize } from 'sequelize-typescript';
 import { User } from '../models/users';
+import { Emojis } from '../models/emojis';
 
 // const sequelizeOptions: SequelizeOptions = {
 //   host: 'localhost',
@@ -17,5 +18,5 @@ export const sequelize = new Sequelize({
   username: 'user',
   password: 'postgres',
   database: 'lesson_db',
-  models: [User],
+  models: [User, Emojis],
 });

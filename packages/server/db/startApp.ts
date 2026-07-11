@@ -1,35 +1,20 @@
 import { initSequelize } from './initSequelize';
-import {
-  createUser,
-  getUserById,
-  getUsersByFirstName,
-  updateUserById,
-} from '../services/user.service';
+import { createUser, getAllUsers } from '../services/user.service';
+import { seedEmojis } from './seed-emoji';
 
-export function startApp() {
-  initSequelize().then(async () => {
+export async function startApp() {
+  await initSequelize().then(async () => {
     /*
      *  Запуск приложения только после старта БД
      */
 
-    // Создаем нового пользователя
-    await createUser('Alex', 'Ivanov');
-    // Получаем пользователей с именем Alex
-    const users = await getUsersByFirstName('Alex');
+    await seedEmojis();
 
-    // Проверяем, найдены ли пользователи
+    const users = await getAllUsers();
+
+    // Проверяем, найдены ли пользователи. Сейчас, если не найден - создаем
     if (!users.length) {
-      throw 'Not found';
+      await createUser('Alex', 'Ivanov');
     }
-
-    // Получаем id первого пользователя
-    const { id } = users[0];
-    // Обновляем пользователя по ID
-    await updateUserById(id, { firstName: 'Ivan', lastName: 'Ivanov' });
-
-    // Ищем обновленного пользователя по id
-    const findedUser = await getUserById(id);
-    // Выводим в консоль найденного пользователя
-    console.log('Finded user: ', findedUser);
   });
 }
