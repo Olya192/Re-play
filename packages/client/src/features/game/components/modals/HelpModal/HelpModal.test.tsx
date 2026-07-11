@@ -1,3 +1,9 @@
+jest.mock('../../../api/themeApi', () => ({
+  fetchThemes: jest.fn().mockResolvedValue([]),
+  fetchUserTheme: jest.fn().mockResolvedValue(null),
+  setUserTheme: jest.fn().mockResolvedValue({ theme: { id: 1, theme: 'light', name: 'Light' } }),
+}));
+
 import { render, screen, fireEvent } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
