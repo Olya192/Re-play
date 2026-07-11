@@ -1,4 +1,4 @@
-jest.mock('../../../api/themeApi', () => ({
+jest.mock('../../../../../api/themeApi', () => ({
   fetchThemes: jest.fn().mockResolvedValue([]),
   fetchUserTheme: jest.fn().mockResolvedValue(null),
   setUserTheme: jest.fn().mockResolvedValue({ theme: { id: 1, theme: 'light', name: 'Light' } }),
