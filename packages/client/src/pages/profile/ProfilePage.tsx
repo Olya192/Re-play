@@ -8,6 +8,7 @@ import { AvatarForm } from '@/components/AvatarForm';
 import { useProfile } from './useProfile';
 import { EditPasswordForm } from '@/components/EditPasswordForm';
 import { showAllResources } from '@/performanceMonitor';
+import { Card, Descriptions } from 'antd';
 
 export const ProfilePage = () => {
   usePage({ initPage: initProfilePage });
@@ -19,13 +20,22 @@ export const ProfilePage = () => {
       return null;
     }
 
-    const fields = (Object.entries(PROFILE_FIELDS) as [keyof typeof PROFILE_FIELDS, string][]).map(
-      ([key, label]) => (
-        <li key={key} className={s.profileItem}>
-          <div className={s.profileLabel}>{label}</div>
-          <div className={s.profileText}>{user[key]}</div>
-        </li>
-      )
+    const fields = (
+      <Card
+        title="Данные пользователя"
+        variant="outlined"
+        style={{ maxWidth: 600, margin: '50px auto' }}
+      >
+        <Descriptions bordered column={1} size="middle">
+          {(Object.entries(PROFILE_FIELDS) as [keyof typeof PROFILE_FIELDS, string][]).map(
+            ([key, label]) => (
+              <Descriptions.Item key={key} label={label}>
+                {user[key] || '—'}
+              </Descriptions.Item>
+            )
+          )}
+        </Descriptions>
+      </Card>
     );
 
     return fields;
