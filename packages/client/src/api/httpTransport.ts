@@ -7,14 +7,23 @@ interface Options {
   data?: Record<string, unknown> | FormData;
   timeout?: number;
   signal?: AbortSignal;
+  host?: string;
 }
 
 type RequestOptions = Omit<Options, 'method'>;
 
 const TIMEOUT = 10000;
-const host = 'https://ya-praktikum.tech';
+
+// Хост для внешнего API (Практикум)
+const DEFAULT_HOST = 'https://ya-praktikum.tech';
 
 export class HTTPTransport {
+  private baseHost: string;
+
+  constructor(host?: string) {
+    this.baseHost = host || DEFAULT_HOST;
+  }
+
   get = (url: string, options: RequestOptions = {}) => {
     return this.request(url, { ...options, method: METHODS.GET });
   };
@@ -33,8 +42,9 @@ export class HTTPTransport {
 
   request = async (url: string, options: Options = { method: METHODS.GET }) => {
     const timeout = options.timeout ?? TIMEOUT;
+    const { method, headers = {}, data, signal, host } = options;
 
-    const { method, headers = {}, data, signal } = options;
+    const baseHost = host || this.baseHost;
 
     const isGet = method === METHODS.GET;
     const isFormData = data instanceof FormData;
@@ -48,7 +58,6 @@ export class HTTPTransport {
       timeout
     );
 
-    // Пробрасываем внешнюю отмену (напр. при размонтировании компонента) на fetch
     if (signal) {
       if (signal.aborted) {
         controller.abort(signal.reason);
@@ -99,13 +108,18 @@ export class HTTPTransport {
 
         return data;
       } else {
-        // Неуспешный статус (не 2xx)
         const errorResponseText = await response.text();
 
-        throw new Error(`Запрос завершен со статусом: ${response.status}, ${errorResponseText}`);
+        const error = new Error(
+          `Запрос завершен со статусом: ${response.status}, ${errorResponseText}`
+        );
+        (error as any).status = response.status;
+        (error as any).responseText = errorResponseText;
+
+        throw error;
       }
     } catch (error) {
-      console.log(error);
+      console.error('HTTP Transport error:', error);
       throw error;
     } finally {
       clearTimeout(timeoutId);

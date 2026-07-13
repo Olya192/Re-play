@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
-import { checkAuth } from '../api/checkAuth';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { authApi } from '../api/authApi';
-import { setUser } from '../slices/userSlice';
 import { useDispatch } from 'react-redux';
+import { authApi } from '../api/authApi';
+import { setUser, clearUser } from '../slices/userSlice';
 
 export const useOAuth = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -17,7 +16,6 @@ export const useOAuth = () => {
   useEffect(() => {
     let isMounted = true;
 
-    // Единая функция для обработки ошибок
     const handleError = (error: unknown, defaultMessage: string) => {
       const errorMessage = error instanceof Error ? error.message : defaultMessage;
       console.error(`[OAuth Error]: ${errorMessage}`, error);
@@ -25,67 +23,32 @@ export const useOAuth = () => {
       if (isMounted) {
         setError(errorMessage);
       }
-
-      sessionStorage.removeItem('oauth_in_progress');
-      sessionStorage.removeItem('oauth_redirect_uri');
-
-      return errorMessage;
-    };
-
-    const initiateOAuth = async () => {
-      try {
-        if (isMounted) {
-          setIsLoading(true);
-          setError(null);
-        }
-
-        const redirectUri = window.location.origin;
-        const clientId = await authApi.getServiceID(redirectUri);
-
-        const yandexAuthUrl = `https://oauth.yandex.ru/authorize?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(
-          redirectUri
-        )}`;
-
-        sessionStorage.setItem('oauth_in_progress', 'true');
-        sessionStorage.setItem('oauth_redirect_uri', redirectUri);
-
-        window.location.assign(yandexAuthUrl);
-      } catch (error) {
-        handleError(error, 'Не удалось инициировать авторизацию через Яндекс');
-
-        if (isMounted) {
-          setIsLoading(false);
-        }
-      }
     };
 
     const handleOAuthCallback = async (code: string) => {
       try {
-        if (isMounted) {
-          setIsLoading(true);
-          setError(null);
-        }
+        setIsLoading(true);
+        setError(null);
 
-        const redirectUri = sessionStorage.getItem('oauth_redirect_uri') || window.location.origin;
+        const redirectUri = window.location.origin;
 
+        console.log('1. Обмениваем код на токен через ваш сервер...');
         await authApi.exchangeCodeForToken(code, redirectUri);
+
+        console.log('2. Получаем пользователя с вашего сервера...');
         const user = await authApi.getCurrentUser();
 
-        if (user) {
+        if (user && isMounted) {
+          console.log('3. Пользователь авторизован:', user);
           dispatch(setUser(user));
-
-          if (isMounted) {
-            setIsAuthenticated(true);
-          }
-
+          setIsAuthenticated(true);
           sessionStorage.removeItem('oauth_in_progress');
-          sessionStorage.removeItem('oauth_redirect_uri');
           navigate('/');
         } else {
           throw new Error('Не удалось получить данные пользователя');
         }
       } catch (error) {
-        handleError(error, 'Не удалось завершить авторизацию через Яндекс');
+        handleError(error, 'Не удалось завершить авторизацию');
       } finally {
         if (isMounted) {
           setIsLoading(false);
@@ -93,74 +56,87 @@ export const useOAuth = () => {
       }
     };
 
-    const checkUserAuth = async () => {
+    const checkAuth = async () => {
       try {
-        const isAuth = await checkAuth();
+        console.log('Проверка авторизации на сервере...');
+        const user = await authApi.getCurrentUser();
 
-        if (isMounted) {
-          setIsAuthenticated(isAuth);
+        if (user && isMounted) {
+          console.log('Пользователь авторизован:', user);
+          dispatch(setUser(user));
+          setIsAuthenticated(true);
+
+          return true;
+        } else {
+          console.log('Пользователь не авторизован');
+
+          if (isMounted) {
+            dispatch(clearUser());
+            setIsAuthenticated(false);
+          }
+
+          return false;
         }
-
-        if (!isAuth) {
-          sessionStorage.setItem('oauth_in_progress', 'false');
-        }
-
-        return isAuth;
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Auth check failed';
-        console.error(`[OAuth Error]: ${errorMessage}`, error);
+        console.error('Ошибка проверки авторизации:', error);
 
         if (isMounted) {
           setIsAuthenticated(false);
+          dispatch(clearUser());
         }
-
-        sessionStorage.setItem('oauth_in_progress', 'false');
 
         return false;
       }
     };
 
-    const handleAuth = async () => {
+    const initiateOAuth = async () => {
       try {
-        const searchParams = new URLSearchParams(location.search);
-        const code = searchParams.get('code');
+        console.log('Инициализация OAuth...');
+        const redirectUri = window.location.origin;
+        const clientId = await authApi.getServiceID(redirectUri);
 
-        if (code) {
-          await handleOAuthCallback(code);
+        console.log('Client ID получен:', clientId);
 
-          return;
-        }
+        const yandexAuthUrl = `https://oauth.yandex.ru/authorize?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(
+          redirectUri
+        )}`;
 
-        if (isMounted) {
-          setIsLoading(true);
-        }
-
-        const isAuth = await checkUserAuth();
-
-        if (isMounted) {
-          setIsLoading(false);
-        }
-
-        const oauthInProgress = sessionStorage.getItem('oauth_in_progress');
-
-        if (!isAuth && oauthInProgress === 'false') {
-          await initiateOAuth();
-        }
+        sessionStorage.setItem('oauth_in_progress', 'true');
+        window.location.assign(yandexAuthUrl);
       } catch (error) {
-        handleError(error, 'Произошла непредвиденная ошибка при авторизации');
-
-        if (isMounted) {
-          setIsLoading(false);
-        }
+        handleError(error, 'Не удалось инициировать авторизацию');
+        setIsLoading(false);
       }
     };
 
-    // Запускаем с явной обработкой ошибок
+    const handleAuth = async () => {
+      const searchParams = new URLSearchParams(location.search);
+      const code = searchParams.get('code');
+
+      if (code) {
+        console.log('Найден код в URL, обрабатываем колбэк...');
+        await handleOAuthCallback(code);
+
+        return;
+      }
+
+      setIsLoading(true);
+      const isAuth = await checkAuth();
+      setIsLoading(false);
+
+      const oauthInProgress = sessionStorage.getItem('oauth_in_progress');
+
+      if (!isAuth && oauthInProgress !== 'true') {
+        console.log('Пользователь не авторизован, редирект на Яндекс...');
+        await initiateOAuth();
+      }
+    };
+
     handleAuth().catch((error) => {
-      console.error('[OAuth Error]: Unhandled promise rejection in useEffect', error);
+      console.error('[OAuth Error]:', error);
 
       if (isMounted) {
-        setError('Произошла критическая ошибка при авторизации');
+        setError('Критическая ошибка');
         setIsLoading(false);
       }
     });
@@ -168,11 +144,7 @@ export const useOAuth = () => {
     return () => {
       isMounted = false;
     };
-  }, [location.search, navigate, dispatch]); // Только внешние зависимости
+  }, [location.search, navigate, dispatch]);
 
-  return {
-    isLoading,
-    error,
-    isAuthenticated,
-  };
+  return { isLoading, error, isAuthenticated };
 };

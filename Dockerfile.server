@@ -14,7 +14,7 @@ COPY . .
 
 RUN yarn lerna bootstrap
 RUN rm -rf /app/packages/server/dist/ 
-RUN find . -name "tsconfig*.json" -exec sed -i 's/"importsNotUsedAsValues":\s*"[^"]*",\?//g' {} \;
+# RUN find . -name "tsconfig*.json" -exec sed -i 's/"importsNotUsedAsValues":\s*"[^"]*",\?//g' {} \;
 RUN yarn lerna run build --scope=server --verbose
 
 FROM node:$NODE_VERSION-bookworm-slim as production

@@ -1,6 +1,6 @@
-import { AUTH_ROUTES } from '../constants/api/apiConstants';
+import { AUTH_ROUTES, SERVER_ROUTES } from '../constants/api/apiConstants';
 import { convertKeysToCamelCase } from '../utils/convert/convertKeysToCamelCase';
-import { HTTPTransport } from './httpTransport';
+import { externalApi, serverApi } from './apiInstances';
 
 interface SignupData {
   first_name: string;
@@ -10,10 +10,6 @@ interface SignupData {
   password: string;
   phone: string;
 }
-
-type ServiceID = {
-  service_id: string;
-};
 
 interface SigninData {
   login: string;
@@ -31,51 +27,78 @@ interface User {
   avatar: string;
 }
 
-const authApiInstance = new HTTPTransport();
-
 class AuthApi {
+  // запросы к апи практикума
+
   signup(data: SignupData): Promise<{ id: number }> {
-    return authApiInstance.post(AUTH_ROUTES.SIGNUP, {
+    return externalApi.post(AUTH_ROUTES.SIGNUP, {
       data: { ...data },
     });
   }
 
   signin(data: SigninData): Promise<unknown> {
-    return authApiInstance.post(AUTH_ROUTES.SIGNIN, {
+    return externalApi.post(AUTH_ROUTES.SIGNIN, {
       data: { ...data },
     });
   }
 
-  logout(): Promise<unknown> {
-    return authApiInstance.post(AUTH_ROUTES.LOGOUT);
+  logoutExternal(): Promise<unknown> {
+    return externalApi.post(AUTH_ROUTES.LOGOUT);
   }
 
-  async getCurrentUser(signal?: AbortSignal): Promise<User> {
-    const response = await authApiInstance.get(AUTH_ROUTES.USER, { signal });
+  async getCurrentUserExternal(signal?: AbortSignal): Promise<User> {
+    const response = await externalApi.get(AUTH_ROUTES.USER, { signal });
 
     return convertKeysToCamelCase(response) as unknown as User;
   }
 
-  //остаила на доработку на неделе доработок.
-  async getServiceID(redirectUri: string): Promise<string> {
-    const response = await fetch(
-      encodeURI(
-        `https://ya-praktikum.tech/api/v2/oauth/yandex/service-id?redirect_uri=${redirectUri}`
-      )
-    );
-    // authApiInstance.get(
-    //   AUTH_ROUTES.OAUTH,
-    //   {
-    //     data: { redirect_uri: redirectUri }
-    //   }
-    // );
-    const data: ServiceID = await response.json();
+  async getServiceIDExternal(redirectUri: string): Promise<string> {
+    const response = await externalApi.get(AUTH_ROUTES.OAUTH, {
+      data: { redirect_uri: redirectUri },
+    });
 
-    return data.service_id;
+    return response.service_id;
+  }
+
+  async exchangeCodeForTokenExternal(code: string, redirectUri: string): Promise<unknown> {
+    return externalApi.post(AUTH_ROUTES.OAUTH_TOKEN, {
+      data: {
+        code,
+        redirect_uri: redirectUri,
+      },
+    });
+  }
+
+  // запросы к нашему серверу
+
+  async getCurrentUser(signal?: AbortSignal): Promise<User | null> {
+    try {
+      const response = await serverApi.get(SERVER_ROUTES.ME, { signal });
+
+      return response as User;
+    } catch (error) {
+      if ((error as any).status === 401) {
+        return null;
+      }
+
+      throw error;
+    }
+  }
+
+  async logout(): Promise<unknown> {
+    return serverApi.post(SERVER_ROUTES.LOGOUT);
+  }
+
+  async getServiceID(redirectUri: string): Promise<string> {
+    const response = await serverApi.get(SERVER_ROUTES.YANDEX_SERVICE_ID, {
+      data: { redirect_uri: redirectUri },
+    });
+
+    return response.service_id;
   }
 
   async exchangeCodeForToken(code: string, redirectUri: string): Promise<unknown> {
-    return authApiInstance.post(AUTH_ROUTES.OAUTH_TOKEN, {
+    return serverApi.post(SERVER_ROUTES.YANDEX_LOGIN, {
       data: {
         code,
         redirect_uri: redirectUri,
