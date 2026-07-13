@@ -11,6 +11,10 @@ const port = Number(process.env.SERVER_PORT) || 3001;
 
 createClientAndConnect();
 
+app.get('/health', (_, res) => {
+  res.status(200).json({ status: 'ok' });
+});
+
 app.get('/friends', (_, res) => {
   res.json([
     { name: 'Саша', secondName: 'Панов' },
