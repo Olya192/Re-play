@@ -104,6 +104,14 @@ export class EmojiAPI {
       }
 
       const response = await emojiService.delete(normalizedId);
+
+      if (!response) {
+        // или if (!deletedCount)
+        res.status(404).json({ error: 'Emoji not found' });
+
+        return;
+      }
+
       res.status(200).json(response);
     } catch (error) {
       res.status(500).json({ error: 'Failed to delete emojis' });

@@ -1,20 +1,16 @@
 import { initSequelize } from './initSequelize';
-import { createUser, getAllUsers } from '../services/user.service';
 import { seedEmojis } from './seed-emoji';
+import { seedUsers } from './users-seed';
 
 export async function startApp() {
-  await initSequelize().then(async () => {
-    /*
-     *  Запуск приложения только после старта БД
-     */
+  try {
+    await initSequelize();
+    console.log('✅ Database connected');
 
+    await seedUsers();
     await seedEmojis();
-
-    const users = await getAllUsers();
-
-    // Проверяем, найдены ли пользователи. Сейчас, если не найден - создаем
-    if (!users.length) {
-      await createUser('Alex', 'Ivanov');
-    }
-  });
+  } catch (error) {
+    console.error('Failed to start application:', error);
+    throw error;
+  }
 }

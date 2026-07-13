@@ -1,31 +1,77 @@
-import { type UserUpdate, User } from '../models/users';
+import { Op } from 'sequelize';
+import { User } from '../models/user';
 
-// Создание пользователя
-export async function createUser(firstName: string, lastName: string) {
-  return User.create({ firstName, lastName });
+interface CreateRequest {
+  login: string;
+  displayName: string;
 }
 
-// Обновление пользователя по ID
-export async function updateUserById(id: number, data: UserUpdate) {
-  return User.update(data, { where: { id } });
-}
+type UpdateRequest = Partial<CreateRequest>;
 
-// Удаление пользователя по ID
-export async function deleteUserById(id: number) {
-  return User.destroy({ where: { id } });
-}
+const escapeLike = (str: string): string => {
+  return str.replace(/[%_]/g, '\\$&');
+};
 
-// Получение пользователя по ID
-export async function getUserById(id: number) {
-  return User.findOne({ where: { id } });
-}
+export class UserService {
+  public find = async (params: {
+    id?: number;
+    login?: string;
+    displayName?: string;
+  }): Promise<User | null> => {
+    if (params.id != null) {
+      return await User.findByPk(params.id);
+    }
 
-// Получение пользователей по ID
-export async function getUsersByFirstName(firstName: string) {
-  return User.findAll({ where: { firstName } });
-}
+    if (params.login) {
+      const escaped = escapeLike(params.login.trim());
 
-// Получение всех пользователей
-export async function getAllUsers() {
-  return User.findAll();
+      return await User.findOne({
+        where: {
+          login: { [Op.iLike]: `%${escaped}%` },
+        },
+      });
+    }
+
+    if (params.displayName) {
+      const escaped = escapeLike(params.displayName.trim());
+
+      return await User.findOne({
+        where: {
+          displayName: { [Op.iLike]: `%${escaped}%` },
+        },
+      });
+    }
+
+    return null;
+  };
+
+  public findAll = async (): Promise<User[]> => {
+    return await User.findAll();
+  };
+
+  public create = async (data: { login: string; displayName?: string }): Promise<User> => {
+    return await User.create({
+      login: data.login.trim(),
+      displayName: data.displayName?.trim() || null,
+    });
+  };
+
+  public update = async (id: number, data: UpdateRequest): Promise<User | null> => {
+    const [affectedCount, affectedRows] = await User.update(data, {
+      where: { id },
+      returning: true,
+    });
+
+    if (affectedCount === 0 || !affectedRows || affectedRows.length === 0) {
+      return null;
+    }
+
+    return affectedRows[0];
+  };
+
+  public delete = async (id: number): Promise<boolean> => {
+    const deletedCount = await User.destroy({ where: { id } });
+
+    return deletedCount > 0;
+  };
 }

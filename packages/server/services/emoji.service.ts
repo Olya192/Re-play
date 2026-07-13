@@ -1,4 +1,4 @@
-import { Emojis } from '../models/emojis';
+import { Emoji } from '../models/emoji';
 import { type Attributes, type CreateOptions, Op } from 'sequelize';
 import { BaseRestService } from './base-rest.service';
 import type { Model } from 'sequelize-typescript';
@@ -16,10 +16,10 @@ interface CreateRequest {
 type UpdateRequest = Partial<CreateRequest>;
 
 export class EmojiService
-  implements BaseRestService<CreateRequest, UpdateRequest, FindRequest, Emojis>
+  implements BaseRestService<CreateRequest, UpdateRequest, FindRequest, Emoji>
 {
-  public getAll = async (): Promise<Emojis[]> => {
-    return await Emojis.findAll();
+  public getAll = async (): Promise<Emoji[]> => {
+    return await Emoji.findAll();
   };
 
   public create = (
@@ -27,20 +27,22 @@ export class EmojiService
   ): Promise<
     CreateOptions<Attributes<Model>> extends { returning: false } | { ignoreDuplicates: true }
       ? void
-      : Emojis
+      : Emoji
   > => {
-    return Emojis.create(data);
+    return Emoji.create(data);
   };
 
-  public find = async ({ id, description }: FindRequest): Promise<Emojis | null> => {
-    if (id) {
-      return await Emojis.findByPk(id);
+  public find = async ({ id, description }: FindRequest): Promise<Emoji | null> => {
+    if (id !== undefined && id != null) {
+      return await Emoji.findByPk(id);
     }
 
+    const escaped = description && description.replace(/[%_]/g, '\\$&');
+
     if (description) {
-      return await Emojis.findOne({
+      return await Emoji.findOne({
         where: {
-          description: { [Op.iLike]: `%${description}%` },
+          description: { [Op.iLike]: `%${escaped}%` },
         },
       });
     }
@@ -48,18 +50,21 @@ export class EmojiService
     return null;
   };
 
-  public update = async (id: number, data: UpdateRequest): Promise<Emojis | null> => {
-    const [affectedCount] = await Emojis.update(data, { where: { id } });
+  public update = async (id: number, data: UpdateRequest): Promise<Emoji | null> => {
+    const [affectedCount, affectedRows] = await Emoji.update(data, {
+      where: { id },
+      returning: true,
+    });
 
     if (affectedCount === 0) {
       return null;
     }
 
-    return await this.find({ id });
+    return affectedRows[0];
   };
 
   public delete = async (id: number) => {
-    const deleted = await Emojis.destroy({ where: { id } });
+    const deleted = await Emoji.destroy({ where: { id } });
 
     return deleted > 0;
   };

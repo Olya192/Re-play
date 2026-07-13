@@ -11,33 +11,33 @@ import type { Optional } from 'sequelize';
 
 export interface UserAttributes {
   id?: number;
-  firstName: string;
-  lastName?: string;
+  login: string;
+  displayName: string | null;
 }
 
 type UserCreationAttributes = Optional<UserAttributes, 'id'>;
 
-export interface UserUpdate {
-  firstName: string;
-  lastName: string;
-}
+// export interface UserUpdate {
+//   firstName: string;
+//   lastName: string;
+// }
 
-// пример с классовой моделью
 @Table({
   tableName: 'users',
-  timestamps: true, // для created_at / updated_at
+  timestamps: true,
+  paranoid: true,
 })
 export class User extends Model<UserAttributes, UserCreationAttributes> {
   @AutoIncrement
   @PrimaryKey
   @Column(DataType.INTEGER)
-  override id!: number;
+  declare id: number;
 
   @AllowNull(false)
-  @Column(DataType.STRING)
-  firstName!: string;
+  @Column({ type: DataType.STRING(64) })
+  declare login: string;
 
   @AllowNull(true)
-  @Column(DataType.STRING)
-  lastName!: string;
+  @Column({ type: DataType.STRING(64) })
+  declare displayName: string;
 }

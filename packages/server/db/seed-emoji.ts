@@ -1,9 +1,9 @@
-import { Emojis } from '../models/emojis';
+import { Emoji } from '../models/emoji';
 
 export async function seedEmojis() {
-  const count = await Emojis.count();
+  const existing = await Emoji.findOne();
 
-  if (count > 0) {
+  if (existing) {
     console.log('Emojis already seeded');
 
     return;
@@ -20,6 +20,5 @@ export async function seedEmojis() {
     { emoji: '🔥', description: 'Огонь' },
   ];
 
-  await Emojis.bulkCreate(emojis);
-  console.log(`Seeded ${emojis.length} emojis`);
+  await Emoji.bulkCreate(emojis, { ignoreDuplicates: true });
 }

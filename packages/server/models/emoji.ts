@@ -10,20 +10,20 @@ import {
 } from 'sequelize-typescript';
 import type { Optional } from 'sequelize';
 
-type EmojisAttributes = {
+type EmojiAttributes = {
   id: number;
   emoji: string;
   description: string;
 };
 
-type EmojisCreationAttributes = Optional<EmojisAttributes, 'id'>;
+type EmojisCreationAttributes = Optional<EmojiAttributes, 'id'>;
 
 @Table({
   tableName: 'emojis',
-  timestamps: false,
+  timestamps: true,
   paranoid: true,
 })
-export class Emojis extends Model<EmojisAttributes, EmojisCreationAttributes> {
+export class Emoji extends Model<EmojiAttributes, EmojisCreationAttributes> {
   @AutoIncrement
   @PrimaryKey
   @Column(DataType.INTEGER)
@@ -31,10 +31,10 @@ export class Emojis extends Model<EmojisAttributes, EmojisCreationAttributes> {
 
   @AllowNull(false)
   @Unique
-  @Column(DataType.STRING)
+  @Column({ type: DataType.STRING(64) })
   declare emoji: string;
 
   @AllowNull(false)
-  @Column(DataType.STRING)
+  @Column({ type: DataType.STRING(255) })
   declare description: string;
 }
