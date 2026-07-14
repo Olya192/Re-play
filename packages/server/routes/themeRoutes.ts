@@ -10,5 +10,5 @@ export const themeRoutes = (router: Router) => {
   themeRouter.get('/user/theme', ThemeController.getUserTheme);
   themeRouter.put('/user/theme', ThemeController.setUserTheme);
 
-  router.use('/themes', themeRouter);
+  router.use('/api/themes', themeRouter);
 };
