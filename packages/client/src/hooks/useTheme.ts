@@ -15,11 +15,11 @@ export const useTheme = () => {
 
   const setTheme = useCallback(
     (userId: number, themeId: number) => {
-      const themeObject = availableThemes.find((t) => t.id === themeId) || {
-        id: themeId,
-        theme: themeId === 2 ? 'dark' : 'light',
-        description: '',
-      };
+      const themeObject = availableThemes.find((t) => t.id === themeId);
+
+      if (!themeObject) {
+        return;
+      }
 
       dispatch(setThemeOptimistic(themeObject));
       dispatch(changeUserTheme({ userId, themeId }));
@@ -43,6 +43,8 @@ export const useTheme = () => {
       if (found) {
         document.documentElement.setAttribute('data-theme', savedTheme);
       }
+    } else if (!currentTheme) {
+      document.documentElement.removeAttribute('data-theme');
     }
   }, [availableThemes, currentTheme]);
 

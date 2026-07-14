@@ -10,15 +10,21 @@ export const ThemeToggleButton: React.FC<ThemeToggleButtonProps> = ({
   userId = 1,
   className = '',
 }) => {
-  const { currentTheme, setTheme } = useTheme();
+  const { availableThemes, currentTheme, setTheme } = useTheme();
 
   const themeName = currentTheme?.theme || 'light';
   const isDark = themeName === 'dark';
   const icon = isDark ? '☀︎' : '⏾';
 
   const handleToggle = () => {
-    const targetId = isDark ? 1 : 2;
-    setTheme(userId, targetId);
+    const targetThemeName = isDark ? 'light' : 'dark';
+    const targetTheme = availableThemes.find((theme) => theme.theme === targetThemeName);
+
+    if (!targetTheme) {
+      return;
+    }
+
+    setTheme(userId, targetTheme.id);
   };
 
   return (

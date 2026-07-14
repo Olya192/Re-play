@@ -22,10 +22,9 @@ export const loadThemeData = createAsyncThunk(
   async (userId: number, { rejectWithValue }) => {
     try {
       const [themes, userThemeRes] = await Promise.all([fetchThemes(), fetchUserTheme(userId)]);
-
-      const currentTheme = userThemeRes
-        ? themes.find((t) => t.id === userThemeRes.theme_id) || null
-        : null;
+      const currentTheme =
+        userThemeRes?.theme ||
+        (userThemeRes ? themes.find((t) => t.id === userThemeRes.theme_id) || null : null);
 
       return { availableThemes: themes, currentTheme };
     } catch (error: unknown) {
@@ -76,9 +75,10 @@ const themeSlice = createSlice({
       .addCase(loadThemeData.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload as string;
+        state.isThemeChangePending = false;
       })
       .addCase(changeUserTheme.fulfilled, (state, action) => {
-        state.currentTheme = action.payload.theme;
+        state.currentTheme = action.payload.theme ?? state.currentTheme;
         state.isThemeChangePending = false;
       })
       .addCase(changeUserTheme.rejected, (state, action) => {
