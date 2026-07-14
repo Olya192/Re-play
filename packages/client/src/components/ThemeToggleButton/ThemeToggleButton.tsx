@@ -1,4 +1,6 @@
 import { useTheme } from '../../hooks/useTheme';
+import { useSelector } from '../../store';
+import { selectUser } from '../../slices/userSlice';
 import './ThemeToggleButton.css';
 
 interface ThemeToggleButtonProps {
@@ -6,11 +8,10 @@ interface ThemeToggleButtonProps {
   className?: string;
 }
 
-export const ThemeToggleButton: React.FC<ThemeToggleButtonProps> = ({
-  userId = 1,
-  className = '',
-}) => {
+export const ThemeToggleButton: React.FC<ThemeToggleButtonProps> = ({ userId, className = '' }) => {
+  const user = useSelector(selectUser);
   const { availableThemes, currentTheme, setTheme } = useTheme();
+  const resolvedUserId = userId ?? user?.id;
 
   const themeName = currentTheme?.theme || 'light';
   const isDark = themeName === 'dark';
@@ -24,7 +25,11 @@ export const ThemeToggleButton: React.FC<ThemeToggleButtonProps> = ({
       return;
     }
 
-    setTheme(userId, targetTheme.id);
+    if (!resolvedUserId) {
+      return;
+    }
+
+    setTheme(resolvedUserId, targetTheme.id);
   };
 
   return (

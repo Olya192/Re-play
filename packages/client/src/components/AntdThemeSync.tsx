@@ -2,6 +2,7 @@ import { ConfigProvider, theme } from 'antd';
 import { useEffect, useMemo, ReactNode } from 'react';
 import { useDispatch, useSelector } from '../store';
 import { loadThemeData } from '../slices/themeSlice';
+import { selectUser } from '../slices/userSlice';
 
 interface AntdThemeSyncProps {
   children: ReactNode;
@@ -9,14 +10,15 @@ interface AntdThemeSyncProps {
 
 export const AntdThemeSync = ({ children }: AntdThemeSyncProps) => {
   const dispatch = useDispatch();
+  const user = useSelector(selectUser);
   const { currentTheme, status } = useSelector((state) => state.theme);
   const isDark = currentTheme?.theme === 'dark';
 
   useEffect(() => {
-    if (status === 'idle') {
-      dispatch(loadThemeData(1));
+    if (status === 'idle' && user?.id) {
+      dispatch(loadThemeData(user.id));
     }
-  }, [dispatch, status]);
+  }, [dispatch, status, user?.id]);
 
   const antdThemeConfig = useMemo(
     () => ({
