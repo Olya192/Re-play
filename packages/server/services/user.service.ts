@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import { User } from '../models/user';
+import { User } from '../models/User';
 
 interface CreateRequest {
   login: string;
