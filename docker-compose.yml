@@ -1,73 +1,88 @@
 services:
-    postgres:
-        image: postgres:14-alpine 
-        container_name: re-play-postgres
-        ports:
-            - "${POSTGRES_PORT:-5432}:5432" 
-        environment:
-            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-            POSTGRES_USER: ${POSTGRES_USER}
-            POSTGRES_DB: ${POSTGRES_DB}
-        volumes:
-            - postgres_data:/var/lib/postgresql/data  
-        restart: always  
-        healthcheck:
-            test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
-            interval: 10s
-            timeout: 5s
-            retries: 5
-            start_period: 10s
-        networks:  
-            - app_network
+  postgres:
+    image: postgres:14-alpine
+    container_name: re-play-postgres
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - app_network
 
-    server:
-        container_name: prakticum-server
-        image: prackicum-server
-        build:
-            context: .
-            dockerfile: Dockerfile.server
-            args:
-                SERVER_PORT: ${SERVER_PORT}
-        restart: always
-        ports:
-            - "${SERVER_PORT}:${SERVER_PORT}"
-        environment:
-            SERVER_PORT: ${SERVER_PORT}
-            DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
-            POSTGRES_HOST: postgres
-            POSTGRES_PORT: 5432
-            POSTGRES_USER: ${POSTGRES_USER}
-            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-            POSTGRES_DB: ${POSTGRES_DB}
-        depends_on:  
-            postgres:
-                condition: service_healthy
-        networks: 
-            - app_network
+  client:
+    container_name: prakticum-client
 
-    client:
-        container_name: prakticum-client
-        image: prakticum-client
-        build:
-            context: .
-            dockerfile: Dockerfile.client
-            args:
-                CLIENT_PORT: ${CLIENT_PORT}
-        restart: always
-        ports:
-            - "${CLIENT_PORT}:80"
-        environment:
-            CLIENT_PORT: ${CLIENT_PORT}
-            SERVER_PORT: ${SERVER_PORT}
-            API_URL: http://server:${SERVER_PORT}
-        depends_on: 
-            - server
-        networks:
-            - app_network
+    image: prakticum-client
+
+    depends_on:
+      server:
+        condition: service_healthy
+
+    build:
+      context: .
+      dockerfile: Dockerfile.client
+      args:
+        EXTERNAL_SERVER_URL: ${EXTERNAL_SERVER_URL}
+        INTERNAL_SERVER_URL: ${INTERNAL_SERVER_URL}
+
+    restart: unless-stopped
+
+    ports:
+      - "${CLIENT_PORT}:80"
+
+    environment:
+      PORT: 80
+      NODE_ENV: production
+
+  server:
+    container_name: prakticum-server
+
+    image: prakticum-server
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+      args:
+        SERVER_PORT: ${SERVER_PORT}
+
+    env_file:
+      - .env
+
+    restart: always
+
+    environment:
+      SERVER_PORT: ${SERVER_PORT}
+
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          "node -e \"fetch('http://localhost:' + process.env.SERVER_PORT + '/health').then(response => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))\""
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
 
 networks:
     app_network:
         driver: bridge
 
-volumes:  
+volumes:
     postgres_data:

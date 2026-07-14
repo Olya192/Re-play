@@ -1,27 +1,32 @@
-ARG NODE_VERSION=24
-ARG CLIENT_PORT=3001
+ARG NODE_VERSION=22-alpine
 
-FROM node:$NODE_VERSION-bookworm as base
+FROM node:${NODE_VERSION} AS builder
 
 WORKDIR /app
 
-FROM base as builder
+ARG EXTERNAL_SERVER_URL
+ARG INTERNAL_SERVER_URL
 
-COPY package.json yarn.lock ./
-RUN yarn install --frozen-lockfile
+ENV EXTERNAL_SERVER_URL=${EXTERNAL_SERVER_URL}
+ENV INTERNAL_SERVER_URL=${INTERNAL_SERVER_URL}
 
 COPY . .
 
-RUN yarn lerna bootstrap
+RUN yarn install --frozen-lockfile
+
 RUN rm -rf /app/packages/client/dist/ && yarn build --scope=client
 
-FROM node:$NODE_VERSION-bookworm-slim as production
+FROM node:${NODE_VERSION} AS production
+
 WORKDIR /app
 
 COPY --from=builder /app/packages/client/dist/ /app/dist/
 COPY --from=builder /app/packages/client/server/ /app/server/
 COPY --from=builder /app/packages/client/package.json /app/package.json
-RUN yarn install --production=true
+COPY --from=builder /app/yarn.lock /app/yarn.lock
 
-EXPOSE $CLIENT_PORT
+RUN yarn install --production=true --frozen-lockfile
+
+EXPOSE 80
+
 CMD [ "node", "/app/server/index.js" ]
