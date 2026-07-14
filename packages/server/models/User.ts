@@ -2,20 +2,42 @@ import {
   Table,
   Column,
   Model,
+  DataType,
   PrimaryKey,
   AutoIncrement,
-  DataType,
-  HasMany,
+  AllowNull,
 } from 'sequelize-typescript';
-import { UserTheme } from './UserTheme';
+import type { Optional } from 'sequelize';
 
-@Table({ tableName: 'users', timestamps: false })
-export class User extends Model {
-  @PrimaryKey
+export interface UserAttributes {
+  id?: number;
+  login: string;
+  displayName: string | null;
+}
+
+type UserCreationAttributes = Optional<UserAttributes, 'id'>;
+
+// export interface UserUpdate {
+//   firstName: string;
+//   lastName: string;
+// }
+
+@Table({
+  tableName: 'users',
+  timestamps: true,
+  paranoid: true,
+})
+export class User extends Model<UserAttributes, UserCreationAttributes> {
   @AutoIncrement
+  @PrimaryKey
   @Column(DataType.INTEGER)
   declare id: number;
 
-  @HasMany(() => UserTheme)
-  declare userThemes: UserTheme[];
+  @AllowNull(false)
+  @Column({ type: DataType.STRING(64) })
+  declare login: string;
+
+  @AllowNull(true)
+  @Column({ type: DataType.STRING(64) })
+  declare displayName: string;
 }
