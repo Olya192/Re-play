@@ -1,4 +1,4 @@
-import { User } from '../models/user'; // путь к модели User
+import { User } from '../models/User'; // путь к модели User
 import { SiteTheme } from '../models/SiteTheme';
 import { UserTheme } from '../models/UserTheme';
 
