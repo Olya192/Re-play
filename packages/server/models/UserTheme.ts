@@ -10,7 +10,7 @@ import {
   BelongsTo,
 } from 'sequelize-typescript';
 import { SiteTheme } from './SiteTheme';
-import { User } from './User';
+import { User } from './user';
 
 @Table({ tableName: 'user_theme', timestamps: false })
 export class UserTheme extends Model {

@@ -1,7 +1,7 @@
-import { sequelize } from '../db';
 import { SiteTheme } from '../models/SiteTheme';
 import { UserTheme } from '../models/UserTheme';
 import { WhereOptions, Transaction } from 'sequelize';
+import { sequelize } from '../db/sequelize';
 
 export interface CreateThemeRequest {
   theme: string;

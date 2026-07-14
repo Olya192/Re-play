@@ -50,10 +50,15 @@ export class UserService {
   };
 
   public create = async (data: { login: string; displayName?: string }): Promise<User> => {
-    return await User.create({
-      login: data.login.trim(),
-      displayName: data.displayName?.trim() || null,
+    const login = data.login.trim();
+    const displayName = data.displayName?.trim() || null;
+
+    const [user] = await User.findOrCreate({
+      where: { login },
+      defaults: { login, displayName },
     });
+
+    return user;
   };
 
   public update = async (id: number, data: UpdateRequest): Promise<User | null> => {

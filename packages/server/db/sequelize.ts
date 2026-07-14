@@ -1,6 +1,8 @@
 import { Sequelize } from 'sequelize-typescript';
 import { User } from '../models/User';
 import { Emoji } from '../models/emoji';
+import { UserTheme } from '../models/UserTheme';
+import { SiteTheme } from '../models/SiteTheme';
 
 const { POSTGRES_HOST, POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB, POSTGRES_PORT } = process.env;
 
@@ -13,5 +15,5 @@ export const sequelize = new Sequelize({
   database: POSTGRES_DB || 'postgres',
   password: POSTGRES_PASSWORD || 'postgres',
   port: port,
-  models: [User, Emoji],
+  models: [User, Emoji, SiteTheme, UserTheme],
 });

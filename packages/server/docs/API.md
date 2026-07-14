@@ -20,3 +20,16 @@
 - еще поиск по id: GET ```${BASE_URL}/emoji/5```
 - обновить: PUT ```${BASE_URL}/emoji/5```
 - удалить: DELETE ```${BASE_URL}/emoji/5```
+
+
+#### Сидеры
+
+- Запускаются при старте приложения здесь ```packages/server/db/startApp.ts```
+- На текущий момент имеем таблицы 
+```
+  users
+  emojis
+  site_theme
+  user_theme
+ ```
+

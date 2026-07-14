@@ -40,7 +40,7 @@ app.get('/', (_, res) => {
 
 (async function () {
   await startApp();
-  
+
   app.listen(port, () => {
     console.log(`  ➜ 🎸 Server is listening on port: ${port}`);
   });
