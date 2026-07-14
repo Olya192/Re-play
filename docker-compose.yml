@@ -74,7 +74,7 @@ services:
       test:
         [
           'CMD-SHELL',
-          "node -e \"fetch('http://localhost:' + process.env.SERVER_PORT + '/health').then(response => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))\""
+          "wget -qO- http://localhost:${SERVER_PORT}/health || exit 1"
         ]
       interval: 5s
       timeout: 3s
