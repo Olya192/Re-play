@@ -7,14 +7,14 @@ export const useTheme = () => {
   const { availableThemes, currentTheme, status, error } = useSelector((state) => state.theme);
 
   const loadThemes = useCallback(
-    (userId: number) => {
+    (userId?: number) => {
       dispatch(loadThemeData(userId));
     },
     [dispatch]
   );
 
   const setTheme = useCallback(
-    (userId: number, themeId: number) => {
+    (userId: number | undefined, themeId: number) => {
       const themeObject = availableThemes.find((t) => t.id === themeId);
 
       if (!themeObject) {
@@ -22,7 +22,10 @@ export const useTheme = () => {
       }
 
       dispatch(setThemeOptimistic(themeObject));
-      dispatch(changeUserTheme({ userId, themeId }));
+
+      if (userId) {
+        dispatch(changeUserTheme({ userId, themeId }));
+      }
     },
     [dispatch, availableThemes]
   );

@@ -25,10 +25,6 @@ export const ThemeToggleButton: React.FC<ThemeToggleButtonProps> = ({ userId, cl
       return;
     }
 
-    if (!resolvedUserId) {
-      return;
-    }
-
     setTheme(resolvedUserId, targetTheme.id);
   };
 

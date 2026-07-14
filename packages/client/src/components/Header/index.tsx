@@ -37,7 +37,7 @@ export const Header = () => {
           </Link>
         </li>
         <li className={`${s.listItem} ${s.themeToggleButton}`}>
-          <ThemeToggleButton userId={1} />
+          <ThemeToggleButton />
         </li>
         <li className={`${s.listItem} ${s.listItemRight}`}>
           <Link to="/" className={s.link}>

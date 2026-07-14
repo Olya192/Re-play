@@ -19,12 +19,16 @@ const initialState: ThemeState = {
 
 export const loadThemeData = createAsyncThunk(
   'theme/loadThemeData',
-  async (userId: number, { rejectWithValue }) => {
+  async (userId: number | undefined, { rejectWithValue }) => {
     try {
-      const [themes, userThemeRes] = await Promise.all([fetchThemes(), fetchUserTheme(userId)]);
+      const themes = await fetchThemes();
+      const userThemeRes = userId ? await fetchUserTheme(userId) : null;
+      const savedTheme =
+        typeof window !== 'undefined' ? window.localStorage.getItem('preferred-theme') : null;
       const currentTheme =
         userThemeRes?.theme ||
-        (userThemeRes ? themes.find((t) => t.id === userThemeRes.theme_id) || null : null);
+        (userThemeRes ? themes.find((t) => t.id === userThemeRes.theme_id) || null : null) ||
+        (savedTheme ? themes.find((t) => t.theme === savedTheme) || null : null);
 
       return { availableThemes: themes, currentTheme };
     } catch (error: unknown) {

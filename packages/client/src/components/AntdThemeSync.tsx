@@ -15,8 +15,8 @@ export const AntdThemeSync = ({ children }: AntdThemeSyncProps) => {
   const isDark = currentTheme?.theme === 'dark';
 
   useEffect(() => {
-    if (status === 'idle' && user?.id) {
-      dispatch(loadThemeData(user.id));
+    if (status === 'idle') {
+      dispatch(loadThemeData(user?.id));
     }
   }, [dispatch, status, user?.id]);
 
