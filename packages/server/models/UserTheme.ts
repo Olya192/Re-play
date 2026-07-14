@@ -8,12 +8,11 @@ import {
   ForeignKey,
   DataType,
   BelongsTo,
-  Index,
 } from 'sequelize-typescript';
 import { SiteTheme } from './SiteTheme';
 import { User } from './User';
 
-@Table({ tableName: 'user_theme', timestamps: false, paranoid: true })
+@Table({ tableName: 'user_theme', timestamps: false })
 export class UserTheme extends Model {
   @PrimaryKey
   @AutoIncrement
@@ -28,13 +27,15 @@ export class UserTheme extends Model {
   @ForeignKey(() => User)
   @AllowNull(false)
   @Column({ type: DataType.INTEGER, field: 'owner_id' })
-  @Index
   declare owner_id: number;
 
   @AllowNull(true)
   @Column(DataType.STRING)
-  declare device: string;
+  declare device: string | null;
 
-  @BelongsTo(() => SiteTheme) declare theme: SiteTheme;
-  @BelongsTo(() => User) declare owner: User;
+  @BelongsTo(() => SiteTheme, { as: 'theme', foreignKey: 'theme_id' })
+  declare theme?: SiteTheme;
+
+  @BelongsTo(() => User, { as: 'user', foreignKey: 'owner_id' })
+  declare owner?: User;
 }

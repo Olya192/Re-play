@@ -1,6 +1,7 @@
+import { sequelize } from '../db';
 import { SiteTheme } from '../models/SiteTheme';
 import { UserTheme } from '../models/UserTheme';
-import { WhereOptions } from 'sequelize';
+import { WhereOptions, Transaction } from 'sequelize';
 
 export interface CreateThemeRequest {
   theme: string;
@@ -32,8 +33,8 @@ export class ThemeService {
   public static async getUserTheme(userId: number, device?: string) {
     const where: WhereOptions<UserTheme> = { owner_id: userId };
 
-    if (device) {
-      where.device = device;
+    if (device !== undefined) {
+      where.device = device ?? null;
     }
 
     return await UserTheme.findOne({
@@ -44,22 +45,29 @@ export class ThemeService {
 
   public static async setUserTheme(data: SetUserThemeRequest) {
     const { userId, themeId, device } = data;
+    const deviceValue = device ?? null;
 
-    const existingTheme = await UserTheme.findOne({
-      where: { owner_id: userId, device: device || null },
-    });
-
-    if (existingTheme) {
-      existingTheme.theme_id = themeId;
-      await existingTheme.save();
-
-      return existingTheme;
-    } else {
-      return await UserTheme.create({
-        owner_id: userId,
-        theme_id: themeId,
-        device: device || null,
+    return await sequelize.transaction(async (t: Transaction) => {
+      const existing = await UserTheme.findOne({
+        where: { owner_id: userId, device: deviceValue },
+        lock: t.LOCK.UPDATE,
+        transaction: t,
       });
-    }
+
+      if (existing) {
+        await existing.update({ theme_id: themeId }, { transaction: t });
+      } else {
+        await UserTheme.create(
+          { owner_id: userId, theme_id: themeId, device: deviceValue },
+          { transaction: t }
+        );
+      }
+
+      return await UserTheme.findOne({
+        where: { owner_id: userId, device: deviceValue },
+        include: [{ model: SiteTheme, as: 'theme' }],
+        transaction: t,
+      });
+    });
   }
 }
