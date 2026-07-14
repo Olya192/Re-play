@@ -12,77 +12,54 @@ export interface UserThemeResponse {
   theme: Theme;
 }
 
-export const DEFAULT_THEMES: Theme[] = [
-  { id: 1, theme: 'light', description: 'Light theme' },
-  { id: 2, theme: 'dark', description: 'Dark theme' },
-];
-
-let mockUserTheme: UserThemeResponse = {
-  id: 1,
-  theme_id: 1,
-  owner_id: 1,
-  device: null,
-  theme: DEFAULT_THEMES[0],
-};
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const API_URL = '/api';
 
 export const fetchThemes = async (): Promise<Theme[]> => {
-  try {
-    const response = await fetch(`${API_URL}/themes`);
+  const response = await fetch(`${API_URL}/themes`);
 
-    if (!response.ok) {
-      throw new Error('Failed to fetch themes');
-    }
-
-    return response.json();
-  } catch (error) {
-    console.warn('Backend not available, using mock themes');
-
-    return DEFAULT_THEMES;
+  if (!response.ok) {
+    throw new Error(`Failed to fetch themes: ${response.status} ${response.statusText}`);
   }
+
+  return response.json();
 };
 
-export const fetchUserTheme = async (userId: number): Promise<UserThemeResponse | null> => {
-  try {
-    const response = await fetch(`${API_URL}/themes/user/theme?userId=${userId}`);
+export const fetchUserTheme = async (
+  userId: number,
+  device?: string
+): Promise<UserThemeResponse | null> => {
+  const params = new URLSearchParams({ userId: userId.toString() });
 
-    if (!response.ok) {
-      throw new Error('Failed to fetch user theme');
-    }
-
-    return response.json();
-  } catch (error) {
-    console.warn('Backend not available, using mock user theme');
-
-    return mockUserTheme;
+  if (device) {
+    params.append('device', device);
   }
+
+  const response = await fetch(`${API_URL}/themes/user/theme?${params}`);
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch user theme: ${response.status}`);
+  }
+
+  const data = await response.json();
+
+  return data;
 };
 
-export const setUserTheme = async (userId: number, themeId: number): Promise<UserThemeResponse> => {
-  try {
-    const response = await fetch(`${API_URL}/themes/user/theme`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId, themeId }),
-    });
+export const setUserTheme = async (
+  userId: number,
+  themeId: number,
+  device?: string
+): Promise<UserThemeResponse> => {
+  const response = await fetch(`${API_URL}/themes/user/theme`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ userId, themeId, device }),
+  });
 
-    if (!response.ok) {
-      throw new Error('Failed to set user theme');
-    }
-
-    return response.json();
-  } catch (error) {
-    console.warn('Backend not available, using mock user theme');
-
-    const theme = DEFAULT_THEMES.find((item) => item.id === themeId) ?? DEFAULT_THEMES[0];
-
-    mockUserTheme = {
-      ...mockUserTheme,
-      theme_id: themeId,
-      theme,
-    };
-
-    return mockUserTheme;
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error || `Failed to set user theme: ${response.status}`);
   }
+
+  return response.json();
 };
