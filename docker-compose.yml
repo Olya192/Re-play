@@ -44,6 +44,8 @@ services:
     environment:
       PORT: 80
       NODE_ENV: production
+    networks:
+      - app_network
 
   server:
     container_name: prakticum-server
@@ -78,6 +80,8 @@ services:
       timeout: 3s
       retries: 5
       start_period: 5s
+    networks:
+      - app_network
 
 
 networks:
