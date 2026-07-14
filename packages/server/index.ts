@@ -10,17 +10,11 @@ import { notFound } from './middleware/notFound';
 
 const app = express();
 
-app
-  .disable('x-powered-by')
-  .enable('trust proxy')
-  .set('query parser', 'extended')
-  .use(cors())
-  .use(express.json())
-  .use(cookieParser())
-  .use(router)
-  .use(notFound);
-
 const port = Number(process.env.SERVER_PORT) || 3001;
+
+app.get('/health', (_, res) => {
+  res.status(200).json({ status: 'ok' });
+});
 
 app.get('/friends', (_, res) => {
   res.json([
@@ -37,6 +31,16 @@ app.get('/user', (_, res) => {
 app.get('/', (_, res) => {
   res.json('👋 Howdy from the server :)');
 });
+
+app
+  .disable('x-powered-by')
+  .enable('trust proxy')
+  .set('query parser', 'extended')
+  .use(cors())
+  .use(express.json())
+  .use(cookieParser())
+  .use(router)
+  .use(notFound);
 
 (async function () {
   await startApp();

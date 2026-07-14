@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../store';
-import { SERVER_HOST } from '../constants';
+import { API_URL } from '@/api/themeApi';
 
 interface Friend {
   name: string;
@@ -20,7 +20,7 @@ const initialState: FriendsState = {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const fetchFriendsThunk = createAsyncThunk('user/fetchFriendsThunk', async (_: void) => {
-  const url = `${SERVER_HOST}/friends`;
+  const url = `${API_URL}/friends`;
 
   return fetch(url).then((res) => res.json());
 });

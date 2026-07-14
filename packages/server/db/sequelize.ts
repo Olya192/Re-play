@@ -3,8 +3,11 @@ import { User } from '../models/User';
 import { Emoji } from '../models/emoji';
 import { UserTheme } from '../models/UserTheme';
 import { SiteTheme } from '../models/SiteTheme';
+import dotenv from 'dotenv';
 
-const { POSTGRES_HOST, POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB, POSTGRES_PORT } = process.env;
+dotenv.config({ path: '../../.env' });
+
+const { POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB, POSTGRES_PORT, POSTGRES_HOST } = process.env;
 
 const port = !isNaN(Number(POSTGRES_PORT)) ? Number(POSTGRES_PORT) : 5432;
 
