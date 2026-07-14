@@ -7,6 +7,7 @@ import express from 'express';
 import { startApp } from './db/startApp';
 import router from './router/router';
 import { notFound } from './middleware/notFound';
+import * as console from 'console';
 
 const app = express();
 
@@ -16,14 +17,13 @@ app.get('/health', (_, res) => {
   res.status(200).json({ status: 'ok' });
 });
 
-app.get('/friends', (_, res) => {
+app.get('/api/friends', (_, res) => {
   res.json([
     { name: 'Саша', secondName: 'Панов' },
     { name: 'Лёша', secondName: 'Садовников' },
     { name: 'Серёжа', secondName: 'Иванов' },
   ]);
 });
-
 app.get('/user', (_, res) => {
   res.json({ name: '</script>Степа', secondName: 'Степанов' });
 });
