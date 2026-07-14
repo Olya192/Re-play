@@ -18,6 +18,10 @@ app.use(express.json());
 
 const port = Number(process.env.SERVER_PORT) || 3001;
 
+app.get('/health', (_, res) => {
+  res.status(200).json({ status: 'ok' });
+});
+
 (async () => {
   try {
     await sequelize.sync({ alter: true });
