@@ -11,5 +11,30 @@
   --small-font-size: 1rem;
   --base-line-height: 1;
   --dark-accent-color: #10379c;
-  --base-transition: background-color 0.3s ease, border-color 0.3s ease;
+  --base-transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  --text-color: var(--main-color);
+  --card-bg: var(--bg-color-secondary);
+  --btn-primary-bg: var(--accent-color);
+  --btn-primary-text: #ffffff;
+  --border-color: var(--light-gray);
+}
+
+[data-theme='dark'] {
+  --bg-color: #0d1117;
+  --bg-color-secondary: #161b22;
+  --main-color: #f0f6fc;
+  --text-color: #c9d1d9;
+  --card-bg: #161b22;
+  --accent-color: #58a6ff;
+  --dark-accent-color: #79c0ff;
+  --muted-color: #8b949e;
+  --light-gray: #21262d;
+  --border-color: #30363d;
+  --btn-primary-bg: #238636;
+  --btn-primary-text: #fff;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
 }

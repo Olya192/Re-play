@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import s from './Header.module.css';
+import { ThemeToggleButton } from '../ThemeToggleButton/ThemeToggleButton';
 
 export const Header = () => {
   return (
@@ -21,7 +22,9 @@ export const Header = () => {
           </Link>
         </li>
         <li className={s.listItem}>
-          <Link to="/user-profile">Игровой профиль пользователя</Link>
+          <Link to="/user-profile" className={s.link}>
+            Игровой профиль пользователя
+          </Link>
         </li>
         <li className={s.listItem}>
           <Link to="/leaderboard" className={s.link}>
@@ -32,6 +35,9 @@ export const Header = () => {
           <Link to="/forum" className={s.link}>
             Форум
           </Link>
+        </li>
+        <li className={`${s.listItem} ${s.themeToggleButton}`}>
+          <ThemeToggleButton />
         </li>
         <li className={`${s.listItem} ${s.listItemRight}`}>
           <Link to="/" className={s.link}>
