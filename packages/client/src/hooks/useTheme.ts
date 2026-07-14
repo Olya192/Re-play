@@ -15,11 +15,11 @@ export const useTheme = () => {
 
   const setTheme = useCallback(
     (userId: number, themeId: number) => {
-      const themeObject = availableThemes.find((t) => t.id === themeId);
-
-      if (!themeObject) {
-        return;
-      }
+      const themeObject = availableThemes.find((t) => t.id === themeId) || {
+        id: themeId,
+        theme: themeId === 2 ? 'dark' : 'light',
+        description: '',
+      };
 
       dispatch(setThemeOptimistic(themeObject));
       dispatch(changeUserTheme({ userId, themeId }));
