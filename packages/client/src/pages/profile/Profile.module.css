@@ -23,21 +23,3 @@
   max-inline-size: 31.8rem;
   min-inline-size: 17rem;
 }
-
-.profileItem {
-  display: flex;
-  justify-content: space-between;
-  column-gap: 0.5rem;
-  margin-block-start: 0.5rem;
-  padding: 0.9rem 0.3rem;
-  border-block-end: 1px solid var(--light-gray);
-}
-
-.profileLabel {
-  inline-size: 8rem;
-  min-inline-size: 3rem;
-}
-
-.profileText {
-  color: var(--muted-color);
-}
