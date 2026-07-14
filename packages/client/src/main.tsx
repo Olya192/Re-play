@@ -5,7 +5,9 @@ import { Provider } from 'react-redux';
 import { HelmetProvider } from 'react-helmet-async';
 import { store } from './store';
 import { routes } from './routes';
+import { AntdThemeSync } from './components/AntdThemeSync';
 import './index.css';
+import './styles/variables.css';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
 const router = createBrowserRouter(routes);
@@ -53,7 +55,9 @@ ReactDOM.hydrateRoot(
     <ErrorBoundary>
       <HelmetProvider>
         <Provider store={store}>
-          <RouterProvider router={router} />
+          <AntdThemeSync>
+            <RouterProvider router={router} />
+          </AntdThemeSync>
         </Provider>
       </HelmetProvider>
     </ErrorBoundary>
