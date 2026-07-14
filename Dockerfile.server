@@ -6,7 +6,8 @@ WORKDIR /app
 
 COPY . .
 
-RUN yarn install
+RUN yarn install --frozen-lockfile
+
 RUN rm -rf /app/packages/server/dist/ && yarn build --scope=server
 
 FROM node:${NODE_VERSION} AS production
@@ -15,8 +16,10 @@ WORKDIR /app
 
 COPY --from=builder /app/packages/server/dist/ /app/
 COPY --from=builder /app/packages/server/package.json /app/package.json
+COPY --from=builder /app/yarn.lock /app/yarn.lock
 
-RUN yarn install --production=true
+RUN yarn install --production=true --frozen-lockfile
 
 EXPOSE 3001
-CMD [ "node", "/app/index.js" ]
+
+CMD ["node", "/app/index.js"]
