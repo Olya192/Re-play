@@ -15,6 +15,10 @@ export interface SetUserThemeRequest {
 }
 
 export class ThemeService {
+  private static normalizeDevice(device?: string) {
+    return device ?? null;
+  }
+
   public static async getAllThemes() {
     return await SiteTheme.findAll();
   }
@@ -31,11 +35,10 @@ export class ThemeService {
   }
 
   public static async getUserTheme(userId: number, device?: string) {
-    const where: WhereOptions<UserTheme> = { owner_id: userId };
-
-    if (device !== undefined) {
-      where.device = device ?? null;
-    }
+    const where: WhereOptions<UserTheme> = {
+      owner_id: userId,
+      device: ThemeService.normalizeDevice(device),
+    };
 
     return await UserTheme.findOne({
       where,
@@ -45,7 +48,7 @@ export class ThemeService {
 
   public static async setUserTheme(data: SetUserThemeRequest) {
     const { userId, themeId, device } = data;
-    const deviceValue = device ?? null;
+    const deviceValue = ThemeService.normalizeDevice(device);
 
     return await sequelize.transaction(async (t: Transaction) => {
       const existing = await UserTheme.findOne({

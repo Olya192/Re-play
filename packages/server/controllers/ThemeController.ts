@@ -3,6 +3,16 @@ import { ThemeService } from '../services/ThemeService';
 import { SiteTheme } from '../models/SiteTheme';
 
 export class ThemeController {
+  private static parseOptionalString(value: unknown): string | undefined {
+    return typeof value === 'string' && value.trim() !== '' ? value : undefined;
+  }
+
+  private static parseRequiredNumber(value: unknown): number | null {
+    const parsed = Number(value);
+
+    return Number.isInteger(parsed) ? parsed : null;
+  }
+
   public static async getAllThemes(_req: Request, res: Response) {
     try {
       const themes = await ThemeService.getAllThemes();
@@ -16,8 +26,15 @@ export class ThemeController {
   public static async getUserTheme(req: Request, res: Response): Promise<void> {
     try {
       // ToDo: Получить userId из сессии/токена (пока что заглушка)
-      const userId = req.query.userId !== undefined ? Number(req.query.userId) : 1;
-      const device = req.query.device as string | undefined;
+      const userId =
+        req.query.userId !== undefined ? ThemeController.parseRequiredNumber(req.query.userId) : 1;
+      const device = ThemeController.parseOptionalString(req.query.device);
+
+      if (userId == null) {
+        res.status(400).json({ error: 'userId must be a number' });
+
+        return;
+      }
 
       const userTheme = await ThemeService.getUserTheme(userId, device);
 
@@ -31,18 +48,13 @@ export class ThemeController {
   public static async setUserTheme(req: Request, res: Response): Promise<void> {
     try {
       // ToDo: Получить userId из сессии/токена (пока что заглушка)
-      const userId = req.body.userId !== undefined ? Number(req.body.userId) : 1;
-      const themeId = req.body.themeId;
-      const device = req.body.device;
+      const userId =
+        req.body.userId !== undefined ? ThemeController.parseRequiredNumber(req.body.userId) : 1;
+      const themeId = ThemeController.parseRequiredNumber(req.body.themeId);
+      const device = ThemeController.parseOptionalString(req.body.device);
 
       if (userId == null || themeId == null) {
         res.status(400).json({ error: 'userId and themeId are required' });
-
-        return;
-      }
-
-      if (typeof themeId !== 'number') {
-        res.status(400).json({ error: 'themeId must be a number' });
 
         return;
       }
