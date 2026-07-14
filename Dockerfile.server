@@ -1,28 +1,25 @@
-ARG NODE_VERSION=24
-ARG SERVER_PORT=3001
+ARG NODE_VERSION=22-alpine
 
-FROM node:$NODE_VERSION-bookworm as base
+FROM node:${NODE_VERSION} AS builder
 
 WORKDIR /app
 
-FROM base as builder
-
-COPY package.json yarn.lock ./
-RUN yarn install --frozen-lockfile
-
 COPY . .
 
-RUN yarn lerna bootstrap
-RUN rm -rf /app/packages/server/dist/ 
-# RUN find . -name "tsconfig*.json" -exec sed -i 's/"importsNotUsedAsValues":\s*"[^"]*",\?//g' {} \;
-RUN yarn lerna run build --scope=server --verbose
+RUN yarn install --frozen-lockfile
 
-FROM node:$NODE_VERSION-bookworm-slim as production
+RUN rm -rf /app/packages/server/dist/ && yarn build --scope=server
+
+FROM node:${NODE_VERSION} AS production
+
 WORKDIR /app
 
 COPY --from=builder /app/packages/server/dist/ /app/
 COPY --from=builder /app/packages/server/package.json /app/package.json
-RUN yarn install --production=true
+COPY --from=builder /app/yarn.lock /app/yarn.lock
 
-EXPOSE $SERVER_PORT
-CMD [ "node", "/app/index.js" ]
+RUN yarn install --production=true --frozen-lockfile
+
+EXPOSE 3001
+
+CMD ["node", "/app/index.js"]

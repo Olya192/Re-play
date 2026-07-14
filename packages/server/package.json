@@ -21,7 +21,10 @@
     "express-session": "^1.19.0",
     "pg": "^8.8.0",
     "prettier": "^2.7.1",
-    "react-helmet-async": "^3.0.0"
+    "react-helmet-async": "^3.0.0",
+    "reflect-metadata": "^0.2.2",
+    "sequelize": "^6.37.8",
+    "sequelize-typescript": "^2.1.6"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",

@@ -10,6 +10,7 @@ import ssrReducer from './slices/ssrSlice';
 import userReducer from './slices/userSlice';
 import { gameSessionReducer } from './slices/gameSession';
 import { gameUiReducer } from './slices/gameUi';
+import themeReducer from './slices/themeSlice';
 import {
   loadPersistedGameSession,
   persistGameSessionMiddleware,
@@ -29,6 +30,7 @@ export const reducer = combineReducers({
   user: userReducer,
   gameSession: gameSessionReducer,
   gameUi: gameUiReducer,
+  theme: themeReducer,
 });
 
 const buildPreloadedState = (): RootState | undefined => {
