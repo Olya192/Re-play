@@ -20,13 +20,13 @@
     "noUnusedLocals": true,
     "forceConsistentCasingInFileNames": true,
     "lib": ["es2019", "esnext.asynciterable"],
-     "types": ["node", "jest"],
-     "typeRoots": ["./node_modules/@types", "./types"],
+    "types": ["node", "jest"],
     "baseUrl": ".",
     "paths": {
       "*": ["types/*"]
     },
-    "outDir": "dist"
-  },
-   "include": ["**/*.ts", "types/**/*.d.ts"]
+    "outDir": "dist",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
+  }
 }
