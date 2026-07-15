@@ -1,13 +1,10 @@
-import 'express-session';
-
-declare module 'express-session' {
-  interface SessionData {
-    user: {
-      id: string | number;
-      name: string;
-      email: string;
-      avatar?: string | null;
-      login?: string;
-    };
+declare global {
+  namespace Express {
+    interface Request {
+      session: any;
+      user?: any;
+    }
   }
 }
+
+export {};
