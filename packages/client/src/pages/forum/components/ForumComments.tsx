@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Avatar, Button, Flex, Input, Space, Typography } from 'antd';
 import { SendOutlined } from '@ant-design/icons';
+import { User } from '@/types/user';
 
 const { Text, Title } = Typography;
 const { TextArea } = Input;
@@ -16,27 +17,19 @@ interface Comment {
   avatar: string;
   content: string;
   createdAt: string;
+  user: User;
 }
 
-const MOCK_COMMENTS: Comment[] = [
-  {
-    id: 1,
-    author: 'Иван Иванов',
-    avatar: 'https://api.dicebear.com/7.x/miniavs/svg?seed=ivan',
-    content: 'Отличная тема! Давайте обсудим детали.',
-    createdAt: '5 минут назад',
-  },
-  {
-    id: 2,
-    author: 'Мария Петрова',
-    avatar: 'https://api.dicebear.com/7.x/miniavs/svg?seed=maria',
-    content: 'Согласна, это очень интересно. У меня есть несколько мыслей по этому поводу.',
-    createdAt: '3 минуты назад',
-  },
-];
+const formatDate = (date: string) => {
+  const newDate = new Date(date);
 
-export const ForumComments = () => {
-  const [comments, setComments] = useState<Comment[]>(MOCK_COMMENTS);
+  return `${String(newDate.getDay()).padStart(2, '0')}.${String(newDate.getMonth() + 1).padStart(
+    2,
+    '0'
+  )}.${newDate.getFullYear()} ${newDate.getHours()}:${newDate.getMinutes()}`;
+};
+
+export const ForumComments = (props) => {
   const [newComment, setNewComment] = useState('');
 
   const handleSend = () => {
@@ -46,15 +39,6 @@ export const ForumComments = () => {
       return;
     }
 
-    const comment: Comment = {
-      id: Date.now(),
-      author: 'Вы',
-      avatar: 'https://api.dicebear.com/7.x/miniavs/svg?seed=you',
-      content: trimmed,
-      createdAt: 'только что',
-    };
-
-    setComments((prev) => [...prev, comment]);
     setNewComment('');
   };
 
@@ -70,14 +54,14 @@ export const ForumComments = () => {
       <Title level={2}>Комментарии</Title>
       <Flex vertical gap="large">
         <Space orientation="vertical" size="middle" style={{ display: 'flex' }}>
-          {comments.map((comment) => (
+          {props.comments.map((comment: Comment) => (
             <Flex key={comment.id} gap="middle" align="flex-start">
               <Avatar src={comment.avatar} />
               <Flex vertical flex={1}>
                 <Flex gap="small" align="baseline">
-                  <Text strong>{comment.author}</Text>
+                  <Text strong>{comment.user?.displayName}</Text>
                   <Text type="secondary" style={{ fontSize: 12 }}>
-                    {comment.createdAt}
+                    {<>{formatDate(comment.createdAt)}</>}
                   </Text>
                 </Flex>
                 <Text>{comment.content}</Text>

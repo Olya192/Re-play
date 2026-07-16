@@ -18,7 +18,6 @@ export class ForumAPI {
   };
 
   public static getAll = async (_: Request, res: Response): Promise<void> => {
-    console.log('HERE!');
     try {
       const allTopics = await forumService.findAll();
       res.status(200).json(allTopics);

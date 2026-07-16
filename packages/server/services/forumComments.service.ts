@@ -1,4 +1,5 @@
 import { ForumComments } from '../models/ForumComments';
+import { User } from '../models/User';
 
 interface CreateRequest {
   title: string;
@@ -14,6 +15,13 @@ export class ForumCommentsService {
         where: {
           topicId: params.id,
         },
+        include: [
+          {
+            model: User,
+            as: 'user',
+            attributes: ['id', 'displayName'],
+          },
+        ],
       });
     }
 

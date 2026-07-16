@@ -1,8 +1,10 @@
 import { Forum } from '../models/Forum';
+import { User } from '../models/User';
 
 interface CreateRequest {
   title: string;
   content: string;
+  userId: number;
 }
 
 type UpdateRequest = Partial<CreateRequest>;
@@ -10,23 +12,47 @@ type UpdateRequest = Partial<CreateRequest>;
 export class ForumService {
   public find = async (params: { id?: number }): Promise<Forum | null> => {
     if (params.id != null) {
-      return await Forum.findByPk(params.id);
+      return await Forum.findOne({
+        where: {
+          id: params.id,
+        },
+        include: [
+          {
+            model: User,
+            as: 'user',
+            attributes: ['id', 'displayName'],
+          },
+        ],
+      });
     }
 
     return null;
   };
 
   public findAll = async (): Promise<Forum[]> => {
-    return await Forum.findAll();
+    return await Forum.findAll({
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'displayName'],
+        },
+      ],
+    });
   };
 
-  public create = async (data: { title: string; content: string }): Promise<Forum> => {
+  public create = async (data: {
+    title: string;
+    content: string;
+    userId: number;
+  }): Promise<Forum> => {
     const title = data.title.trim();
     const content = data.content.trim();
+    const userId = data.userId;
 
     const [topic] = await Forum.findOrCreate({
       where: { title },
-      defaults: { title, content },
+      defaults: { title, content, userId },
     });
 
     return topic;

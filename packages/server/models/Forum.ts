@@ -1,19 +1,22 @@
 import {
   AllowNull,
   AutoIncrement,
+  BelongsTo,
   Column,
   DataType,
+  ForeignKey,
   Model,
   PrimaryKey,
   Table,
 } from 'sequelize-typescript';
 import { type Optional } from 'sequelize';
+import { User } from './User';
 
 export interface TopicAttributes {
   id?: number;
   title: string;
   content: string;
-  comments?: Array<unknown>;
+  userId?: number;
 }
 
 type TopicCreationAttributes = Optional<TopicAttributes, 'id'>;
@@ -36,4 +39,12 @@ export class Forum extends Model<TopicAttributes, TopicCreationAttributes> {
   @AllowNull(false)
   @Column({ type: DataType.STRING(2048) })
   declare content: string;
+
+  @ForeignKey(() => User)
+  @AllowNull(false)
+  @Column({ type: DataType.INTEGER })
+  declare userId: number;
+
+  @BelongsTo(() => User, { as: 'user', foreignKey: 'userId' })
+  declare user?: User;
 }
