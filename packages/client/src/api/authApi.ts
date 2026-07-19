@@ -1,5 +1,5 @@
-import { AUTH_ROUTES } from '../constants/api/apiConstants';
-import { convertKeysToCamelCase } from '../utils/convert/convertKeysToCamelCase';
+import { AUTH_ROUTES } from '@/constants/api/apiConstants';
+import { convertKeysToCamelCase } from '@/utils/convert/convertKeysToCamelCase';
 import { HTTPTransport } from './httpTransport';
 
 interface SignupData {
@@ -63,12 +63,7 @@ class AuthApi {
         `https://ya-praktikum.tech/api/v2/oauth/yandex/service-id?redirect_uri=${redirectUri}`
       )
     );
-    // authApiInstance.get(
-    //   AUTH_ROUTES.OAUTH,
-    //   {
-    //     data: { redirect_uri: redirectUri }
-    //   }
-    // );
+
     const data: ServiceID = await response.json();
 
     return data.service_id;

@@ -6,6 +6,7 @@ import {
 } from '../slices/ssrSlice';
 import { PageInitArgs, PageInitContext } from '../routes';
 import { useOAuth } from './useOAuth';
+import { setUser } from '@/slices/userSlice';
 
 const getCookie = (name: string) => {
   const matches = document.cookie.match(
@@ -44,6 +45,8 @@ export const usePage = ({ initPage }: PageProps) => {
     if (!isAuthenticated) {
       return;
     }
+
+    // dispatch(setUser(user));
 
     initializePage();
   }, [isOAuthLoading, isAuthenticated]);
