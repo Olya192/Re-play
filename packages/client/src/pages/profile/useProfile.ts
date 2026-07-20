@@ -1,4 +1,4 @@
-import { ChangeEventHandler, FormEvent, useEffect, useState } from 'react';
+import { ChangeEventHandler, FormEvent, useState } from 'react';
 import { User } from '@/types/user';
 import { BASE_API_URL, RESOURCE_API_URL } from '@/constants/api/apiConstants';
 import { useEditProfile } from '@/hooks';
@@ -55,12 +55,6 @@ export const useProfile = (): UseProfile => {
 
     return false;
   };
-
-  // useEffect(() => {
-  //   if (currentUser) {
-  //     setUser(currentUser);
-  //   }
-  // }, []);
 
   return {
     user,

@@ -4,7 +4,6 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { authApi } from '../api/authApi';
 import { setUser } from '../slices/userSlice';
 import { useDispatch } from 'react-redux';
-import { userApi } from '@/api/userApi';
 
 export const useOAuth = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -75,9 +74,6 @@ export const useOAuth = () => {
         if (user) {
           dispatch(setUser(user));
 
-          const { login, displayName } = user;
-          await userApi.createOrUpdateUser({ login, displayName });
-
           if (isMounted) {
             setIsAuthenticated(true);
           }
@@ -109,9 +105,6 @@ export const useOAuth = () => {
 
         if (isAuth && user) {
           dispatch(setUser(user));
-
-          const { login, displayName } = user;
-          await userApi.createOrUpdateUser({ login, displayName });
         }
 
         if (!isAuth) {

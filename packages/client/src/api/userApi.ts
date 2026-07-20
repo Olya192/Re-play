@@ -7,7 +7,7 @@ const apiInstance = new HTTPTransport();
 
 class UserApi {
   async findUser(login: string): Promise<void> {
-    const response = await apiInstance.get(`${USERS_API_URL}/users/find`, {
+    const response = await apiInstance.get(`${USERS_API_URL}/find`, {
       data: {
         login,
       },

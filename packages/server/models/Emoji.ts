@@ -31,10 +31,10 @@ export class Emoji extends Model<EmojiAttributes, EmojisCreationAttributes> {
 
   @AllowNull(false)
   @Unique
-  @Column({ type: DataType.STRING(64) })
+  @Column(DataType.STRING)
   declare emoji: string;
 
   @AllowNull(false)
-  @Column({ type: DataType.STRING(255) })
+  @Column(DataType.STRING)
   declare description: string;
 }
