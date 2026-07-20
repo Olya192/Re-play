@@ -74,6 +74,10 @@ export class UserService {
     return affectedRows[0];
   };
 
+  public upsert = async (data: CreateRequest): Promise<[User, boolean | null]> => {
+    return await User.upsert(data);
+  };
+
   public delete = async (id: number): Promise<boolean> => {
     const deletedCount = await User.destroy({ where: { id } });
 

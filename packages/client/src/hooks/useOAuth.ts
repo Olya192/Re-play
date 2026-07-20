@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { checkAuth } from '../api/checkAuth';
+import { checkAuth, getCurrentUser } from '../api/checkAuth';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { authApi } from '../api/authApi';
 import { setUser } from '../slices/userSlice';
@@ -97,8 +97,14 @@ export const useOAuth = () => {
       try {
         const isAuth = await checkAuth();
 
+        const user = await getCurrentUser();
+
         if (isMounted) {
           setIsAuthenticated(isAuth);
+        }
+
+        if (isAuth && user) {
+          dispatch(setUser(user));
         }
 
         if (!isAuth) {

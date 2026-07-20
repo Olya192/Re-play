@@ -22,6 +22,14 @@
 - удалить: DELETE ```${BASE_URL}/emoji/5```
 
 
+## Reactions - реакции на топики
+
+- поиск всех реакций на топик по ID: GET ```${BASE_URL}/reactions```
+- создать: POST ```${BASE_URL}/reactions```
+- обновить: PUT ```${BASE_URL}/reactions```
+- удалить: POST ```${BASE_URL}/reactions/delete```
+
+
 #### Сидеры
 
 - Запускаются при старте приложения здесь ```packages/server/db/startApp.ts```
@@ -31,5 +39,7 @@
   emojis
   site_theme
   user_theme
+  forum_topics
+  forum_topics
+  reactions
  ```
-

@@ -6,11 +6,12 @@ export const usersRoutes = (router: Router) => {
 
   usersRouter
     .post('/', UserAPI.create)
-    .get('/users', UserAPI.getAll)
-    .get('/users/find', UserAPI.find)
-    .get('/users/:id', UserAPI.getById)
-    .put('/users/:id', UserAPI.update)
-    .delete('/users/:id', UserAPI.delete);
+    .get('/', UserAPI.getAll)
+    .get('/find', UserAPI.find)
+    .get('/:id', UserAPI.getById)
+    .put('/:id', UserAPI.update)
+    .post('/create-or-update', UserAPI.createOrUpdate)
+    .delete('/:id', UserAPI.delete);
 
   router.use('/users', usersRouter);
 };
