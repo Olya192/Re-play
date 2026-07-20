@@ -5,6 +5,7 @@ import { seedSiteThemes } from './seed-site-themes';
 import { seedUserThemes } from './seed-user-themes';
 import { seedTopics } from './seed-forum-topics';
 import { seedComments } from './seed-forum-comments';
+import { seedTopicsReactions } from './seed-topics-reactions';
 
 export async function startApp() {
   try {
@@ -23,6 +24,8 @@ export async function startApp() {
     console.log('✅ ForumTopics seeder');
     await seedComments();
     console.log('✅ ForumComments seeder');
+    await seedTopicsReactions();
+    console.log('✅ TopicsReactions seeder');
   } catch (error) {
     console.error('Failed to start application:', error);
     throw error;

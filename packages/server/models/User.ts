@@ -33,11 +33,11 @@ export class User extends Model<UserAttributes, UserCreationAttributes> {
 
   @AllowNull(false)
   @Unique
-  @Column({ type: DataType.STRING(64) })
+  @Column(DataType.STRING)
   declare login: string;
 
   @AllowNull(true)
-  @Column({ type: DataType.STRING(64) })
+  @Column(DataType.STRING)
   declare displayName: string;
 
   @HasMany(() => UserTheme)

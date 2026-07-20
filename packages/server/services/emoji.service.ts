@@ -1,7 +1,7 @@
-import { Emoji } from '../models/emoji';
 import { type Attributes, type CreateOptions, Op } from 'sequelize';
-import { BaseRestService } from './base-rest.service';
 import type { Model } from 'sequelize-typescript';
+import { Emoji } from '../models/Emoji';
+import { BaseRestService } from './base-rest.service';
 
 interface FindRequest {
   id?: number;
