@@ -1,73 +1,95 @@
-import { Avatar, Button, Card, Flex, Space, Typography } from 'antd';
+import { Avatar, Button, Card, Empty, Flex, Space, Typography } from 'antd';
 import ForumComments from './ForumComments';
-import {
-  CommentOutlined,
-  FieldTimeOutlined,
-  RollbackOutlined,
-  UserOutlined,
-} from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
+import { FieldTimeOutlined, RollbackOutlined, UserOutlined } from '@ant-design/icons';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useForum } from '@/pages/forum/useForum';
+import { useMemo, useState } from 'react';
 
 const { Text, Title } = Typography;
 
 export const ForumTopic = () => {
   const navigate = useNavigate();
-  const actions: React.ReactNode[] = [
-    <Flex gap="medium" justify="center">
-      <UserOutlined key="user" /> Иван Иванов
-    </Flex>,
-    <Flex gap="medium" justify="center">
-      <FieldTimeOutlined key="createdAt" /> 10 минут назад
-    </Flex>,
-    <Flex gap="medium" justify="center">
-      <CommentOutlined key="messagesCount" /> 0
-    </Flex>,
-  ];
+  const params = useParams();
+  const { getTopic, topic } = useForum();
+  const [hasError, setHasError] = useState(false);
 
   const goToList = () => {
     navigate('/forum');
   };
 
-  return (
-    <div className="forum_list">
-      <Space orientation="vertical" size="medium" style={{ display: 'flex' }}>
-        <Button onClick={goToList} type="primary" icon={<RollbackOutlined />}>
-          Назад к списку
-        </Button>
-        <Card actions={actions}>
-          <Card.Meta
-            avatar={<Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" />}
-            title={<Title level={1}>Татйтл топика</Title>}
-            description={
-              <>
-                <Text>
-                  <p>
-                    Полное описание топика Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-                    Ab ad asperiores assumenda autem exercitationem fugiat harum hic ipsa itaque
-                    necessitatibus, nihil pariatur qui ratione rem sunt temporibus tenetur, vel
-                    veritatis!
-                  </p>
-                  <p>
-                    Полное описание топика Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-                    Ab ad asperiores assumenda autem exercitationem fugiat harum hic ipsa itaque
-                    necessitatibus, nihil pariatur qui ratione rem sunt temporibus tenetur, vel
-                    veritatis!
-                  </p>
-                  <p>
-                    Полное описание топика Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-                    Ab ad asperiores assumenda autem exercitationem fugiat harum hic ipsa itaque
-                    necessitatibus, nihil pariatur qui ratione rem sunt temporibus tenetur, vel
-                    veritatis!
-                  </p>
-                </Text>
-              </>
-            }
-          />
-        </Card>
-        <ForumComments />
-      </Space>
-    </div>
-  );
+  const formatDate = (date: string) => {
+    const newDate = new Date(date);
+
+    return `${String(newDate.getDay()).padStart(2, '0')}.${String(newDate.getMonth() + 1).padStart(
+      2,
+      '0'
+    )}.${newDate.getFullYear()} ${newDate.getHours()}:${newDate.getMinutes()}`;
+  };
+
+  useMemo(() => {
+    setHasError(false);
+    getTopic(Number(params?.topicId)).catch((error: unknown) => {
+      setHasError(true);
+      console.log('', error);
+    });
+  }, []);
+
+  console.log(hasError);
+
+  if (!topic) {
+    return (
+      <Empty
+        description={
+          <Space orientation="vertical" size="medium" style={{ display: 'flex' }}>
+            <div>Ничегошеньки тут нет</div>
+            <Button onClick={goToList} type="primary" icon={<RollbackOutlined />}>
+              Назад к списку
+            </Button>{' '}
+          </Space>
+        }
+      />
+    );
+  } else if (hasError) {
+    return (
+      <Empty
+        description={
+          <Space orientation="vertical" size="medium" style={{ display: 'flex' }}>
+            <div>Какая-то ошибочка</div>
+            <Button onClick={goToList} type="primary" icon={<RollbackOutlined />}>
+              Назад к списку
+            </Button>{' '}
+          </Space>
+        }
+      />
+    );
+  } else {
+    return (
+      <div className="forum_list">
+        <Space orientation="vertical" size="medium" style={{ display: 'flex' }}>
+          <Button onClick={goToList} type="primary" icon={<RollbackOutlined />}>
+            Назад к списку
+          </Button>
+          <Card
+            actions={[
+              <Flex gap="medium" justify="center">
+                <UserOutlined key="user" /> {topic.user?.displayName}
+              </Flex>,
+              <Flex gap="medium" justify="center">
+                <FieldTimeOutlined key="createdAt" /> {<>{formatDate(topic.createdAt)}</>}
+              </Flex>,
+            ]}
+          >
+            <Card.Meta
+              avatar={<Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" />}
+              title={<Title level={1}>{topic.title}</Title>}
+              description={<Text>{topic.content}</Text>}
+            />
+          </Card>
+          <ForumComments topicId={topic.id} />
+        </Space>
+      </div>
+    );
+  }
 };
 
 export default ForumTopic;
