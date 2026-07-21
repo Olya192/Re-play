@@ -23,5 +23,6 @@
     "@evilmartians/lefthook": "^1.3.9",
     "lerna": "^5.4.3",
     "vite-plugin-static-copy": "^4.1.1"
-  }
+  },
+  "version": "0.0.0"
 }
