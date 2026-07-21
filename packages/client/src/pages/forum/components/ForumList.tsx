@@ -32,43 +32,42 @@ export const ForumList = () => {
   }, []);
 
   return (
-    <div className="forum-list">
-      <div className={s.forumHeader}>
-        <Title level={1}>Форум</Title>
+    <div className={s.forum}>
+      <div className="forum-list">
+        <div className={s.forumHeader}>
+          <Title level={1}>Форум</Title>
+        </div>
+        <Space orientation="vertical" size="medium" style={{ display: 'flex' }}>
+          {topics.length ? (
+            <>
+              {topics.map((el: topic) => (
+                <Card
+                  hoverable
+                  actions={[
+                    <Flex gap="medium" justify="center">
+                      <UserOutlined key="user" /> {el.user.displayName}
+                    </Flex>,
+                    <Flex gap="medium" justify="center">
+                      <FieldTimeOutlined key="createdAt" /> {<>{formatDate(el.createdAt)}</>}
+                    </Flex>,
+                  ]}
+                  key={el.id}
+                >
+                  <Card.Meta
+                    avatar={<Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" />}
+                    title={<Link to={`/forum/${el.id}`}>{el.title}</Link>}
+                    description={<>{el.content}</>}
+                  />
+                </Card>
+              ))}
+            </>
+          ) : (
+            <Card>
+              <Card.Meta title={'Пусто'} description={'Нет топиков, нет проблем'} />
+            </Card>
+          )}
+        </Space>
       </div>
-      <Space orientation="vertical" size="medium" style={{ display: 'flex' }}>
-        {topics.length ? (
-          <>
-            {topics.map((el: topic) => (
-              <Card
-                hoverable
-                actions={[
-                  <Flex gap="medium" justify="center">
-                    <UserOutlined key="user" /> {el.user.displayName}
-                  </Flex>,
-                  <Flex gap="medium" justify="center">
-                    <FieldTimeOutlined key="createdAt" /> {<>{formatDate(el.createdAt)}</>}
-                  </Flex>,
-                  <Flex gap="medium" justify="center">
-                    <CommentOutlined key="messagesCount" /> 0
-                  </Flex>,
-                ]}
-                key={el.id}
-              >
-                <Card.Meta
-                  avatar={<Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" />}
-                  title={<Link to={`/forum/${el.id}`}>{el.title}</Link>}
-                  description={<>{el.content}</>}
-                />
-              </Card>
-            ))}
-          </>
-        ) : (
-          <Card>
-            <Card.Meta title={'Пусто'} description={'Нет топиков, нет проблем'} />
-          </Card>
-        )}
-      </Space>
     </div>
   );
 };

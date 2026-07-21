@@ -1,5 +1,9 @@
 import { Forum } from '../models/Forum';
 import { User } from '../models/User';
+import { UserService } from './user.service';
+import { ForumComments } from '../models/ForumComments';
+
+const userService = new UserService();
 
 interface CreateRequest {
   title: string;
@@ -31,6 +35,7 @@ export class ForumService {
 
   public findAll = async (): Promise<Forum[]> => {
     return await Forum.findAll({
+      order: [['createdAt', 'DESC']],
       include: [
         {
           model: User,
@@ -44,11 +49,12 @@ export class ForumService {
   public create = async (data: {
     title: string;
     content: string;
-    userId: number;
+    login: string;
   }): Promise<Forum> => {
-    const title = data.title.trim();
-    const content = data.content.trim();
-    const userId = data.userId;
+    const title = data.title?.trim();
+    const content = data.content?.trim();
+    const user = await userService.find({ login: data.login });
+    const userId = user?.id || 0;
 
     const [topic] = await Forum.findOrCreate({
       where: { title },
@@ -56,6 +62,22 @@ export class ForumService {
     });
 
     return topic;
+  };
+  public createComment = async (data: {
+    topicId: number;
+    commentText: string;
+    login: string;
+  }): Promise<ForumComments> => {
+    const topicId = data.topicId;
+    const content = data.commentText?.trim();
+    const user = await userService.find({ login: data.login });
+    const userId = user?.id || 0;
+
+    return await ForumComments.create({
+      topicId: topicId,
+      userId: userId,
+      content: content,
+    });
   };
 
   public update = async (id: number, data: UpdateRequest): Promise<Forum | null> => {

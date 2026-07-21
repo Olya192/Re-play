@@ -1,4 +1,4 @@
-import { Avatar, Button, Card, Flex, Space, Typography } from 'antd';
+import { Avatar, Button, Card, Empty, Flex, Space, Typography } from 'antd';
 import ForumComments from './ForumComments';
 import { FieldTimeOutlined, RollbackOutlined, UserOutlined } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -10,9 +10,8 @@ const { Text, Title } = Typography;
 export const ForumTopic = () => {
   const navigate = useNavigate();
   const params = useParams();
-  const [topic, setTopic] = useState([]);
-  const [comments, setComments] = useState([]);
-  const { getTopic } = useForum();
+  const { getTopic, topic } = useForum();
+  const [hasError, setHasError] = useState(false);
 
   const goToList = () => {
     navigate('/forum');
@@ -28,18 +27,41 @@ export const ForumTopic = () => {
   };
 
   useMemo(() => {
-    getTopic(Number(params?.topicId))
-      .then((response) => {
-        setTopic(response?.topic);
-        setComments(response?.comments);
-      })
-      .catch((error: unknown) => {
-        console.log(error);
-      });
+    setHasError(false);
+    getTopic(Number(params?.topicId)).catch((error: unknown) => {
+      setHasError(true);
+      console.log('', error);
+    });
   }, []);
 
-  if (topic.length) {
-    return;
+  console.log(hasError);
+
+  if (!topic) {
+    return (
+      <Empty
+        description={
+          <Space orientation="vertical" size="medium" style={{ display: 'flex' }}>
+            <div>Ничегошеньки тут нет</div>
+            <Button onClick={goToList} type="primary" icon={<RollbackOutlined />}>
+              Назад к списку
+            </Button>{' '}
+          </Space>
+        }
+      />
+    );
+  } else if (hasError) {
+    return (
+      <Empty
+        description={
+          <Space orientation="vertical" size="medium" style={{ display: 'flex' }}>
+            <div>Какая-то ошибочка</div>
+            <Button onClick={goToList} type="primary" icon={<RollbackOutlined />}>
+              Назад к списку
+            </Button>{' '}
+          </Space>
+        }
+      />
+    );
   } else {
     return (
       <div className="forum_list">
@@ -63,7 +85,7 @@ export const ForumTopic = () => {
               description={<Text>{topic.content}</Text>}
             />
           </Card>
-          <ForumComments comments={comments} />
+          <ForumComments topicId={topic.id} />
         </Space>
       </div>
     );

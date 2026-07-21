@@ -12,8 +12,17 @@ export class ForumAPI {
       const newTopic = await forumService.create(req.body);
       res.status(201).json(newTopic);
     } catch (error) {
-      console.log(error);
-      res.status(500).json({ error: 'Failed to create topic' });
+      res.status(500).json({ error: `Failed to create topic. ${error}` });
+    }
+  };
+
+  public static createComment = async (req: Request, res: Response): Promise<void> => {
+    try {
+      console.log(555, req.body);
+      const newTopicComment = await forumService.createComment(req.body);
+      res.status(201).json(newTopicComment);
+    } catch (error) {
+      res.status(500).json({ error: `Failed to create topic comment. ${error}` });
     }
   };
 
@@ -22,7 +31,7 @@ export class ForumAPI {
       const allTopics = await forumService.findAll();
       res.status(200).json(allTopics);
     } catch (error) {
-      res.status(500).json({ error: 'Failed to get all topics' });
+      res.status(500).json({ error: `Failed to get all topics. ${error}` });
     }
   };
 
@@ -41,18 +50,28 @@ export class ForumAPI {
         return;
       }
 
-      let comments = null;
+      res.json(topic);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to find topic' });
+    }
+  };
 
-      if (topic) {
-        comments = await forumCommentsService.find({
-          id: normalizedId,
-        });
+  public static findCmments = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { id } = req.params;
+      const normalizedId = Number(id) || undefined;
+
+      const comments = await forumCommentsService.find({
+        id: normalizedId,
+      });
+
+      if (!comments) {
+        res.status(404).json({ error: 'Topic not found' });
+
+        return;
       }
 
-      res.json({
-        topic: topic,
-        comments: comments,
-      });
+      res.json(comments);
     } catch (error) {
       res.status(500).json({ error: 'Failed to find topic' });
     }

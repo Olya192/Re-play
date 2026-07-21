@@ -1,6 +1,6 @@
 import { Button, Form, Input, Space } from 'antd';
 import { RollbackOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
+import { useForum } from '@/pages/forum/useForum';
 
 type TopicType = {
   title: string;
@@ -10,20 +10,19 @@ type TopicType = {
 const { TextArea } = Input;
 
 export const ForumAddTopic = () => {
-  const navigate = useNavigate();
-
-  function goToList() {
-    navigate('/forum');
-  }
+  const { addTopic, forumLoading, goToList } = useForum();
 
   return (
     <div className="forum_list">
       <Space orientation="vertical" size="medium" style={{ display: 'flex' }}>
+        <pre>{forumLoading}</pre>
         <Form
           name="add-topic"
           layout={'vertical'}
           initialValues={{ remember: true }}
           autoComplete="off"
+          onFinish={addTopic}
+          disabled={forumLoading}
         >
           <Form.Item>
             <Button onClick={goToList} type="primary" icon={<RollbackOutlined />}>
