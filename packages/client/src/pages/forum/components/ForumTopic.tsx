@@ -35,8 +35,6 @@ export const ForumTopic = () => {
     });
   }, []);
 
-  console.log(hasError);
-
   if (!topic) {
     return (
       <Empty

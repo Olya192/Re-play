@@ -1,10 +1,10 @@
 import { Link } from 'react-router-dom';
-import { Modal } from '../../../../../components/Modal';
-import { BaseButton } from '../../../../../components/BaseButton';
-import { useDispatch, useSelector } from '../../../../../store';
-import { selectUser } from '../../../../../slices/userSlice';
-import { selectActiveModal, openModal, closeModal } from '../../../../../slices/gameUi';
-import { resetSession } from '../../../../../slices/gameSession';
+import { Modal } from '@/components/Modal';
+import { BaseButton } from '@/components/BaseButton';
+import { useDispatch, useSelector } from '@/store';
+import { selectUser } from '@/slices/userSlice';
+import { selectActiveModal, openModal, closeModal } from '@/slices/gameUi';
+import { resetSession } from '@/slices/gameSession';
 import s from './PauseModal.module.css';
 
 export const PauseModal = () => {

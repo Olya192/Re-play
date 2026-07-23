@@ -36,7 +36,11 @@ describe('HelpModal', () => {
 
     expect(screen.getByText('Как играть')).toBeDefined();
     expect(screen.getByText('Понятно')).toBeDefined();
-    expect(screen.getByText('Тапай по падающим объектам, чтобы поймать их')).toBeDefined();
+    expect(
+      screen.getByText(
+        'Тапай по съедобным объектам, чтобы поймать их и получать очки. За пойманныйе несъедобные предметы очки снимаются'
+      )
+    ).toBeDefined();
   });
 
   it('клик по «Понятно» возвращает к Start (фаза intro)', () => {

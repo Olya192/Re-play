@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import s from './Header.module.css';
-import { ThemeToggleButton } from '../ThemeToggleButton/ThemeToggleButton';
+import { ThemeToggleButton } from '@/components/ThemeToggleButton';
 
 export const Header = () => {
   return (

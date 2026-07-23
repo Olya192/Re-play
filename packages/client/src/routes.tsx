@@ -53,7 +53,6 @@ const protectedRoutes: CustomRouteObject[] = [
     fetchData: initGameRoot,
   },
 
-  // Нужно мигрировать в модалки
   {
     path: '/friends',
     Component: FriendsPage,

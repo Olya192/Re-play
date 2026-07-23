@@ -1,5 +1,5 @@
-import { EMAIL_REGEXP } from '../../constants/validation/regexp';
-import { EMAIL_MAX_LENGTH } from '../../constants/validation/constants';
+import { EMAIL_REGEXP } from '@/constants/validation/regexp';
+import { EMAIL_MAX_LENGTH } from '@/constants/validation/constants';
 
 export const validateEmail = (value: string): boolean => {
   const isLengthValid = value && value.length <= EMAIL_MAX_LENGTH;
@@ -9,8 +9,6 @@ export const validateEmail = (value: string): boolean => {
   }
 
   const isEmailValid = EMAIL_REGEXP.test(value);
-
-  console.log('isEmailValid', isEmailValid);
 
   return isEmailValid;
 };
