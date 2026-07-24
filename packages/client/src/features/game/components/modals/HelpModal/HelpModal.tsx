@@ -1,8 +1,8 @@
-import { Modal } from '../../../../../components/Modal';
-import { BaseButton } from '../../../../../components/BaseButton';
-import { useDispatch, useSelector } from '../../../../../store';
-import { selectActiveModal, openModal } from '../../../../../slices/gameUi';
-import { selectPhase } from '../../../../../slices/gameSession';
+import { Modal } from '@/components/Modal';
+import { BaseButton } from '@/components/BaseButton';
+import { useDispatch, useSelector } from '@/store';
+import { selectActiveModal, openModal } from '@/slices/gameUi';
+import { selectPhase } from '@/slices/gameSession';
 import s from './HelpModal.module.css';
 
 export const HelpModal = () => {
@@ -23,9 +23,11 @@ export const HelpModal = () => {
     <Modal isOpen={isOpen} onClose={handleClose} ariaLabel="Как играть">
       <h2 className={s.title}>Как играть</h2>
       <ul className={s.list}>
-        <li>Тапай по падающим объектам, чтобы поймать их</li>
-        <li>Не давай предметам упасть — внизу ждёт монстр-гусеница</li>
-        <li>Раунд длится X минут: солнце слева направо — это таймер</li>
+        <li>
+          Тапай по съедобным объектам, чтобы поймать их и получать очки. За пойманные несъедобные
+          предметы очки снимаются
+        </li>
+        <li>Не давай съедобным предметам упасть — внизу ждёт монстр и очки уменьшаться!</li>
         <li>Esc или клик по аватару — пауза</li>
       </ul>
       <BaseButton
