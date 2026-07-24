@@ -36,7 +36,7 @@ describe('HelpModal', () => {
 
     expect(screen.getByText('Как играть')).toBeDefined();
     expect(screen.getByText('Понятно')).toBeDefined();
-    expect(screen.getByText('Тапай по падающим объектам, чтобы поймать их.')).toBeDefined();
+    expect(screen.getByText('Тапай по падающим объектам, чтобы поймать их')).toBeDefined();
   });
 
   it('клик по «Понятно» закрывает модалку', () => {

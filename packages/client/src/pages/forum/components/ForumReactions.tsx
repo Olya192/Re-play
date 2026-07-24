@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { Button, Flex, Popover, Space, Tooltip } from 'antd';
 import { SmileOutlined } from '@ant-design/icons';
-import { AVAILABLE_EMOJI } from '../../../constants/forum/constants';
-import { useReactions } from '../../../hooks/api/useReactions';
+import { useReactions } from '@/hooks/api/useReactions';
 
 interface ForumReactionsProps {
   topicId: number;
@@ -11,24 +10,27 @@ interface ForumReactionsProps {
 }
 
 export const ForumReactions = ({ topicId, withUsersTooltip = false }: ForumReactionsProps) => {
-  const { reactions, toggleReaction } = useReactions(topicId);
+  const { reactions, palette, canReact, select } = useReactions(topicId);
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
 
-  const handlePick = (emoji: string) => {
-    toggleReaction(emoji);
+  const myReactionId = reactions.find((reaction) => reaction.reactedByMe)?.reactionId;
+
+  const handlePick = (reactionId: number) => {
+    select(reactionId);
     setIsPaletteOpen(false);
   };
 
-  const palette = (
+  const paletteContent = (
     <Space size="small" wrap>
-      {AVAILABLE_EMOJI.map((emoji) => (
+      {palette.map((emoji) => (
         <Button
-          key={emoji}
-          type="text"
+          key={emoji.id}
+          type={emoji.id === myReactionId ? 'primary' : 'text'}
           style={{ fontSize: 20 }}
-          onClick={() => handlePick(emoji)}
+          title={emoji.description}
+          onClick={() => handlePick(emoji.id)}
         >
-          {emoji}
+          {emoji.emoji}
         </Button>
       ))}
     </Space>
@@ -39,18 +41,19 @@ export const ForumReactions = ({ topicId, withUsersTooltip = false }: ForumReact
       {reactions.map((reaction) => {
         const button = (
           <Button
-            key={reaction.emoji}
+            key={reaction.reactionId}
             size="small"
             type={reaction.reactedByMe ? 'primary' : 'default'}
-            onClick={() => toggleReaction(reaction.emoji)}
+            disabled={!canReact}
+            onClick={() => select(reaction.reactionId)}
           >
             {reaction.emoji} {reaction.count}
           </Button>
         );
 
-        if (withUsersTooltip && reaction.users?.length) {
+        if (withUsersTooltip && reaction.users.length) {
           return (
-            <Tooltip key={reaction.emoji} title={reaction.users.join(', ')}>
+            <Tooltip key={reaction.reactionId} title={reaction.users.join(', ')}>
               {button}
             </Tooltip>
           );
@@ -58,14 +61,17 @@ export const ForumReactions = ({ topicId, withUsersTooltip = false }: ForumReact
 
         return button;
       })}
-      <Popover
-        content={palette}
-        trigger="click"
-        open={isPaletteOpen}
-        onOpenChange={setIsPaletteOpen}
-      >
-        <Button size="small" type="dashed" icon={<SmileOutlined />} />
-      </Popover>
+
+      {canReact && (
+        <Popover
+          content={paletteContent}
+          trigger="click"
+          open={isPaletteOpen}
+          onOpenChange={setIsPaletteOpen}
+        >
+          <Button size="small" type="dashed" icon={<SmileOutlined />} />
+        </Popover>
+      )}
     </Flex>
   );
 };
