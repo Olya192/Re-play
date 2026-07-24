@@ -39,24 +39,24 @@ describe('HelpModal', () => {
     expect(screen.getByText('Тапай по падающим объектам, чтобы поймать их')).toBeDefined();
   });
 
-  it('клик по «Понятно» закрывает модалку', () => {
+  it('клик по «Понятно» возвращает к Start (фаза intro)', () => {
     const store = makeStore();
     store.dispatch(openModal('help'));
 
     renderHelp(store);
     fireEvent.click(screen.getByText('Понятно'));
 
-    expect(store.getState().gameUi.activeModal).toBeNull();
+    expect(store.getState().gameUi.activeModal).toBe('start');
     expect(screen.queryByText('Как играть')).toBeNull();
   });
 
-  it('закрывается по Escape', () => {
+  it('Escape возвращает к Start (фаза intro)', () => {
     const store = makeStore();
     store.dispatch(openModal('help'));
 
     renderHelp(store);
     fireEvent.keyDown(window, { key: 'Escape' });
 
-    expect(store.getState().gameUi.activeModal).toBeNull();
+    expect(store.getState().gameUi.activeModal).toBe('start');
   });
 });

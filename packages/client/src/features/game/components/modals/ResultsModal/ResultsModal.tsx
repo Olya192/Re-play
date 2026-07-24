@@ -38,10 +38,10 @@ export const ResultsModal = () => {
     });
   };
 
-  const handleBackToMenu = () => {
+  const handleToLeaderboard = () => {
     addToLeaderboard(score).then(() => {
       dispatch(resetSession());
-      navigate('/main');
+      navigate('/leaderboard');
     });
   };
 
@@ -80,10 +80,10 @@ export const ResultsModal = () => {
         style={{ width: '100%', padding: '0.8rem' }}
       />
       <BaseButton
-        title="Вернуться на главную"
+        title="Лидерборд"
         type="button"
         size="default"
-        onClick={handleBackToMenu}
+        onClick={handleToLeaderboard}
         style={{ width: '100%', padding: '0.8rem' }}
       />
     </Modal>

@@ -28,7 +28,7 @@ export const FriendsPage = () => {
         <>
           <h3>Информация о пользователе:</h3>{' '}
           <p>
-            {user.name} {user.secondName}
+            {user.firstName} {user.secondName}
           </p>
         </>
       ) : (
