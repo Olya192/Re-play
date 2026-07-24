@@ -7,8 +7,8 @@ jest.mock('../../../../../api/themeApi', () => ({
 import { render, screen, fireEvent } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
-import { reducer } from '../../../../../store';
-import { openModal } from '../../../../../slices/gameUi';
+import { reducer } from '@/store';
+import { openModal } from '@/slices/gameUi';
 import { HelpModal } from './HelpModal';
 
 const makeStore = () => configureStore({ reducer });
@@ -38,7 +38,7 @@ describe('HelpModal', () => {
     expect(screen.getByText('Понятно')).toBeDefined();
     expect(
       screen.getByText(
-        'Тапай по съедобным объектам, чтобы поймать их и получать очки. За пойманныйе несъедобные предметы очки снимаются'
+        'Тапай по съедобным объектам, чтобы поймать их и получать очки. За пойманные несъедобные предметы очки снимаются'
       )
     ).toBeDefined();
   });
