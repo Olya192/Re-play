@@ -1,5 +1,5 @@
-import { profileApi } from '../../api/profileApi';
-import { EditPasswordData, User } from '../../types/user';
+import { profileApi } from '@/api/profileApi';
+import { EditPasswordData, User } from '@/types/user';
 
 interface UseEditProfile {
   editAvatar: (data: FormData) => Promise<User | undefined>;

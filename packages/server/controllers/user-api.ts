@@ -6,7 +6,6 @@ const userService = new UserService();
 export class UserAPI {
   public static create = async (req: Request, res: Response): Promise<void> => {
     try {
-      console.log(555, req.body);
       const newUser = await userService.create(req.body);
       res.status(201).json(newUser);
     } catch (error) {
@@ -91,6 +90,16 @@ export class UserAPI {
       res.json(updatedUser);
     } catch (error) {
       res.status(500).json({ error: 'Failed to update user' });
+    }
+  };
+
+  public static createOrUpdate = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const [user, created] = await userService.upsert(req.body);
+      res.status(created ? 201 : 200).json(user);
+    } catch (error) {
+      console.error('Error in createOrUpdate:', error);
+      res.status(500).json({ error: 'Failed to create or update user' });
     }
   };
 

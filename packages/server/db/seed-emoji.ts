@@ -1,4 +1,4 @@
-import { Emoji } from '../models/emoji';
+import { Emoji } from '../models/Emoji';
 
 export async function seedEmojis() {
   const existing = await Emoji.findOne();

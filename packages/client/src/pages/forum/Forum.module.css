@@ -3,7 +3,7 @@
   padding-block-start: 50px;
   padding-block-end: 50px;
   font-size: var(--main-font-size);
-  background-color: var(--card-bg);
+  background-color: transparent;
   margin: 0 auto;
 }
 

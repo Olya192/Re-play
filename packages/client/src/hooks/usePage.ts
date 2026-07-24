@@ -6,6 +6,7 @@ import {
 } from '../slices/ssrSlice';
 import { PageInitArgs, PageInitContext } from '../routes';
 import { useOAuth } from './useOAuth';
+import { userApi } from '@/api/userApi';
 
 const getCookie = (name: string) => {
   const matches = document.cookie.match(
@@ -67,6 +68,13 @@ export const usePage = ({ initPage }: PageProps) => {
         ctx: createContext(),
       });
       setIsPageInitialized(true);
+
+      const user = store.getState().user.data;
+
+      if (user) {
+        const { login, displayName } = user;
+        await userApi.createOrUpdateUser({ login, displayName });
+      }
     } catch (error) {
       console.error('Page initialization failed:', error);
     }
