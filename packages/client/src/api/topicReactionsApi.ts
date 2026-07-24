@@ -1,4 +1,5 @@
 import { HTTPTransport } from '@/api/httpTransport';
+import { ReactionRow } from '@/types/forum';
 
 export const TOPIC_REACTIONS_API_URL = '/reactions';
 
@@ -13,7 +14,7 @@ interface CreateOrUpdateReaction {
 // TODO - менять можно и нужно, если требуется. Этот вариант делаю, чтобы проверить бек
 
 class TopicReactionsApi {
-  async getTopicReactions(id: number): Promise<void> {
+  async getTopicReactions(id: number): Promise<ReactionRow[]> {
     const response = await apiInstance.get(`${TOPIC_REACTIONS_API_URL}`, {
       data: {
         topic_id: id,
@@ -21,14 +22,14 @@ class TopicReactionsApi {
       isAppHost: true,
     });
 
-    return response;
+    return (response as ReactionRow[]) ?? [];
   }
 
   async createOrUpdateReaction({
     topicId,
     userId,
     reactionId,
-  }: CreateOrUpdateReaction): Promise<void> {
+  }: CreateOrUpdateReaction): Promise<ReactionRow> {
     const response = await apiInstance.post(`${TOPIC_REACTIONS_API_URL}`, {
       data: {
         topic_id: topicId,
@@ -38,10 +39,10 @@ class TopicReactionsApi {
       isAppHost: true,
     });
 
-    return response;
+    return response as ReactionRow;
   }
 
-  async deleteReaction({ topicId, userId }: Partial<CreateOrUpdateReaction>): Promise<void> {
+  async deleteReaction({ topicId, userId }: Partial<CreateOrUpdateReaction>): Promise<unknown> {
     const response = await apiInstance.post(`${TOPIC_REACTIONS_API_URL}/delete`, {
       data: {
         topic_id: topicId,
