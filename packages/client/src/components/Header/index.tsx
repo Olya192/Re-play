@@ -7,11 +7,6 @@ export const Header = () => {
     <nav className={s.nav}>
       <ul className={s.list}>
         <li className={s.listItem}>
-          <Link to="/main" className={s.link}>
-            Главная
-          </Link>
-        </li>
-        <li className={s.listItem}>
           <Link to="/friends" className={s.link}>
             Друзья
           </Link>
@@ -19,11 +14,6 @@ export const Header = () => {
         <li className={s.listItem}>
           <Link to="/profile" className={s.link}>
             Профиль
-          </Link>
-        </li>
-        <li className={s.listItem}>
-          <Link to="/user-profile" className={s.link}>
-            Игровой профиль пользователя
           </Link>
         </li>
         <li className={s.listItem}>

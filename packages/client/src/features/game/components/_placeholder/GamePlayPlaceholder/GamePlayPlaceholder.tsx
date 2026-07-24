@@ -188,38 +188,45 @@ export const GamePlayPlaceholder = () => {
 
     let timerId = 0;
 
+    // TODO Refactor for tests: вынести выбор позиции/типа предмета в чистую функцию с передачей источника случайности
+    //  сейчас Math.random прямо тут
+    const spawnItem = () => {
+      const stage = stageSizeRef.current;
+      const itemSize = stage.width * ITEM_SIZE_RATIO;
+      const minLeft = itemSize * 0.5;
+      const maxLeft = stage.width - itemSize * 1.5;
+
+      const foodKind = Math.random() <= 0.8 ? 'edible' : 'inedible';
+      const randomFoodId =
+        foodKind === 'edible'
+          ? randomInteger(1, FOOD_ITEMS_QUANTITY)
+          : randomInteger(1, INEDIBLE_ITEMS_QUANTITY);
+      lastIdRef.current += 1;
+
+      setItems((prev) => [
+        ...prev,
+        {
+          id: lastIdRef.current,
+          foodId: randomFoodId,
+          kind: foodKind,
+          xPx: minLeft + Math.random() * (maxLeft - minLeft),
+          spawnedAt: performance.now(),
+        },
+      ]);
+    };
+
     const schedule = () => {
       const delay = MIN_SPAWN_MS + Math.random() * (MAX_SPAWN_MS - MIN_SPAWN_MS);
 
       timerId = window.setTimeout(() => {
-        // TODO Refactor for tests: вынести выбор позиции/типа предмета в чистую функцию с передачей источника случайности
-        //  сейчас Math.random прямо тут
-        const stage = stageSizeRef.current;
-        const itemSize = stage.width * ITEM_SIZE_RATIO;
-        const minLeft = itemSize * 0.5;
-        const maxLeft = stage.width - itemSize * 1.5;
-
-        const foodKind = Math.random() <= 0.8 ? 'edible' : 'inedible';
-        const randomFoodId =
-          foodKind === 'edible'
-            ? randomInteger(1, FOOD_ITEMS_QUANTITY)
-            : randomInteger(1, INEDIBLE_ITEMS_QUANTITY);
-        lastIdRef.current += 1;
-
-        setItems((prev) => [
-          ...prev,
-          {
-            id: lastIdRef.current,
-            foodId: randomFoodId,
-            kind: foodKind,
-            xPx: minLeft + Math.random() * (maxLeft - minLeft),
-            spawnedAt: performance.now(),
-          },
-        ]);
+        spawnItem();
         schedule();
       }, delay);
     };
 
+    // Первый предмет — сразу, чтобы после «Играем!» игра визуально стартовала,
+    // а не «висела» 2–3 секунды до первого спавна.
+    spawnItem();
     schedule();
 
     return () => window.clearTimeout(timerId);
@@ -265,7 +272,6 @@ export const GamePlayPlaceholder = () => {
         return;
       }
 
-      const itemSize = stage.width * ITEM_SIZE_RATIO;
       const monsterSize = stage.width * MONSTER_SIZE_RATIO;
       const monsterX = monsterXRef.current;
 
