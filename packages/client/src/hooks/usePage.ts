@@ -72,8 +72,8 @@ export const usePage = ({ initPage }: PageProps) => {
       const user = store.getState().user.data;
 
       if (user) {
-        const { login, displayName } = user;
-        await userApi.createOrUpdateUser({ login, displayName });
+        const { id, login, displayName } = user;
+        await userApi.createOrUpdateUser({ yaId: id, login, displayName });
       }
     } catch (error) {
       console.error('Page initialization failed:', error);

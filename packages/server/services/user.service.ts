@@ -2,6 +2,7 @@ import { Op } from 'sequelize';
 import { User } from '../models/User';
 
 interface CreateRequest {
+  yaId: number;
   login: string;
   displayName: string;
 }
@@ -49,13 +50,18 @@ export class UserService {
     return await User.findAll();
   };
 
-  public create = async (data: { login: string; displayName?: string }): Promise<User> => {
+  public create = async (data: {
+    yaId: number | string;
+    login: string;
+    displayName?: string;
+  }): Promise<User> => {
+    const yaId = Number(data.yaId);
     const login = data.login.trim();
     const displayName = data.displayName?.trim() || null;
 
     const [user] = await User.findOrCreate({
-      where: { login },
-      defaults: { login, displayName },
+      where: { ya_id: yaId },
+      defaults: { ya_id: yaId, login, displayName },
     });
 
     return user;
@@ -75,7 +81,11 @@ export class UserService {
   };
 
   public upsert = async (data: CreateRequest): Promise<[User, boolean | null]> => {
-    return await User.upsert(data);
+    const yaId = Number(data.yaId);
+    const login = data.login.trim();
+    const displayName = data.displayName?.trim() || null;
+
+    return await User.upsert({ ya_id: yaId, login, displayName });
   };
 
   public delete = async (id: number): Promise<boolean> => {

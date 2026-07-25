@@ -1,5 +1,4 @@
 import { HTTPTransport } from '@/api/httpTransport';
-import { User } from '@/types/user';
 
 export const USERS_API_URL = '/users';
 
@@ -7,6 +6,7 @@ export const USERS_API_URL = '/users';
 // не совпадает с id Практикума). Нужен, напр., для user_id в реакциях.
 export interface AppUser {
   id: number;
+  yaId: number | string;
   login: string;
   displayName: string | null;
 }
@@ -25,9 +25,10 @@ class UserApi {
     return (response as AppUser) ?? null;
   }
 
-  async createOrUpdateUser({ login, displayName }: Partial<User>): Promise<void> {
+  async createOrUpdateUser({ yaId, login, displayName }: Partial<AppUser>): Promise<void> {
     const response = await apiInstance.post(`${USERS_API_URL}/create-or-update`, {
       data: {
+        yaId,
         login,
         displayName,
       },
