@@ -28,8 +28,6 @@ interface User {
 }
 
 class AuthApi {
-  // запросы к апи практикума
-
   signup(data: SignupData): Promise<{ id: number }> {
     return externalApi.post(AUTH_ROUTES.SIGNUP, {
       data: { ...data },
@@ -69,14 +67,13 @@ class AuthApi {
     });
   }
 
-  // запросы к нашему серверу
-
   async getCurrentUser(signal?: AbortSignal): Promise<User | null> {
     try {
       const response = await serverApi.get(SERVER_ROUTES.ME, { signal });
 
       return response as User;
     } catch (error) {
+      // Если сервер вернул 401 - пользователь не авторизован
       if ((error as any).status === 401) {
         return null;
       }

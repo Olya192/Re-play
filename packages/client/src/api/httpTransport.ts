@@ -1,5 +1,5 @@
-import { METHODS } from '../constants/api/apiConstants';
-import { queryStringify } from '../utils/api/queryStringify';
+import { METHODS } from '@/constants/api/apiConstants';
+import { queryStringify } from '@/utils/api/queryStringify';
 
 interface Options {
   method: (typeof METHODS)[keyof typeof METHODS];
@@ -7,21 +7,20 @@ interface Options {
   data?: Record<string, unknown> | FormData;
   timeout?: number;
   signal?: AbortSignal;
-  host?: string;
+  isAppHost?: boolean; // флаг для переключения между хостами
 }
 
 type RequestOptions = Omit<Options, 'method'>;
 
 const TIMEOUT = 10000;
-
-// Хост для внешнего API (Практикум)
 const DEFAULT_HOST = 'https://ya-praktikum.tech';
+const APP_HOST = 'http://localhost:3001'; // TODO для прода установить новый урл
 
 export class HTTPTransport {
   private baseHost: string;
 
   constructor(host?: string) {
-    this.baseHost = host || DEFAULT_HOST;
+    this.baseHost = host || DEFAULT_HOST; // ← теперь DEFAULT_HOST определен
   }
 
   get = (url: string, options: RequestOptions = {}) => {
@@ -42,15 +41,18 @@ export class HTTPTransport {
 
   request = async (url: string, options: Options = { method: METHODS.GET }) => {
     const timeout = options.timeout ?? TIMEOUT;
-    const { method, headers = {}, data, signal, host } = options;
-
-    const baseHost = host || this.baseHost;
+    const { method, headers = {}, data, signal, isAppHost = false } = options;
 
     const isGet = method === METHODS.GET;
     const isFormData = data instanceof FormData;
 
+    // ✅ Исправлено: выбираем хост на основе флага isAppHost
+    const currentHost = isAppHost ? APP_HOST : this.baseHost;
+
     const requestUrl =
-      isGet && data && !isFormData ? `${host}${url}${queryStringify(data)}` : `${host}${url}`;
+      isGet && data && !isFormData
+        ? `${currentHost}${url}${queryStringify(data)}`
+        : `${currentHost}${url}`;
 
     const controller = new AbortController();
     const timeoutId = setTimeout(
@@ -58,6 +60,7 @@ export class HTTPTransport {
       timeout
     );
 
+    // Пробрасываем внешнюю отмену
     if (signal) {
       if (signal.aborted) {
         controller.abort(signal.reason);

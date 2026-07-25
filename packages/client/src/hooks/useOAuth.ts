@@ -120,6 +120,7 @@ export const useOAuth = () => {
         return;
       }
 
+      // Иначе проверяем авторизацию
       setIsLoading(true);
       const isAuth = await checkAuth();
       setIsLoading(false);
