@@ -4,22 +4,29 @@ FROM node:${NODE_VERSION} AS builder
 
 WORKDIR /app
 
-COPY . .
+COPY package.json yarn.lock lerna.json ./
+COPY packages/client/package.json packages/client/
+COPY packages/server/package.json packages/server/
+COPY packages/server/tsconfig.json packages/server/
 
-RUN yarn install --frozen-lockfile
+RUN yarn install --frozen-lockfile --network-timeout 600000 --ignore-engines --prefer-offline --no-progress
 
-RUN rm -rf /app/packages/server/dist/ && yarn build --scope=server
+COPY packages/client/ packages/client/
+COPY packages/server/ packages/server/
+
+RUN yarn build --scope=server
 
 FROM node:${NODE_VERSION} AS production
 
 WORKDIR /app
 
-COPY --from=builder /app/packages/server/dist/ /app/
-COPY --from=builder /app/packages/server/package.json /app/package.json
-COPY --from=builder /app/yarn.lock /app/yarn.lock
+COPY package.json yarn.lock ./
+COPY packages/server/package.json packages/server/
 
-RUN yarn install --production=true --frozen-lockfile
+RUN yarn install --production=true --frozen-lockfile --prefer-offline --no-progress --network-timeout 600000
+
+COPY --from=builder /app/packages/server/dist/ /app/dist/
 
 EXPOSE 3001
 
-CMD ["node", "/app/index.js"]
+CMD ["node", "/app/dist/index.js"]
