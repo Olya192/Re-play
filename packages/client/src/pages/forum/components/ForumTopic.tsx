@@ -1,5 +1,6 @@
 import { Avatar, Button, Card, Empty, Flex, Space, Typography } from 'antd';
 import ForumComments from './ForumComments';
+import { ForumReactions } from './ForumReactions';
 import { FieldTimeOutlined, RollbackOutlined, UserOutlined } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForum } from '@/pages/forum/useForum';
@@ -33,8 +34,6 @@ export const ForumTopic = () => {
       console.log('', error);
     });
   }, []);
-
-  console.log(hasError);
 
   if (!topic) {
     return (
@@ -85,6 +84,7 @@ export const ForumTopic = () => {
               description={<Text>{topic.content}</Text>}
             />
           </Card>
+          <ForumReactions topicId={topic.id} withUsersTooltip />
           <ForumComments topicId={topic.id} />
         </Space>
       </div>

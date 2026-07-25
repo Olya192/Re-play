@@ -1,7 +1,8 @@
 import { Avatar, Card, Flex, Space, Typography } from 'antd';
-import { CommentOutlined, FieldTimeOutlined, UserOutlined } from '@ant-design/icons';
+import { FieldTimeOutlined, UserOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import s from '../../forum/Forum.module.css';
+import { ForumReactions } from './ForumReactions';
 import { topic, useForum } from '@/pages/forum/useForum';
 import { useMemo, useState } from 'react';
 
@@ -56,7 +57,12 @@ export const ForumList = () => {
                   <Card.Meta
                     avatar={<Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" />}
                     title={<Link to={`/forum/${el.id}`}>{el.title}</Link>}
-                    description={<>{el.content}</>}
+                    description={
+                      <>
+                        {el.content}
+                        <ForumReactions topicId={el.id} />
+                      </>
+                    }
                   />
                 </Card>
               ))}

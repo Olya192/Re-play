@@ -27,12 +27,10 @@ export const StartModal = () => {
   return (
     <Modal isOpen={isOpen} onClose={handleStart} closeOnEsc={false} ariaLabel="Начало игры">
       <div className={s.user}>
-        <div className={s.avatar}>{(user?.name ?? ANON_NAME).slice(0, 1)}</div>
-        <div className={s.name}>{user ? `${user.name} ${user.secondName}` : ANON_NAME}</div>
+        <div className={s.avatar}>{(user?.firstName ?? ANON_NAME).slice(0, 1)}</div>
+        <div className={s.name}>{user ? `${user.firstName} ${user.secondName}` : ANON_NAME}</div>
       </div>
-      <div className={s.levelLine}>
-        {meta.planet} · {meta.biome} ({meta.biomeIndex}/{meta.totalBiomes})
-      </div>
+      <div className={s.levelLine}>{meta.planet}</div>
       <BaseButton
         title="Играем!"
         type="button"

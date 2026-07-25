@@ -1,16 +1,11 @@
 import { Link } from 'react-router-dom';
 import s from './Header.module.css';
-import { ThemeToggleButton } from '../ThemeToggleButton/ThemeToggleButton';
+import { ThemeToggleButton } from '@/components/ThemeToggleButton';
 
 export const Header = () => {
   return (
     <nav className={s.nav}>
       <ul className={s.list}>
-        <li className={s.listItem}>
-          <Link to="/main" className={s.link}>
-            Главная
-          </Link>
-        </li>
         <li className={s.listItem}>
           <Link to="/friends" className={s.link}>
             Друзья
@@ -19,11 +14,6 @@ export const Header = () => {
         <li className={s.listItem}>
           <Link to="/profile" className={s.link}>
             Профиль
-          </Link>
-        </li>
-        <li className={s.listItem}>
-          <Link to="/user-profile" className={s.link}>
-            Игровой профиль пользователя
           </Link>
         </li>
         <li className={s.listItem}>

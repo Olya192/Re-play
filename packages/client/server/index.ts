@@ -5,6 +5,8 @@ import type { HelmetServerState } from 'react-helmet-async';
 import express, { Request as ExpressRequest } from 'express';
 import path from 'path';
 import fs from 'fs/promises';
+import http from 'http';
+import https from 'https';
 import serialize from 'serialize-javascript';
 import cookieParser from 'cookie-parser';
 
@@ -12,10 +14,38 @@ const port = process.env.PORT || 80;
 const clientPath = path.join(__dirname, '..');
 const isDev = process.env.NODE_ENV === 'development';
 
+// Куда проксировать /api (форум и пр. относительные запросы клиента).
+// В dev/локально — http://localhost:3001, в docker — http://server:3001 (INTERNAL_SERVER_URL).
+const backendUrl = process.env.INTERNAL_SERVER_URL || 'http://localhost:3001';
+
 async function createServer() {
   const app = express();
 
   app.use(cookieParser());
+
+  // Проксируем /api на бэкенд. Vite-proxy из vite.config тут не работает
+  // (middleware-режим), поэтому проксируем сами, до SSR-catch-all.
+  app.use('/api', (req, res) => {
+    const target = new URL(req.originalUrl, backendUrl);
+    const transport = target.protocol === 'https:' ? https : http;
+
+    const proxyReq = transport.request(
+      target,
+      { method: req.method, headers: { ...req.headers, host: target.host } },
+      (proxyRes) => {
+        res.writeHead(proxyRes.statusCode || 502, proxyRes.headers);
+        proxyRes.pipe(res);
+      }
+    );
+
+    proxyReq.on('error', () => {
+      if (!res.headersSent) {
+        res.status(502).json({ error: 'Bad gateway (api proxy)' });
+      }
+    });
+
+    req.pipe(proxyReq);
+  });
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let vite: any;

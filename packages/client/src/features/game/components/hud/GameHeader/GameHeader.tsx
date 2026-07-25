@@ -23,9 +23,6 @@ export const GameHeader = () => {
       </button>
       <div className={s.levelInfo}>
         <span className={s.planet}>{meta.planet}</span>
-        <span className={s.biome}>
-          {meta.biome} · {meta.biomeIndex} / {meta.totalBiomes}
-        </span>
       </div>
     </header>
   );

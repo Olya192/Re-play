@@ -1,7 +1,5 @@
 import { AppDispatch, RootState } from './store';
 import { FriendsPage, initFriendsPage } from './pages/FriendsPage';
-import { initMainPage, MainPage } from './pages/Main';
-import { initUserProfile, UserProfile } from './pages/UserProfile';
 import { initLeaderboardPage, LeaderboardPage } from './pages/leaderboard';
 import { Error404, initError404 } from './pages/Error404';
 import { Error500, initError500 } from './pages/Error500';
@@ -55,12 +53,6 @@ const protectedRoutes: CustomRouteObject[] = [
     fetchData: initGameRoot,
   },
 
-  // Нужно мигрировать в модалки
-  {
-    path: '/main',
-    Component: MainPage,
-    fetchData: initMainPage,
-  },
   {
     path: '/friends',
     Component: FriendsPage,
@@ -70,11 +62,6 @@ const protectedRoutes: CustomRouteObject[] = [
     path: '/profile',
     Component: ProfilePage,
     fetchData: initProfilePage,
-  },
-  {
-    path: '/user-profile',
-    Component: UserProfile,
-    fetchData: initUserProfile,
   },
   {
     path: '/leaderboard',
