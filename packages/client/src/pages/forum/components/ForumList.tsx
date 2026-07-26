@@ -5,6 +5,7 @@ import s from '../../forum/Forum.module.css';
 import { ForumReactions } from './ForumReactions';
 import { topic, useForum } from '@/pages/forum/useForum';
 import { useMemo, useState } from 'react';
+import userAvatarIcon from '@/assets/icons/user-avatar-icon.svg';
 
 const { Title } = Typography;
 
@@ -20,7 +21,7 @@ const formatDate = (date: string) => {
 export const ForumList = () => {
   const { getTopics } = useForum();
 
-  const [topics, setTopics] = useState([]);
+  const [topics, setTopics] = useState<topic[]>([]);
 
   useMemo(() => {
     getTopics()
@@ -46,7 +47,7 @@ export const ForumList = () => {
                   hoverable
                   actions={[
                     <Flex gap="medium" justify="center">
-                      <UserOutlined key="user" /> {el.user.displayName}
+                      <UserOutlined key="user" /> {el.user?.displayName}
                     </Flex>,
                     <Flex gap="medium" justify="center">
                       <FieldTimeOutlined key="createdAt" /> {<>{formatDate(el.createdAt)}</>}
@@ -55,7 +56,7 @@ export const ForumList = () => {
                   key={el.id}
                 >
                   <Card.Meta
-                    avatar={<Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" />}
+                    avatar={<Avatar src={userAvatarIcon} />}
                     title={<Link to={`/forum/${el.id}`}>{el.title}</Link>}
                     description={
                       <>

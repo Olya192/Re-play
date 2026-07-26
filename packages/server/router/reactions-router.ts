@@ -10,5 +10,5 @@ export const reactionsRoutes = (router: Router) => {
     .put('/', ReactionAPI.update)
     .post('/delete', ReactionAPI.delete);
 
-  router.use('/reactions', reactionsRouter);
+  router.use('/api/reactions', reactionsRouter);
 };

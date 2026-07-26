@@ -21,6 +21,26 @@ const backendUrl = process.env.INTERNAL_SERVER_URL || 'http://localhost:3001';
 async function createServer() {
   const app = express();
 
+  // При подключении nginx в поле connect-src можно будет убрать значения http://localhost:3001 и ws://localhost:*
+  // Требуется проверка в режиме production
+  if (!isDev) {
+    app.use((_, res, next) => {
+      res.setHeader(
+        'Content-Security-Policy',
+        [
+          "default-src 'self'",
+          "script-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+          "style-src 'self' 'unsafe-inline'",
+          "font-src 'self' https://fonts.gstatic.com",
+          "img-src 'self' https://ya-praktikum.tech data:",
+          "connect-src 'self' http://localhost:3001 https://ya-praktikum.tech ws://localhost:*",
+        ].join('; ')
+      );
+
+      next();
+    });
+  }
+
   app.use(cookieParser());
 
   // Проксируем /api на бэкенд. Vite-proxy из vite.config тут не работает
