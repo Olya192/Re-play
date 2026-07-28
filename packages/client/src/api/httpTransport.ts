@@ -14,7 +14,7 @@ type RequestOptions = Omit<Options, 'method'>;
 
 const TIMEOUT = 10000;
 const host = 'https://ya-praktikum.tech';
-const appHost = 'http://localhost:3001'; // TODO для прода установить новый урл
+const appHost = '/api';
 
 export class HTTPTransport {
   get = (url: string, options: RequestOptions = {}) => {
