@@ -35,7 +35,7 @@ export class User extends Model<UserAttributes, UserCreationAttributes> {
   @AllowNull(false)
   @Unique
   @Column(DataType.INTEGER)
-  declare ya_id: string;
+  declare ya_id: number;
 
   @AllowNull(false)
   @Unique
