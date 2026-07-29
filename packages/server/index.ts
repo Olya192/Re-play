@@ -23,17 +23,6 @@ app.get('/health', (_, res) => {
   res.status(200).json({ status: 'ok' });
 });
 
-app.get('/api/friends', (_, res) => {
-  res.json([
-    { name: 'Саша', secondName: 'Панов' },
-    { name: 'Лёша', secondName: 'Садовников' },
-    { name: 'Серёжа', secondName: 'Иванов' },
-  ]);
-});
-app.get('/user', (_, res) => {
-  res.json({ name: '</script>Степа', secondName: 'Степанов' });
-});
-
 app.get('/', (_, res) => {
   res.json('👋 Howdy from the server :)');
 });
@@ -63,6 +52,13 @@ app
   .use(express.json())
   .use(cookieParser())
   .use(router)
+  .get('/api/friends', (_, res) => {
+    res.json([
+      { name: 'Саша', secondName: 'Панов' },
+      { name: 'Лёша', secondName: 'Садовников' },
+      { name: 'Серёжа', secondName: 'Иванов' },
+    ]);
+  })
   .use(notFound);
 
 (async function () {

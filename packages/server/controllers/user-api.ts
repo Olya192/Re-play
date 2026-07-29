@@ -25,14 +25,16 @@ export class UserAPI {
 
   public static find = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { id, login, displayName } = req.query;
+      const { id, yaId, login, displayName } = req.query;
       const normalizedId = Number(id) || undefined;
+      const normalizedYaId = Number(yaId) || undefined;
       const normalizedLogin = login && typeof login === 'string' ? login : undefined;
       const normalizedDisplayName =
         displayName && typeof displayName === 'string' ? displayName : undefined;
 
       const user = await userService.find({
         id: normalizedId,
+        ya_id: normalizedYaId,
         login: normalizedLogin,
         displayName: normalizedDisplayName,
       });

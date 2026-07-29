@@ -10,6 +10,7 @@ import { User } from '@/types/user';
 import { store } from '@/store';
 import { useNavigate } from 'react-router-dom';
 import { notification } from 'antd';
+import { Comment } from '@/pages/forum/components/ForumComments';
 
 export interface topic {
   id: number;
@@ -41,7 +42,7 @@ export const useForum = () => {
   const [api, contextHolder] = notification.useNotification();
   const [forumLoading, setForumLoading] = useState(false);
   const [topic, setTopic] = useState([]);
-  const [comments, setComments] = useState([]);
+  const [comments, setComments] = useState<Comment[]>([]);
   const navigate = useNavigate();
 
   const getTopics = async (): Promise<topic[]> => {

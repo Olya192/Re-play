@@ -3,6 +3,8 @@ import { Avatar, Button, Flex, Input, Space, Typography } from 'antd';
 import { SendOutlined } from '@ant-design/icons';
 import { User } from '@/types/user';
 import { useForum } from '@/pages/forum/useForum';
+import commentAvatarIcon from '@/assets/icons/comment-avatar-icon.svg';
+import avatarUserIcon from '@/assets/icons/user-avatar-icon.svg';
 
 const { Text, Title } = Typography;
 const { TextArea } = Input;
@@ -71,7 +73,7 @@ export const ForumComments = (props: Props) => {
       <Title level={2}>Комментарии</Title>
       <Flex vertical gap="large">
         <Flex gap="small" align="flex-start">
-          <Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=you" />
+          <Avatar src={commentAvatarIcon} />
           <Flex vertical flex={1} gap="small">
             <TextArea
               rows={TEXTAREA_ROWS}
@@ -100,7 +102,7 @@ export const ForumComments = (props: Props) => {
         <Space orientation="vertical" size="middle" style={{ display: 'flex' }}>
           {comments.map((comment: Comment) => (
             <Flex key={comment.id} gap="middle" align="flex-start">
-              <Avatar src={comment.avatar} />
+              <Avatar src={comment.avatar ?? avatarUserIcon} />
               <Flex vertical flex={1}>
                 <Flex gap="small" align="baseline">
                   <Text strong>{comment.user?.displayName}</Text>

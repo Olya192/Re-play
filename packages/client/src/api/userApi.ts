@@ -25,6 +25,17 @@ class UserApi {
     return (response as AppUser) ?? null;
   }
 
+  async findUserByYaId(yaId: number | string): Promise<AppUser | null> {
+    const response = await apiInstance.get(`${USERS_API_URL}/find`, {
+      data: {
+        yaId,
+      },
+      isAppHost: true,
+    });
+
+    return (response as AppUser) ?? null;
+  }
+
   async createOrUpdateUser({ yaId, login, displayName }: Partial<AppUser>): Promise<void> {
     const response = await apiInstance.post(`${USERS_API_URL}/create-or-update`, {
       data: {

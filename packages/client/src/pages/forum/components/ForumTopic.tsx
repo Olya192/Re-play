@@ -5,6 +5,7 @@ import { FieldTimeOutlined, RollbackOutlined, UserOutlined } from '@ant-design/i
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForum } from '@/pages/forum/useForum';
 import { useMemo, useState } from 'react';
+import userAvatarIcon from '@/assets/icons/user-avatar-icon.svg';
 
 const { Text, Title } = Typography;
 
@@ -79,7 +80,7 @@ export const ForumTopic = () => {
             ]}
           >
             <Card.Meta
-              avatar={<Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" />}
+              avatar={<Avatar src={userAvatarIcon} />}
               title={<Title level={1}>{topic.title}</Title>}
               description={<Text>{topic.content}</Text>}
             />

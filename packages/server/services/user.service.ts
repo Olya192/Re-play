@@ -16,11 +16,20 @@ const escapeLike = (str: string): string => {
 export class UserService {
   public find = async (params: {
     id?: number;
+    ya_id?: number;
     login?: string;
     displayName?: string;
   }): Promise<User | null> => {
     if (params.id != null) {
       return await User.findByPk(params.id);
+    }
+
+    if (params.ya_id) {
+      return await User.findOne({
+        where: {
+          ya_id: params.ya_id,
+        },
+      });
     }
 
     if (params.login) {

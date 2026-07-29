@@ -69,6 +69,9 @@ services:
 
     restart: always
 
+    ports:
+      - "3001:3001"
+
     environment:
       SERVER_PORT: ${SERVER_PORT}
 

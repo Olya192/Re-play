@@ -15,14 +15,18 @@ interface CreateOrUpdateReaction {
 
 class TopicReactionsApi {
   async getTopicReactions(id: number): Promise<ReactionRow[]> {
-    const response = await apiInstance.get(`${TOPIC_REACTIONS_API_URL}`, {
-      data: {
-        topic_id: id,
-      },
-      isAppHost: true,
-    });
+    if (id !== undefined && id !== null) {
+      const response = await apiInstance.get(`${TOPIC_REACTIONS_API_URL}`, {
+        data: {
+          topic_id: id,
+        },
+        isAppHost: true,
+      });
 
-    return (response as ReactionRow[]) ?? [];
+      return (response as ReactionRow[]) ?? [];
+    }
+
+    return [];
   }
 
   async createOrUpdateReaction({

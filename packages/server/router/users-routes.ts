@@ -13,5 +13,5 @@ export const usersRoutes = (router: Router) => {
     .post('/create-or-update', UserAPI.createOrUpdate)
     .delete('/:id', UserAPI.delete);
 
-  router.use('/users', usersRouter);
+  router.use('/api/users', usersRouter);
 };
