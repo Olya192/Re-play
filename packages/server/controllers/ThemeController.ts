@@ -1,7 +1,9 @@
 import { Request, Response } from 'express';
 import { ThemeService } from '../services/ThemeService';
+import { UserService } from '../services/user.service';
 import { SiteTheme } from '../models/SiteTheme';
-import { User } from '../models/User';
+
+const userService = new UserService();
 
 export class ThemeController {
   private static parseOptionalString(value: unknown): string | undefined {
@@ -14,17 +16,8 @@ export class ThemeController {
     return Number.isInteger(parsed) ? parsed : null;
   }
 
-  private static async resolveLocalUser(yaId: number): Promise<User> {
-    const [user] = await User.findOrCreate({
-      where: { ya_id: yaId },
-      defaults: {
-        ya_id: yaId,
-        login: `user_${yaId}`,
-        displayName: null,
-      },
-    });
-
-    return user;
+  private static async resolveLocalUser(yaId: number) {
+    return userService.find({ ya_id: yaId });
   }
 
   public static async getAllThemes(_req: Request, res: Response) {
@@ -52,6 +45,13 @@ export class ThemeController {
       }
 
       const user = await ThemeController.resolveLocalUser(yaId);
+
+      if (!user) {
+        res.json(null);
+
+        return;
+      }
+
       const userTheme = await ThemeService.getUserTheme(user.id, device);
 
       res.json(userTheme ?? null);
@@ -83,6 +83,14 @@ export class ThemeController {
       }
 
       const user = await ThemeController.resolveLocalUser(yaId);
+
+      if (!user) {
+        res
+          .status(404)
+          .json({ error: 'User not found. Sync user first via /users/create-or-update' });
+
+        return;
+      }
 
       const userTheme = await ThemeService.setUserTheme({
         userId: user.id,
