@@ -1,6 +1,6 @@
 import { HTTPTransport } from '@/api/httpTransport';
 
-export const USERS_API_URL = '/api/users';
+export const USERS_API_URL = '/users';
 
 // App-серверная сущность пользователя (id — автоинкремент в нашей БД,
 // не совпадает с id Практикума). Нужен, напр., для user_id в реакциях.
