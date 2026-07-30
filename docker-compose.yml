@@ -44,6 +44,8 @@ services:
     environment:
       PORT: 80
       NODE_ENV: production
+      INTERNAL_SERVER_URL: ${INTERNAL_SERVER_URL}
+      EXTERNAL_SERVER_URL: ${EXTERNAL_SERVER_URL}
     networks:
       - app_network
 
@@ -66,6 +68,9 @@ services:
       - .env
 
     restart: always
+
+    ports:
+      - "3001:3001"
 
     environment:
       SERVER_PORT: ${SERVER_PORT}

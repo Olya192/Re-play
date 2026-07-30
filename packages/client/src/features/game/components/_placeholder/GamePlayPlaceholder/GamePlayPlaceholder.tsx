@@ -462,7 +462,7 @@ export const GamePlayPlaceholder = () => {
   const foodToCatch = items.map((item) => {
     return (
       <button
-        key={item.id}
+        key={`${item.id}-${item.foodId}`}
         ref={(el) => {
           if (el) {
             itemRefs.current.set(item.id, el);

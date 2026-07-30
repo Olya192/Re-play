@@ -12,7 +12,7 @@ ENV INTERNAL_SERVER_URL=${INTERNAL_SERVER_URL}
 
 COPY . .
 
-RUN yarn install --frozen-lockfile
+RUN yarn install --frozen-lockfile --network-timeout 600000 --ignore-engines --prefer-offline --no-progress
 
 RUN rm -rf /app/packages/client/dist/ && yarn build --scope=client
 
@@ -25,7 +25,7 @@ COPY --from=builder /app/packages/client/server/ /app/server/
 COPY --from=builder /app/packages/client/package.json /app/package.json
 COPY --from=builder /app/yarn.lock /app/yarn.lock
 
-RUN yarn install --production=true --frozen-lockfile
+RUN yarn install --production=true --frozen-lockfile --network-timeout 600000 --ignore-engines --prefer-offline --no-progress
 
 EXPOSE 80
 

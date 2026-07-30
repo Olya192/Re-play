@@ -6,7 +6,7 @@ WORKDIR /app
 
 COPY . .
 
-RUN yarn install --frozen-lockfile
+RUN yarn install --frozen-lockfile --network-timeout 600000 --ignore-engines --prefer-offline --no-progress
 
 RUN rm -rf /app/packages/server/dist/ && yarn build --scope=server
 
@@ -18,7 +18,7 @@ COPY --from=builder /app/packages/server/dist/ /app/
 COPY --from=builder /app/packages/server/package.json /app/package.json
 COPY --from=builder /app/yarn.lock /app/yarn.lock
 
-RUN yarn install --production=true --frozen-lockfile
+RUN yarn install --production=true --frozen-lockfile --network-timeout 600000 --ignore-engines --prefer-offline --no-progress
 
 EXPOSE 3001
 
