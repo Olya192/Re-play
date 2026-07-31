@@ -147,4 +147,7 @@ export class ErrorHandler {
 
     return false;
   }
+  static logBackgroundError(error: unknown, context: string): void {
+    console.error(`[background:${context}]`, getErrorMessage(error), error);
+  }
 }
