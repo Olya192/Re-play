@@ -7,14 +7,14 @@ interface Options {
   data?: Record<string, unknown> | FormData;
   timeout?: number;
   signal?: AbortSignal;
-  isAppHost?: boolean; // флаг для переключения между хостами
+  isAppHost?: boolean;
 }
 
 type RequestOptions = Omit<Options, 'method'>;
 
 const TIMEOUT = 10000;
 const DEFAULT_HOST = 'https://ya-praktikum.tech';
-const APP_HOST = 'http://localhost:3001'; // TODO для прода установить новый урл
+const APP_HOST = '/api'; // ;
 
 export class HTTPTransport {
   private baseHost: string;
