@@ -10,16 +10,16 @@ export async function seedUsers() {
   }
 
   const users = [
-    { login: 'alex_ivanov', displayName: 'Алексей Иванов' },
-    { login: 'maria_petrova', displayName: 'Мария Петрова' },
-    { login: 'dmitry_smirnov', displayName: 'Дмитрий Смирнов' },
-    { login: 'elena_kuznetsova', displayName: 'Елена Кузнецова' },
-    { login: 'sergey_popov', displayName: 'Сергей Попов' },
-    { login: 'anna_sokolova', displayName: 'Анна Соколова' },
-    { login: 'mikhail_volkov', displayName: 'Михаил Волков' },
-    { login: 'olga_morozova', displayName: 'Ольга Морозова' },
-    { login: 'andrey_novikov', displayName: 'Андрей Новиков' },
-    { login: 'tatyana_fedorova', displayName: 'Татьяна Фёдорова' },
+    { ya_id: 7154, login: 'alex_ivanov', displayName: 'Алексей Иванов' },
+    { ya_id: 7155, login: 'maria_petrova', displayName: 'Мария Петрова' },
+    { ya_id: 7156, login: 'dmitry_smirnov', displayName: 'Дмитрий Смирнов' },
+    { ya_id: 71547, login: 'elena_kuznetsova', displayName: 'Елена Кузнецова' },
+    { ya_id: 71548, login: 'sergey_popov', displayName: 'Сергей Попов' },
+    { ya_id: 71549, login: 'anna_sokolova', displayName: 'Анна Соколова' },
+    { ya_id: 71540, login: 'mikhail_volkov', displayName: 'Михаил Волков' },
+    { ya_id: 71541, login: 'olga_morozova', displayName: 'Ольга Морозова' },
+    { ya_id: 71544, login: 'andrey_novikov', displayName: 'Андрей Новиков' },
+    { ya_id: 71543, login: 'tatyana_fedorova', displayName: 'Татьяна Фёдорова' },
   ];
 
   await User.bulkCreate(users, { ignoreDuplicates: true });

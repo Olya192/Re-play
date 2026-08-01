@@ -12,5 +12,5 @@ export const emojisRoutes = (router: Router) => {
     .put('/:id', [], EmojiAPI.update)
     .delete('/:id', [], EmojiAPI.delete);
 
-  router.use('/emoji', emojisRouter);
+  router.use('/api/emoji', emojisRouter);
 };

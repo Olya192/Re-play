@@ -14,6 +14,7 @@ import { UserTheme } from './UserTheme';
 
 export interface UserAttributes {
   id?: number;
+  ya_id: number;
   login: string;
   displayName: string | null;
 }
@@ -30,6 +31,11 @@ export class User extends Model<UserAttributes, UserCreationAttributes> {
   @PrimaryKey
   @Column(DataType.INTEGER)
   declare id: number;
+
+  @AllowNull(false)
+  @Unique
+  @Column(DataType.INTEGER)
+  declare ya_id: string;
 
   @AllowNull(false)
   @Unique

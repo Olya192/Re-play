@@ -11,6 +11,7 @@ interface ForumReactionsProps {
 
 export const ForumReactions = ({ topicId, withUsersTooltip = false }: ForumReactionsProps) => {
   const { reactions, palette, canReact, select } = useReactions(topicId);
+
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
 
   const myReactionId = reactions.find((reaction) => reaction.reactedByMe)?.reactionId;
