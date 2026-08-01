@@ -23,7 +23,7 @@ services:
   client:
     container_name: prakticum-client
 
-    image: prakticum-client
+    image: ghcr.io/re-play-practicum/re-play/client:0f3deaa6d3c5c7282a3667c38c413d6e4abc29bd
 
     depends_on:
       server:
@@ -52,7 +52,7 @@ services:
   server:
     container_name: prakticum-server
 
-    image: prakticum-server
+    image: ghcr.io/re-play-practicum/re-play/server:0f3deaa6d3c5c7282a3667c38c413d6e4abc29bd
 
     depends_on:
       postgres:
