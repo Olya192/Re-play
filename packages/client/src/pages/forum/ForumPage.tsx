@@ -5,6 +5,7 @@ import { ForumList } from './components/ForumList';
 import { Col, FloatButton, Layout, Row } from 'antd';
 import s from '../forum/Forum.module.css';
 import { Outlet, useMatch, useNavigate, useParams } from 'react-router-dom';
+import { NotificationBanner } from './components/NotificationBanner';
 import { PlusOutlined } from '@ant-design/icons';
 
 const { Content } = Layout;
@@ -35,6 +36,7 @@ export const ForumPage = () => {
             <Col sm={22} md={18} lg={14}>
               {topicId === undefined && !isAddTopic && (
                 <>
+                  <NotificationBanner />
                   <ForumList />
                   <FloatButton
                     type="primary"

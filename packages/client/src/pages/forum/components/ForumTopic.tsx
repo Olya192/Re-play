@@ -5,11 +5,12 @@ import { FieldTimeOutlined, RollbackOutlined, UserOutlined } from '@ant-design/i
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForum } from '@/pages/forum/useForum';
 import { useMemo, useState } from 'react';
+import { withForumNotifications } from '@/hocs/withForumNotifications';
 import userAvatarIcon from '@/assets/icons/user-avatar-icon.svg';
 
 const { Text, Title } = Typography;
 
-export const ForumTopic = () => {
+const ForumTopicBase = () => {
   const navigate = useNavigate();
   const params = useParams();
   const { getTopic, topic } = useForum();
@@ -92,5 +93,7 @@ export const ForumTopic = () => {
     );
   }
 };
+
+export const ForumTopic = withForumNotifications(ForumTopicBase);
 
 export default ForumTopic;
