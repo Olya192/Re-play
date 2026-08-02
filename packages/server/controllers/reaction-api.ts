@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { ReactionService } from '../services/reaction.service';
+import { SseService } from '../services/sse.service';
 
 const reactionService = new ReactionService();
 
@@ -8,6 +9,16 @@ export class ReactionAPI {
     try {
       const newReaction = await reactionService.create(req.body);
       res.status(201).json(newReaction);
+
+      const author =
+        (newReaction as { user?: { displayName?: string } }).user?.displayName ?? 'Кто-то';
+
+      SseService.broadcast({
+        type: 'reaction',
+        topicId: Number(req.body.topic_id),
+        author,
+        timestamp: Date.now(),
+      });
     } catch (error) {
       res.status(500).json({ error: 'Failed to create reaction' });
     }

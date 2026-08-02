@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { ForumService } from '../services/forum.service';
 import { ForumCommentsService } from '../services/forumComments.service';
+import { SseService } from '../services/sse.service';
 
 const forumService = new ForumService();
 const forumCommentsService = new ForumCommentsService();
@@ -21,6 +22,13 @@ export class ForumAPI {
       console.log(555, req.body);
       const newTopicComment = await forumService.createComment(req.body);
       res.status(201).json(newTopicComment);
+
+      SseService.broadcast({
+        type: 'comment',
+        topicId: Number(req.body.topicId),
+        author: String(req.body.login ?? 'Кто-то'),
+        timestamp: Date.now(),
+      });
     } catch (error) {
       res.status(500).json({ error: `Failed to create topic comment. ${error}` });
     }
