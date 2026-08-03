@@ -4,7 +4,7 @@ import { User } from '../models/User';
 interface CreateRequest {
   yaId: number;
   login: string;
-  displayName: string;
+  displayName: string | null;
 }
 
 type UpdateRequest = Partial<CreateRequest>;
@@ -62,7 +62,7 @@ export class UserService {
   public create = async (data: {
     yaId: number | string;
     login: string;
-    displayName?: string;
+    displayName?: string | null;
   }): Promise<User> => {
     const yaId = Number(data.yaId);
     const login = data.login.trim();

@@ -1,6 +1,7 @@
 import { Button, Form, Input, Space } from 'antd';
 import { RollbackOutlined } from '@ant-design/icons';
 import { useForum } from '@/pages/forum/useForum';
+import { noHtmlRule } from '@/utils/validate/noHTMLRule';
 
 type TopicType = {
   title: string;
@@ -29,18 +30,25 @@ export const ForumAddTopic = () => {
               Назад к списку
             </Button>
           </Form.Item>
+
           <Form.Item<TopicType>
             label="Тема"
             name="title"
-            rules={[{ required: true, message: 'Обязательно для запонения' }]}
+            rules={[
+              { required: true, message: 'Обязательно для заполнения', whitespace: true },
+              noHtmlRule,
+            ]}
           >
-            <Input />
+            <Input maxLength={255} />
           </Form.Item>
 
           <Form.Item<TopicType>
             label="Контент"
             name="content"
-            rules={[{ required: true, message: 'Обязательно для запонения' }]}
+            rules={[
+              { required: true, message: 'Обязательно для запонения', whitespace: true },
+              noHtmlRule,
+            ]}
           >
             <TextArea rows={4} maxLength={2000} autoSize={{ minRows: 10, maxRows: 20 }} />
           </Form.Item>
