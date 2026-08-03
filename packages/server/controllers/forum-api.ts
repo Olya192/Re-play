@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { ForumService } from '../services/forum.service';
 import { ForumCommentsService } from '../services/forumComments.service';
 import { SseService } from '../services/sse.service';
+import { validateLogin, validateText } from '../utils/validation';
 
 const forumService = new ForumService();
 const forumCommentsService = new ForumCommentsService();
@@ -9,9 +10,19 @@ const forumCommentsService = new ForumCommentsService();
 export class ForumAPI {
   public static create = async (req: Request, res: Response): Promise<void> => {
     try {
-      console.log(555, req.body);
-      const newTopic = await forumService.create(req.body);
-      res.status(201).json(newTopic);
+      const title = validateText(req.body.title, 'title', 255);
+
+      const content = validateText(req.body.content, 'content', 2048);
+
+      const login = validateText(req.body.login, 'login', 20);
+
+      const topic = await forumService.create({
+        title,
+        content,
+        login,
+      });
+
+      res.status(201).json(topic);
     } catch (error) {
       res.status(500).json({ error: `Failed to create topic. ${error}` });
     }
@@ -19,14 +30,30 @@ export class ForumAPI {
 
   public static createComment = async (req: Request, res: Response): Promise<void> => {
     try {
-      console.log(555, req.body);
-      const newTopicComment = await forumService.createComment(req.body);
+      const topicId = Number(req.body.topicId);
+
+      if (!Number.isSafeInteger(topicId) || topicId <= 0) {
+        res.status(400).json({ error: 'Некорректный идентификатор топика' });
+
+        return;
+      }
+
+      const commentText = validateText(req.body.commentText, 'commentText', 500);
+
+      const login = validateLogin(req.body.login);
+
+      const newTopicComment = await forumService.createComment({
+        topicId,
+        commentText,
+        login,
+      });
+
       res.status(201).json(newTopicComment);
 
       SseService.broadcast({
         type: 'comment',
-        topicId: Number(req.body.topicId),
-        author: String(req.body.login ?? 'Кто-то'),
+        topicId,
+        author: login,
         timestamp: Date.now(),
       });
     } catch (error) {
@@ -64,7 +91,7 @@ export class ForumAPI {
     }
   };
 
-  public static findCmments = async (req: Request, res: Response): Promise<void> => {
+  public static findComments = async (req: Request, res: Response): Promise<void> => {
     try {
       const { id } = req.params;
       const normalizedId = Number(id) || undefined;
@@ -112,21 +139,22 @@ export class ForumAPI {
       const { id } = req.params;
       const normalizedId = Number(id);
 
-      if (isNaN(normalizedId)) {
-        res.status(400).json({ error: 'Invalid id format' });
+      if (!Number.isInteger(id) || normalizedId <= 0) {
+        res.status(400).json({ error: 'Некорректный идентификатор топика' });
 
         return;
       }
 
-      const updatedTopic = await forumService.update(normalizedId, req.body);
+      const title = validateText(req.body.title, 'title', 255);
 
-      if (!updatedTopic) {
-        res.status(404).json({ error: 'Topic not found' });
+      const content = validateText(req.body.content, 'content', 2048);
 
-        return;
-      }
+      const topic = await forumService.update(normalizedId, {
+        title,
+        content,
+      });
 
-      res.json(updatedTopic);
+      res.json(topic);
     } catch (error) {
       res.status(500).json({ error: 'Failed to update user' });
     }

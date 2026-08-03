@@ -1,12 +1,24 @@
 import { Request, Response } from 'express';
 import { UserService } from '../services/user.service';
+import { validateLogin, validateText } from '../utils/validation';
 
 const userService = new UserService();
 
 export class UserAPI {
   public static create = async (req: Request, res: Response): Promise<void> => {
     try {
-      const newUser = await userService.create(req.body);
+      const yaId = Number(req.body.yaId);
+      const login = validateLogin(req.body.login);
+      const displayName = req.body.displayName
+        ? validateText(req.body.displayName, 'displayName', 50)
+        : null;
+
+      const newUser = await userService.create({
+        yaId,
+        login,
+        displayName,
+      });
+
       res.status(201).json(newUser);
     } catch (error) {
       console.log(error);
@@ -81,7 +93,35 @@ export class UserAPI {
         return;
       }
 
-      const updatedUser = await userService.update(normalizedId, req.body);
+      const data: {
+        yaId?: number;
+        login?: string;
+        displayName?: string | null;
+      } = {};
+
+      if (req.body.yaId !== undefined) {
+        const yaId = Number(req.body.yaId);
+
+        if (isNaN(normalizedId) || yaId <= 0) {
+          res.status(400).json({ error: 'Invalid yaId format' });
+
+          return;
+        }
+
+        data.yaId = yaId;
+      }
+
+      if (req.body.login !== undefined) {
+        data.login = validateLogin(req.body.login);
+      }
+
+      if (req.body.displayName !== undefined) {
+        data.displayName = req.body.displayName
+          ? validateText(req.body.displayName, 'displayName', 50)
+          : null;
+      }
+
+      const updatedUser = await userService.update(normalizedId, data);
 
       if (!updatedUser) {
         res.status(404).json({ error: 'User not found' });
@@ -97,7 +137,19 @@ export class UserAPI {
 
   public static createOrUpdate = async (req: Request, res: Response): Promise<void> => {
     try {
-      const [user, created] = await userService.upsert(req.body);
+      const yaId = Number(req.body.yaId);
+      const login = validateLogin(req.body.login);
+
+      const displayName = req.body.displayName
+        ? validateText(req.body.displayName, 'displayName', 50)
+        : null;
+
+      const [user, created] = await userService.upsert({
+        yaId,
+        login,
+        displayName,
+      });
+
       res.status(created ? 201 : 200).json(user);
     } catch (error) {
       console.error('Error in createOrUpdate:', error);

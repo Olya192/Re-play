@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react';
-import { Avatar, Button, Flex, Input, Space, Typography } from 'antd';
+import { Avatar, Button, Flex, Input, message, Space, Typography } from 'antd';
 import { SendOutlined } from '@ant-design/icons';
 import { User } from '@/types/user';
 import { useForum } from '@/pages/forum/useForum';
 import commentAvatarIcon from '@/assets/icons/comment-avatar-icon.svg';
 import avatarUserIcon from '@/assets/icons/user-avatar-icon.svg';
+import { hasHtmlCharacters } from '@/utils/validate/hasHtmlCharacters';
 
 const { Text, Title } = Typography;
 const { TextArea } = Input;
@@ -44,14 +45,19 @@ export const ForumComments = (props: Props) => {
   const [newComment, setNewComment] = useState('');
 
   const handleSubmit = async () => {
-    const trimmed = newComment.trim();
+    const comment = newComment.trim();
 
-    if (trimmed.length === 0) {
+    if (!comment) {
       return;
     }
 
-    await addTopicComment(newComment, props.topicId);
+    if (hasHtmlCharacters(comment)) {
+      message.error('HTML-разметка запрещена');
 
+      return;
+    }
+
+    await addTopicComment(comment, props.topicId);
     setNewComment('');
   };
 

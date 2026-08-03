@@ -12,7 +12,7 @@ export const forumRoutes = (router: Router) => {
   forumRouter.get('/:id', ForumAPI.find);
 
   // comments
-  forumRouter.get('/:id/comments', ForumAPI.findCmments);
+  forumRouter.get('/:id/comments', ForumAPI.findComments);
   forumRouter.post('/:id', ForumAPI.createComment);
 
   router.use('/api/forum', forumRouter);
