@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { ThemeService } from '../services/ThemeService';
 import { UserService } from '../services/user.service';
 import { SiteTheme } from '../models/SiteTheme';
+import { validateText } from '../utils/validation';
 
 const userService = new UserService();
 
@@ -109,19 +110,21 @@ export class ThemeController {
     try {
       const { theme, description } = req.body;
 
-      if (theme == null || description == null) {
+      let validatedTheme: string;
+      let validatedDescription: string;
+
+      try {
+        validatedTheme = validateText(theme, 'theme', 32);
+        validatedDescription = validateText(description, 'description', 255);
+      } catch (error) {
         res.status(400).json({ error: 'theme and description are required' });
 
         return;
       }
 
-      if (typeof theme !== 'string' || typeof description !== 'string') {
-        res.status(400).json({ error: 'theme and description must be strings' });
-
-        return;
-      }
-
-      const existingTheme = await SiteTheme.findOne({ where: { theme } });
+      const existingTheme = await SiteTheme.findOne({
+        where: { theme: validatedTheme },
+      });
 
       if (existingTheme) {
         res.status(409).json({ error: 'Theme with this name already exists' });
@@ -129,7 +132,11 @@ export class ThemeController {
         return;
       }
 
-      const newTheme = await ThemeService.createTheme({ theme, description });
+      const newTheme = await ThemeService.createTheme({
+        theme: validatedTheme,
+        description: validatedDescription,
+      });
+
       res.status(201).json(newTheme);
     } catch (error) {
       console.error('Error creating theme:', error);
