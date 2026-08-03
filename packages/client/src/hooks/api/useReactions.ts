@@ -139,10 +139,7 @@ export const useReactions = (topicId: number): UseReactions => {
     };
   }, [loadRows]);
 
-  const reactions = useMemo(
-    () => aggregate(rows, emojis, myUserId),
-    [rows, emojis, myUserId]
-  );
+  const reactions = useMemo(() => aggregate(rows, emojis, myUserId), [rows, emojis, myUserId]);
 
   const select = async (reactionId: number): Promise<void> => {
     if (myUserId == null) {

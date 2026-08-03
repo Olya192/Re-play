@@ -17,3 +17,13 @@ export const AUTH_ROUTES = {
 } as const;
 
 export const RESOURCE_API_URL = '/api/v2/resources';
+
+export const SERVER_ROUTES = {
+  ME: '/api/me',
+  FRIENDS: '/friends',
+  USER: '/user',
+  PROFILE: '/profile',
+  LOGOUT: '/logout',
+  YANDEX_SERVICE_ID: '/yandex/service-id',
+  YANDEX_LOGIN: '/yandex/login',
+};

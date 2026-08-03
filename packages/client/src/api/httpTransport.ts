@@ -1,3 +1,4 @@
+// api/httpTransport.ts
 import { METHODS } from '@/constants/api/apiConstants';
 import { queryStringify } from '@/utils/api/queryStringify';
 
@@ -7,14 +8,16 @@ interface Options {
   data?: Record<string, unknown> | FormData;
   timeout?: number;
   signal?: AbortSignal;
-  isAppHost?: boolean;
+  useProxy?: boolean; // ✅ Новый флаг
 }
 
-type RequestOptions = Omit<Options, 'method'>;
+type RequestOptions = Omit<Options, 'method'> & {
+  useProxy?: boolean;
+};
 
 const TIMEOUT = 10000;
 const host = 'https://ya-praktikum.tech';
-const appHost = '/api';
+const proxyHost = 'http://localhost:3001/api/proxy'; // ✅ Ваш прокси
 
 export class HTTPTransport {
   get = (url: string, options: RequestOptions = {}) => {
@@ -35,18 +38,23 @@ export class HTTPTransport {
 
   request = async (url: string, options: Options = { method: METHODS.GET }) => {
     const timeout = options.timeout ?? TIMEOUT;
-
-    const { method, headers = {}, data, signal } = options;
+    const { method, headers = {}, data, signal, useProxy = false } = options;
 
     const isGet = method === METHODS.GET;
     const isFormData = data instanceof FormData;
 
-    const currentHost = options.isAppHost ? appHost : host;
+    // ✅ Если useProxy = true, все запросы идут через прокси
+    let requestUrl: string;
 
-    const requestUrl =
-      isGet && data && !isFormData
-        ? `${currentHost}${url}${queryStringify(data)}`
-        : `${currentHost}${url}`;
+    if (useProxy) {
+      // Убираем /api/v2/ из url, так как прокси добавляет его автоматически
+      const cleanUrl = url.replace(/^\/api\/v2\//, '');
+      requestUrl = `${proxyHost}/${cleanUrl}`;
+    } else {
+      // Обычный запрос напрямую
+      requestUrl =
+        isGet && data && !isFormData ? `${host}${url}${queryStringify(data)}` : `${host}${url}`;
+    }
 
     const controller = new AbortController();
     const timeoutId = setTimeout(
@@ -54,7 +62,6 @@ export class HTTPTransport {
       timeout
     );
 
-    // Пробрасываем внешнюю отмену (напр. при размонтировании компонента) на fetch
     if (signal) {
       if (signal.aborted) {
         controller.abort(signal.reason);
@@ -69,7 +76,7 @@ export class HTTPTransport {
       method,
       headers: fetchHeaders,
       signal: controller.signal,
-      credentials: 'include',
+      credentials: 'include', // ✅ Важно для отправки кук
     };
 
     if (!isGet && data !== undefined && data !== null) {
@@ -105,9 +112,7 @@ export class HTTPTransport {
 
         return data;
       } else {
-        // Неуспешный статус (не 2xx)
         const errorResponseText = await response.text();
-
         throw new Error(`Запрос завершен со статусом: ${response.status}, ${errorResponseText}`);
       }
     } catch (error) {

@@ -1,9 +1,107 @@
+// hooks/useOAuth.ts
 import { useEffect, useState } from 'react';
-import { checkAuth, getCurrentUser } from '../api/checkAuth';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import { authApi } from '../api/authApi';
 import { setUser } from '../slices/userSlice';
-import { useDispatch } from 'react-redux';
+import { checkAuth, getCurrentUser } from '@/api/checkAuth';
+import { computeClosable } from 'antd/es/_util/hooks';
+
+// export const useOAuth = () => {
+//   const [isLoading, setIsLoading] = useState(true);
+//   const [error, setError] = useState<string | null>(null);
+
+//   const location = useLocation();
+//   const navigate = useNavigate();
+//   const dispatch = useDispatch();
+
+//   useEffect(() => {
+//     const handleAuth = async () => {
+//       const searchParams = new URLSearchParams(location.search);
+//       const code = searchParams.get('code');
+//       const errorParam = searchParams.get('error');
+
+//       // 1. Ошибка от Яндекса
+//       if (errorParam) {
+//         setError('Ошибка авторизации через Яндекс');
+//         setIsLoading(false);
+
+//         return;
+//       }
+
+//       // 2. Есть code - обрабатываем OAuth колбэк
+//       if (code) {
+//         try {
+//           setIsLoading(true);
+//           setError(null);
+
+//           const redirectUri = window.location.origin;
+
+//           // ✅ Единственный запрос к серверу
+//           const user = await authApi.loginWithYandex(code, redirectUri);
+
+//           if (user) {
+//             console.log('✅ Пользователь авторизован:', user);
+//             dispatch(setUser(user));
+
+//             // Очищаем URL от code
+//             window.history.replaceState({}, '', window.location.pathname);
+
+//             navigate('/');
+//           } else {
+//             throw new Error('Не удалось получить данные пользователя');
+//           }
+//         } catch (error) {
+//           const message = error instanceof Error ? error.message : 'Ошибка авторизации';
+//           setError(message);
+//         } finally {
+//           setIsLoading(false);
+//         }
+
+//         return;
+//       }
+
+//       // 3. Нет code - проверяем авторизацию
+//       try {
+//         setIsLoading(true);
+//         const user = await authApi.getCurrentUser();
+
+//         if (user) {
+//           console.log('✅ Пользователь уже авторизован');
+//           dispatch(setUser(user));
+//         }
+//       } catch (error) {
+//         console.log('ℹ️ Пользователь не авторизован');
+//       } finally {
+//         setIsLoading(false);
+//       }
+//     };
+
+//     handleAuth();
+//   }, [location.search, navigate, dispatch]);
+
+//   // Функция запуска OAuth
+//   const startOAuth = async () => {
+//     try {
+//       setError(null);
+//       const redirectUri = window.location.origin;
+
+//       // Получаем service_id напрямую
+//       const clientId = await authApi.getServiceID(redirectUri);
+
+//       // Редирект на Яндекс
+//       const yandexAuthUrl = `https://oauth.yandex.ru/authorize?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}`;
+
+//       console.log('🔄 Редирект на Яндекс:', yandexAuthUrl);
+//       window.location.assign(yandexAuthUrl);
+//     } catch (error) {
+//       const message = error instanceof Error ? error.message : 'Ошибка запуска авторизации';
+//       setError(message);
+//     }
+//   };
+
+//   return { isLoading, error, startOAuth };
+// };
 
 export const useOAuth = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -16,7 +114,7 @@ export const useOAuth = () => {
 
   useEffect(() => {
     let isMounted = true;
-
+    console.log('useEffect useOAuth');
     // Единая функция для обработки ошибок
     const handleError = (error: unknown, defaultMessage: string) => {
       const errorMessage = error instanceof Error ? error.message : defaultMessage;
@@ -68,8 +166,11 @@ export const useOAuth = () => {
 
         const redirectUri = sessionStorage.getItem('oauth_redirect_uri') || window.location.origin;
 
-        await authApi.exchangeCodeForToken(code, redirectUri);
+        const data = await authApi.loginWithYandex(code, redirectUri);
+        console.log('data', data);
+        await authApi.checkSession();
         const user = await authApi.getCurrentUser();
+        console.log('user data', user);
 
         if (user) {
           dispatch(setUser(user));
@@ -80,6 +181,10 @@ export const useOAuth = () => {
 
           sessionStorage.removeItem('oauth_in_progress');
           sessionStorage.removeItem('oauth_redirect_uri');
+
+          // Очищаем URL от code
+          window.history.replaceState({}, '', window.location.pathname);
+
           navigate('/');
         } else {
           throw new Error('Не удалось получить данные пользователя');
@@ -96,7 +201,6 @@ export const useOAuth = () => {
     const checkUserAuth = async () => {
       try {
         const isAuth = await checkAuth();
-
         const user = await getCurrentUser();
 
         if (isMounted) {
@@ -107,20 +211,13 @@ export const useOAuth = () => {
           dispatch(setUser(user));
         }
 
-        if (!isAuth) {
-          sessionStorage.setItem('oauth_in_progress', 'false');
-        }
-
         return isAuth;
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Auth check failed';
-        console.error(`[OAuth Error]: ${errorMessage}`, error);
+        console.error(`[OAuth Error]: Auth check failed`, error);
 
         if (isMounted) {
           setIsAuthenticated(false);
         }
-
-        sessionStorage.setItem('oauth_in_progress', 'false');
 
         return false;
       }
@@ -131,12 +228,14 @@ export const useOAuth = () => {
         const searchParams = new URLSearchParams(location.search);
         const code = searchParams.get('code');
 
+        // Если есть code - обрабатываем OAuth callback
         if (code) {
           await handleOAuthCallback(code);
 
           return;
         }
 
+        // Проверяем авторизацию
         if (isMounted) {
           setIsLoading(true);
         }
@@ -147,10 +246,19 @@ export const useOAuth = () => {
           setIsLoading(false);
         }
 
+        // Запускаем OAuth только если пользователь НЕ авторизован
+        // и НЕТ признака, что мы уже в процессе OAuth
         const oauthInProgress = sessionStorage.getItem('oauth_in_progress');
 
-        if (!isAuth && oauthInProgress === 'false') {
+        if (!isAuth && oauthInProgress !== 'true') {
+          // Устанавливаем флаг, чтобы предотвратить повторный запуск
+          sessionStorage.setItem('oauth_in_progress', 'pending');
           await initiateOAuth();
+        } else if (oauthInProgress === 'true') {
+          // Если OAuth в процессе, но пользователь вернулся без code
+          // очищаем флаг и не запускаем заново
+          sessionStorage.removeItem('oauth_in_progress');
+          sessionStorage.removeItem('oauth_redirect_uri');
         }
       } catch (error) {
         handleError(error, 'Произошла непредвиденная ошибка при авторизации');
@@ -174,7 +282,7 @@ export const useOAuth = () => {
     return () => {
       isMounted = false;
     };
-  }, [location.search, navigate, dispatch]); // Только внешние зависимости
+  }, []);
 
   return {
     isLoading,
