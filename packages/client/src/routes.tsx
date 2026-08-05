@@ -12,6 +12,8 @@ import { RouteObject } from 'react-router-dom';
 import { ReactNode } from 'react';
 import ForumAddTopic from './pages/forum/components/ForumAddTopic';
 import { initLogoutPage, LogoutPage } from './pages/LogoutPage';
+import { initLoginPage, LoginPage } from './pages/LoginPage';
+import { initRegisterPage, RegisterPage } from './pages/RegisterPage';
 
 export type PageInitContext = {
   clientToken?: string;
@@ -34,6 +36,16 @@ const publicRoutes: CustomRouteObject[] = [
     path: '/logout',
     Component: LogoutPage,
     fetchData: initLogoutPage,
+  },
+  {
+    path: '/login',
+    Component: LoginPage,
+    fetchData: initLoginPage,
+  },
+  {
+    path: '/register',
+    Component: RegisterPage,
+    fetchData: initRegisterPage,
   },
 ];
 

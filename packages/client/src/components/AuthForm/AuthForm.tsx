@@ -9,6 +9,7 @@ import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { validatePhone } from '../../utils/validate/validatePhone';
 import { ROUTES } from '../../constants/routes';
+import { authApi } from '@/api/authApi';
 
 export type InputsName = {
   inputsName: Array<InputType>;
@@ -177,6 +178,24 @@ export const AuthForm = ({ inputsName, pageType }: InputsName) => {
     }
   };
 
+  const initiateOAuth = async () => {
+    try {
+      const redirectUri = window.location.origin;
+      const clientId = await authApi.getServiceID(redirectUri);
+
+      const yandexAuthUrl = `https://oauth.yandex.ru/authorize?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(
+        redirectUri
+      )}`;
+
+      sessionStorage.setItem('oauth_in_progress', 'true');
+      sessionStorage.setItem('oauth_redirect_uri', redirectUri);
+
+      window.location.assign(yandexAuthUrl);
+    } catch (error) {
+      console.log(error, 'Не удалось инициировать авторизацию через Яндекс');
+    }
+  };
+
   return (
     <main className={s.main}>
       <div className={s.auth__form}>
@@ -212,6 +231,7 @@ export const AuthForm = ({ inputsName, pageType }: InputsName) => {
           >
             {getButtonText()}
           </Button>
+          <p onClick={initiateOAuth}>войти через яндекс</p>
         </Form>
       </div>
     </main>

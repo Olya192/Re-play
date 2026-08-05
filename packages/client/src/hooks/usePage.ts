@@ -7,6 +7,8 @@ import {
 import { PageInitArgs, PageInitContext } from '../routes';
 import { useOAuth } from './useOAuth';
 import { userApi } from '@/api/userApi';
+import { authApi } from '@/api/authApi';
+import { setUser } from '../slices/userSlice';
 
 const getCookie = (name: string) => {
   const matches = document.cookie.match(
@@ -34,30 +36,92 @@ export const usePage = ({ initPage }: PageProps) => {
   const pageHasBeenInitializedOnServer = useSelector(selectPageHasBeenInitializedOnServer);
   const store = useStore();
   const [isPageInitialized, setIsPageInitialized] = useState(false);
+  const [isPageLoading, setIsPageLoading] = useState(true);
+  const [isAuthChecked, setIsAuthChecked] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  const { isLoading: isOAuthLoading, error: oAuthError, isAuthenticated } = useOAuth();
+  // Хук для OAuth обработки (без проверки авторизации)
+  const {
+    isLoading: isOAuthLoading,
+    error: oAuthError,
+    isAuthenticated: isOAuthAuthenticated,
+  } = useOAuth();
 
+  // Основная проверка авторизации
   useEffect(() => {
-    if (isOAuthLoading) {
-      return;
-    }
+    const checkAuth = async () => {
+      try {
+        // Проверяем, есть ли пользователь в store
+        const currentUser = store.getState().user.data;
 
-    if (!isAuthenticated) {
-      return;
-    }
+        if (currentUser) {
+          setIsAuthenticated(true);
+          setIsAuthChecked(true);
 
+          return;
+        }
+
+        // Проверяем авторизацию через API
+        try {
+          const user = await authApi.getCurrentUser();
+
+          if (user) {
+            dispatch(setUser(user));
+            setIsAuthenticated(true);
+          } else {
+            setIsAuthenticated(false);
+          }
+        } catch (error) {
+          // 401 - просто неавторизован
+          console.log('User not authenticated');
+          setIsAuthenticated(false);
+        }
+      } catch (error) {
+        console.error('Auth check failed:', error);
+        setIsAuthenticated(false);
+      } finally {
+        setIsAuthChecked(true);
+      }
+    };
+
+    checkAuth();
+  }, [dispatch, store]);
+
+  // Инициализация страницы
+  useEffect(() => {
     initializePage();
-  }, [isOAuthLoading, isAuthenticated]);
+  }, []); // Пустой массив зависимостей - запускается сразу при монтировании
+
+  // Обработка OAuth после инициализации страницы
+  useEffect(() => {
+    if (isOAuthLoading || !isOAuthAuthenticated || !isPageInitialized) {
+      return;
+    }
+
+    // Дополнительные действия после OAuth
+    const user = store.getState().user.data;
+
+    if (user) {
+      const { id, login, displayName } = user;
+      userApi.createOrUpdateUser({ yaId: id, login, displayName });
+      setIsAuthenticated(true);
+    }
+  }, [isOAuthLoading, isOAuthAuthenticated, isPageInitialized, store]);
 
   const initializePage = async () => {
     if (isPageInitialized) {
+      setIsPageLoading(false);
+
       return;
     }
 
     try {
+      setIsPageLoading(true);
+
       if (pageHasBeenInitializedOnServer) {
         dispatch(setPageHasBeenInitializedOnServer(false));
         setIsPageInitialized(true);
+        setIsPageLoading(false);
 
         return;
       }
@@ -68,22 +132,19 @@ export const usePage = ({ initPage }: PageProps) => {
         ctx: createContext(),
       });
       setIsPageInitialized(true);
-
-      const user = store.getState().user.data;
-
-      if (user) {
-        const { id, login, displayName } = user;
-        await userApi.createOrUpdateUser({ yaId: id, login, displayName });
-      }
+      setIsPageLoading(false);
     } catch (error) {
       console.error('Page initialization failed:', error);
+      setIsPageLoading(false);
     }
   };
 
+  const isLoading = isPageLoading || isOAuthLoading || !isAuthChecked;
+
   return {
-    isLoading: isOAuthLoading,
+    isLoading,
     error: oAuthError,
-    isAuthenticated,
+    isAuthenticated: isAuthenticated || isOAuthAuthenticated,
     isPageInitialized,
   };
 };
