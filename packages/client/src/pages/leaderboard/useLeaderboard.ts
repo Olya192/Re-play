@@ -1,27 +1,56 @@
-import { useEffect, useState } from 'react';
-import { LeaderboardItem } from '../../types/leaderboard';
+import { useState } from 'react';
 import { leaderboardApi } from '../../api/leaderboardApi';
+import { authApi } from '../../api/authApi';
 
 export const useLeaderboard = () => {
-  const [leaderboardItems, setLeaderboard] = useState<LeaderboardItem[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const getLeaderboard = async () => {
-      try {
-        return leaderboardApi.getLeaderboard();
-      } catch (error) {
-        console.log(error);
-      }
-    };
+  const getLeaderboard = async (cursor: number, perPage: number) => {
+    setLoading(true);
+    let resp = [];
+    await leaderboardApi
+      .getLeaderboard({
+        ratingFieldName: 'score',
+        cursor: cursor,
+        limit: perPage,
+      })
+      .then((response) => {
+        setLoading(false);
+        resp = response;
+      })
+      .catch((error) => {
+        console.warn('error:', error);
+        setLoading(false);
+      });
 
-    getLeaderboard().then((response) => {
-      if (response) {
-        setLeaderboard(response);
-      }
-    });
-  }, []);
+    return resp;
+  };
+
+  const addToLeaderboard = async (score: number) => {
+    const user = await authApi.getCurrentUser();
+    try {
+      const id = new Date().getTime();
+
+      return await leaderboardApi.addToLeaderboard({
+        data: {
+          id: id,
+          key: id,
+          userName: user.firstName,
+          userId: user.id,
+          score: score,
+          teamName: 'Re:play',
+        },
+        ratingFieldName: 'score',
+        teamName: 'Re:play',
+      });
+    } catch (error) {
+      console.warn('error:', error);
+    }
+  };
 
   return {
-    leaderboardItems,
+    loading,
+    getLeaderboard,
+    addToLeaderboard,
   };
 };

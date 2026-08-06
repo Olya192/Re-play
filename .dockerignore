@@ -1,0 +1,12 @@
+.github
+.idea
+node_modules
+**/node_modules
+dist
+**/dist
+.env
+.git
+.idea
+tmp
+*.rar
+*.7z

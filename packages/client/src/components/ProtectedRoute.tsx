@@ -1,28 +1,23 @@
 import { Navigate, Outlet } from 'react-router-dom';
-import { checkAuth } from '../api/checkAuth';
-import { useEffect, useState } from 'react';
+import { usePage } from '../hooks/usePage';
+import { PageInitArgs } from '../routes';
 
 export const ProtectedRoute = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-  const [loading, setLoading] = useState(true);
+  // Используем usePage для проверки авторизации
+  const { isLoading, isAuthenticated } = usePage({ initPage: initError500 });
 
-  useEffect(() => {
-    const verifyAuth = async () => {
-      const isAuth = await checkAuth();
-      setIsAuthenticated(isAuth);
-      setLoading(false);
-    };
-
-    verifyAuth();
-  }, []);
-
-  if (loading) {
-    return <div>Проверка авторизации...</div>; // или ваш компонент загрузки
+  if (isLoading) {
+    return <div className="loader">Проверка авторизации...</div>;
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    // useOAuth сам сделает редирект, но на всякий случай
+    return <Navigate to="/" replace />;
   }
 
   return <Outlet />;
+};
+
+export const initError500 = async ({ dispatch, state }: PageInitArgs) => {
+  // заглушка
 };

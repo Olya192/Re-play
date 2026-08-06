@@ -1,9 +1,5 @@
 import { AppDispatch, RootState } from './store';
 import { FriendsPage, initFriendsPage } from './pages/FriendsPage';
-import { initLoginPage, LoginPage } from './pages/LoginPage';
-import { initMainPage, MainPage } from './pages/Main';
-import { initRegisterPage, RegisterPage } from './pages/RegisterPage';
-import { initUserProfile, UserProfile } from './pages/UserProfile';
 import { initLeaderboardPage, LeaderboardPage } from './pages/leaderboard';
 import { Error404, initError404 } from './pages/Error404';
 import { Error500, initError500 } from './pages/Error500';
@@ -15,6 +11,7 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { RouteObject } from 'react-router-dom';
 import { ReactNode } from 'react';
 import ForumAddTopic from './pages/forum/components/ForumAddTopic';
+import { initLogoutPage, LogoutPage } from './pages/LogoutPage';
 
 export type PageInitContext = {
   clientToken?: string;
@@ -34,14 +31,9 @@ export type CustomRouteObject = RouteObject & {
 // Публичные маршруты
 const publicRoutes: CustomRouteObject[] = [
   {
-    path: '/login',
-    Component: LoginPage,
-    fetchData: initLoginPage,
-  },
-  {
-    path: '/register',
-    Component: RegisterPage,
-    fetchData: initRegisterPage,
+    path: '/logout',
+    Component: LogoutPage,
+    fetchData: initLogoutPage,
   },
 ];
 
@@ -61,12 +53,6 @@ const protectedRoutes: CustomRouteObject[] = [
     fetchData: initGameRoot,
   },
 
-  // Нужно мигрировать в модалки
-  {
-    path: '/Main',
-    Component: MainPage,
-    fetchData: initMainPage,
-  },
   {
     path: '/friends',
     Component: FriendsPage,
@@ -76,11 +62,6 @@ const protectedRoutes: CustomRouteObject[] = [
     path: '/profile',
     Component: ProfilePage,
     fetchData: initProfilePage,
-  },
-  {
-    path: '/user-profile',
-    Component: UserProfile,
-    fetchData: initUserProfile,
   },
   {
     path: '/leaderboard',

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useDispatch, useSelector } from '../../../../../store';
+import { useDispatch, useSelector } from '@/store';
 import {
   incrementCaught,
   incrementEaten,
@@ -8,17 +8,23 @@ import {
   selectPhase,
   setPhase,
   syncFromEngine,
-} from '../../../../../slices/gameSession';
-import { openModal } from '../../../../../slices/gameUi';
+} from '@/slices/gameSession';
+import { openModal } from '@/slices/gameUi';
 import s from './GamePlayPlaceholder.module.css';
+import { randomInteger } from '@/utils/randomeInteger';
+import { useComponentMountDuration } from '@/performanceMonitor';
 
-type ItemKind = 'circle' | 'square';
+type ItemKind = 'edible' | 'inedible' | 'shard';
 
 interface PlayItem {
   id: number;
+  foodId: number;
   kind: ItemKind;
   xPx: number;
   spawnedAt: number;
+  sizeRatio?: number;
+  fallDurationMs?: number;
+  vxPxPerSec?: number;
 }
 
 interface StageSize {
@@ -27,12 +33,11 @@ interface StageSize {
 }
 
 // TODO брать настройки айтемов и всего прочего из базы
-const ITEM_SIZE_RATIO = 1 / 6;
-const MONSTER_SIZE_RATIO = 1 / 5;
+export const ITEM_SIZE_RATIO = 1 / 4;
+const MONSTER_SIZE_RATIO = 1 / 3;
 const MONSTER_SEGMENT_OFFSET_RATIO = 0.8;
 const MOUTH_INSET_FROM_HEAD_TOP_RATIO = 0.2;
 const MOUTH_WIDTH_RATIO = 0.5;
-const MOUTH_HEIGHT_RATIO = 0.07;
 const MOUTH_ZONE_HALF_HEIGHT_RATIO = 0.08;
 
 const FALL_DURATION_MS = 4500;
@@ -41,10 +46,36 @@ const MAX_SPAWN_MS = 3000;
 const MONSTER_SPEED_PER_SEC_RATIO = 0.18;
 const ELAPSED_DISPATCH_THROTTLE_MS = 200;
 
-const computeItemTop = (item: PlayItem, now: number, stage: StageSize, itemSize: number) => {
-  const t = (now - item.spawnedAt) / FALL_DURATION_MS;
+const SHARD_SIZE_RATIO = ITEM_SIZE_RATIO * 0.5;
+const SHARD_FALL_DURATION_MS = 3500;
+const SHARDS_PER_SQUARE = 3;
+const SHARD_SPREAD_SPEED_RATIO = 0.16;
+
+const FOOD_ITEMS_QUANTITY = 24;
+const INEDIBLE_ITEMS_QUANTITY = 8;
+const DESSERTS_PACK_URL = '/images/desserts/dessert-';
+const INEDIBLE_PACK_URL = '/images/inedible/inedible-';
+
+export const getItemSize = (item: PlayItem, stage: StageSize) =>
+  stage.width * (item.sizeRatio ?? ITEM_SIZE_RATIO);
+
+export const computeItemTop = (item: PlayItem, now: number, stage: StageSize, itemSize: number) => {
+  const fallDuration = item.fallDurationMs ?? FALL_DURATION_MS;
+  const t = (now - item.spawnedAt) / fallDuration;
 
   return -itemSize + t * (stage.height + itemSize);
+};
+
+export const computeItemLeft = (
+  item: PlayItem,
+  now: number,
+  stage: StageSize,
+  itemSize: number
+) => {
+  const elapsedSec = (now - item.spawnedAt) / 1000;
+  const rawLeft = item.xPx + (item.vxPxPerSec ?? 0) * elapsedSec;
+
+  return Math.min(Math.max(rawLeft, 0), stage.width - itemSize);
 };
 
 /**
@@ -55,6 +86,8 @@ const computeItemTop = (item: PlayItem, now: number, stage: StageSize, itemSize:
  * делал по статье learn.javascript.ru/js-animation
  */
 export const GamePlayPlaceholder = () => {
+  useComponentMountDuration('GamePlayPlaceholder');
+
   const dispatch = useDispatch();
   const phase = useSelector(selectPhase);
   const meta = useSelector(selectLevelMeta);
@@ -155,29 +188,45 @@ export const GamePlayPlaceholder = () => {
 
     let timerId = 0;
 
+    // TODO Refactor for tests: вынести выбор позиции/типа предмета в чистую функцию с передачей источника случайности
+    //  сейчас Math.random прямо тут
+    const spawnItem = () => {
+      const stage = stageSizeRef.current;
+      const itemSize = stage.width * ITEM_SIZE_RATIO;
+      const minLeft = itemSize * 0.5;
+      const maxLeft = stage.width - itemSize * 1.5;
+
+      const foodKind = Math.random() <= 0.8 ? 'edible' : 'inedible';
+      const randomFoodId =
+        foodKind === 'edible'
+          ? randomInteger(1, FOOD_ITEMS_QUANTITY)
+          : randomInteger(1, INEDIBLE_ITEMS_QUANTITY);
+      lastIdRef.current += 1;
+
+      setItems((prev) => [
+        ...prev,
+        {
+          id: lastIdRef.current,
+          foodId: randomFoodId,
+          kind: foodKind,
+          xPx: minLeft + Math.random() * (maxLeft - minLeft),
+          spawnedAt: performance.now(),
+        },
+      ]);
+    };
+
     const schedule = () => {
       const delay = MIN_SPAWN_MS + Math.random() * (MAX_SPAWN_MS - MIN_SPAWN_MS);
 
       timerId = window.setTimeout(() => {
-        const stage = stageSizeRef.current;
-        const itemSize = stage.width * ITEM_SIZE_RATIO;
-        const minLeft = itemSize * 0.5;
-        const maxLeft = stage.width - itemSize * 1.5;
-
-        lastIdRef.current += 1;
-        setItems((prev) => [
-          ...prev,
-          {
-            id: lastIdRef.current,
-            kind: Math.random() < 0.5 ? 'circle' : 'square',
-            xPx: minLeft + Math.random() * (maxLeft - minLeft),
-            spawnedAt: performance.now(),
-          },
-        ]);
+        spawnItem();
         schedule();
       }, delay);
     };
 
+    // Первый предмет — сразу, чтобы после «Играем!» игра визуально стартовала,
+    // а не «висела» 2–3 секунды до первого спавна.
+    spawnItem();
     schedule();
 
     return () => window.clearTimeout(timerId);
@@ -192,7 +241,7 @@ export const GamePlayPlaceholder = () => {
     let lastFrame = performance.now();
 
     const tick = (now: number) => {
-      const dt = (now - lastFrame) / 1000;
+      const dt = (now - lastFrame) / 500;
       lastFrame = now;
 
       if (playStartedAtRef.current === null) {
@@ -223,7 +272,6 @@ export const GamePlayPlaceholder = () => {
         return;
       }
 
-      const itemSize = stage.width * ITEM_SIZE_RATIO;
       const monsterSize = stage.width * MONSTER_SIZE_RATIO;
       const monsterX = monsterXRef.current;
 
@@ -238,16 +286,21 @@ export const GamePlayPlaceholder = () => {
       const eatenIds: number[] = [];
       const missedIds: number[] = [];
 
+      // TODO Refactor for tests: геометрию рта и тип предмета (eaten/missed/none) вынести
+      //  в чистые, к примеру computeMouthZone и classifyItem сейчас все пересечения внутри RAF-кадра и завязаны на DOM и время
       for (const item of current) {
         if (consumedIdsRef.current.has(item.id)) {
           continue;
         }
 
-        const itemTop = computeItemTop(item, now, stage, itemSize);
+        const currentItemSize = getItemSize(item, stage);
+        const itemTop = computeItemTop(item, now, stage, currentItemSize);
+        const itemLeft = computeItemLeft(item, now, stage, currentItemSize);
         const el = itemRefs.current.get(item.id);
 
         if (el) {
           el.style.top = `${itemTop}px`;
+          el.style.left = `${itemLeft}px`;
         }
 
         if (itemTop >= stage.height) {
@@ -257,11 +310,11 @@ export const GamePlayPlaceholder = () => {
           continue;
         }
 
-        const itemBottom = itemTop + itemSize;
-        const itemCenterX = item.xPx + itemSize / 2;
+        const itemBottom = itemTop + currentItemSize;
+        const itemCenterX = itemLeft + currentItemSize / 2;
 
         const yOverlap = itemBottom >= mouthZoneTopY && itemTop <= mouthZoneBottomY;
-        const xOverlap = Math.abs(itemCenterX - monsterX) < mouthHalfWidth + itemSize / 2;
+        const xOverlap = Math.abs(itemCenterX - monsterX) < mouthHalfWidth + currentItemSize / 2;
 
         if (yOverlap && xOverlap) {
           eatenIds.push(item.id);
@@ -282,16 +335,18 @@ export const GamePlayPlaceholder = () => {
         }
       }
 
-      // TODO: доработать поведение, чтобы шёл к ближайшему падающему,
-      //       если его взорвали — к следующему ближайшему
+      // TODO Refactor for tests: выбор ближайшего предмета и шаг монстра вынести в pickNearestStep
+      // Монстр каждый кадр выбирает ближайший активный предмет.
       const remaining = current.filter((it) => !consumedIdsRef.current.has(it.id));
 
       if (remaining.length > 0) {
-        let nearestCx = remaining[0].xPx + itemSize / 2;
+        const firstSize = getItemSize(remaining[0], stage);
+        let nearestCx = computeItemLeft(remaining[0], now, stage, firstSize) + firstSize / 2;
         let nearestDist = Math.abs(nearestCx - monsterX);
 
         for (let i = 1; i < remaining.length; i += 1) {
-          const cx = remaining[i].xPx + itemSize / 2;
+          const currentSize = getItemSize(remaining[i], stage);
+          const cx = computeItemLeft(remaining[i], now, stage, currentSize) + currentSize / 2;
           const dist = Math.abs(cx - monsterX);
 
           if (dist < nearestDist) {
@@ -326,45 +381,116 @@ export const GamePlayPlaceholder = () => {
       return;
     }
 
+    const clickedItem = itemsRef.current.find((it) => it.id === id);
+
+    if (!clickedItem) {
+      return;
+    }
+
     consumedIdsRef.current.add(id);
+
+    // TODO Refactor for tests: разбиение квадрата на осколки вынести в чистую
+    // breakSquareIntoShards -> PlayItem[] (сейчас завязано на performance.now и lastIdRef)
+
+    // Механика разбивания квадрата
+    // Убираем из items square, по которому кликнули
+    // Добавляем новые items shards вместо square
+    if (clickedItem.kind === 'inedible') {
+      const now = performance.now();
+      const stage = stageSizeRef.current;
+
+      const parentSize = getItemSize(clickedItem, stage);
+      const parentTop = computeItemTop(clickedItem, now, stage, parentSize);
+      const parentLeft = computeItemLeft(clickedItem, now, stage, parentSize);
+
+      const shardSize = stage.width * SHARD_SIZE_RATIO;
+      const shardSpeed = stage.width * SHARD_SPREAD_SPEED_RATIO;
+
+      const shards = Array.from({ length: SHARDS_PER_SQUARE }, (_, index) => {
+        lastIdRef.current += 1;
+
+        const direction = index - Math.floor(SHARDS_PER_SQUARE / 2);
+
+        return {
+          id: lastIdRef.current,
+          foodId: clickedItem.foodId,
+          kind: 'shard' as ItemKind,
+          xPx: parentLeft + parentSize / 2 - shardSize / 2,
+          spawnedAt:
+            now - ((parentTop + shardSize) / (stage.height + shardSize)) * SHARD_FALL_DURATION_MS,
+          sizeRatio: SHARD_SIZE_RATIO,
+          fallDurationMs: SHARD_FALL_DURATION_MS,
+          vxPxPerSec: direction * shardSpeed,
+        };
+      });
+
+      setItems((prev) => [...prev.filter((it) => it.id !== id), ...shards]);
+
+      return;
+    }
+
     setItems((prev) => prev.filter((it) => it.id !== id));
     dispatch(incrementCaught());
   };
 
-  const itemSize = stageSize.width * ITEM_SIZE_RATIO;
+  const getFoodStyle = (foodItem: PlayItem) => {
+    const foodImg =
+      foodItem.kind === 'edible'
+        ? `${DESSERTS_PACK_URL}${foodItem.foodId}.webp`
+        : `${INEDIBLE_PACK_URL}${foodItem.foodId}.webp`;
+
+    const backgroundImagePath = `url(${foodImg})`;
+
+    const currentItemSize = getItemSize(foodItem, stageSize);
+
+    const foodItemStyle = {
+      left: `${foodItem.xPx}px`,
+      top: `${-currentItemSize}px`,
+      width: `${currentItemSize}px`,
+      height: `${currentItemSize}px`,
+      backgroundImage: backgroundImagePath,
+      backgroundSize: 'contain',
+      backgroundRepeat: 'no-repeat',
+      backgroundPosition: 'center',
+    };
+
+    return foodItemStyle;
+  };
+
   const monsterSize = stageSize.width * MONSTER_SIZE_RATIO;
-  const headBottom = MONSTER_SEGMENT_OFFSET_RATIO * monsterSize - monsterSize / 2;
-  const mouthTop = MOUTH_INSET_FROM_HEAD_TOP_RATIO * monsterSize;
-  const mouthWidth = monsterSize * MOUTH_WIDTH_RATIO;
-  const mouthHeight = monsterSize * MOUTH_HEIGHT_RATIO;
+
+  const foodToCatch = items.map((item) => {
+    return (
+      <button
+        key={`${item.id}-${item.foodId}`}
+        ref={(el) => {
+          if (el) {
+            itemRefs.current.set(item.id, el);
+          } else {
+            itemRefs.current.delete(item.id);
+          }
+        }}
+        type="button"
+        tabIndex={-1}
+        className={s.item}
+        data-kind={item.kind}
+        style={getFoodStyle(item)}
+        onPointerDown={() => handleCatch(item.id)}
+        aria-label={
+          item.kind === 'edible'
+            ? 'съедобный'
+            : item.kind === 'inedible'
+            ? 'несъедобный'
+            : 'осколок'
+        }
+      />
+    );
+  });
 
   return (
     <>
       <div ref={layerRef} className={s.itemsLayer} aria-hidden>
-        {items.map((item) => (
-          <button
-            key={item.id}
-            ref={(el) => {
-              if (el) {
-                itemRefs.current.set(item.id, el);
-              } else {
-                itemRefs.current.delete(item.id);
-              }
-            }}
-            type="button"
-            tabIndex={-1}
-            className={s.item}
-            data-kind={item.kind}
-            style={{
-              left: `${item.xPx}px`,
-              top: `${-itemSize}px`,
-              width: `${itemSize}px`,
-              height: `${itemSize}px`,
-            }}
-            onPointerDown={() => handleCatch(item.id)}
-            aria-label={item.kind === 'circle' ? 'круг' : 'квадрат'}
-          />
-        ))}
+        {foodToCatch}
       </div>
       <div className={s.monsterContainer} aria-hidden>
         <div
@@ -373,7 +499,7 @@ export const GamePlayPlaceholder = () => {
           style={{ left: `${stageSize.width / 2}px` }}
         >
           <div
-            className={s.body}
+            className={s.monsterBody}
             style={{
               left: `${-monsterSize / 2}px`,
               bottom: `${-monsterSize / 2}px`,
@@ -381,25 +507,6 @@ export const GamePlayPlaceholder = () => {
               height: `${monsterSize}px`,
             }}
           />
-          <div
-            className={s.head}
-            style={{
-              left: `${-monsterSize / 2}px`,
-              bottom: `${headBottom}px`,
-              width: `${monsterSize}px`,
-              height: `${monsterSize}px`,
-            }}
-          >
-            <div
-              className={s.mouth}
-              style={{
-                left: `${(monsterSize - mouthWidth) / 2}px`,
-                top: `${mouthTop}px`,
-                width: `${mouthWidth}px`,
-                height: `${mouthHeight}px`,
-              }}
-            />
-          </div>
         </div>
       </div>
     </>

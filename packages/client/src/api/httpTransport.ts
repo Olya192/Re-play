@@ -1,17 +1,20 @@
-import { METHODS } from '../constants/api/apiConstants';
-import { queryStringify } from '../utils/api/queryStringify';
+import { METHODS } from '@/constants/api/apiConstants';
+import { queryStringify } from '@/utils/api/queryStringify';
 
 interface Options {
   method: (typeof METHODS)[keyof typeof METHODS];
   headers?: Record<string, string>;
   data?: Record<string, unknown> | FormData;
   timeout?: number;
+  signal?: AbortSignal;
+  isAppHost?: boolean;
 }
 
 type RequestOptions = Omit<Options, 'method'>;
 
 const TIMEOUT = 10000;
 const host = 'https://ya-praktikum.tech';
+const appHost = '/api';
 
 export class HTTPTransport {
   get = (url: string, options: RequestOptions = {}) => {
@@ -33,19 +36,32 @@ export class HTTPTransport {
   request = async (url: string, options: Options = { method: METHODS.GET }) => {
     const timeout = options.timeout ?? TIMEOUT;
 
-    const { method, headers = {}, data } = options;
+    const { method, headers = {}, data, signal } = options;
 
     const isGet = method === METHODS.GET;
     const isFormData = data instanceof FormData;
 
+    const currentHost = options.isAppHost ? appHost : host;
+
     const requestUrl =
-      isGet && data && !isFormData ? `${host}${url}${queryStringify(data)}` : `${host}${url}`;
+      isGet && data && !isFormData
+        ? `${currentHost}${url}${queryStringify(data)}`
+        : `${currentHost}${url}`;
 
     const controller = new AbortController();
     const timeoutId = setTimeout(
       () => controller.abort('Запрос превысил допустимое время ожидания'),
       timeout
     );
+
+    // Пробрасываем внешнюю отмену (напр. при размонтировании компонента) на fetch
+    if (signal) {
+      if (signal.aborted) {
+        controller.abort(signal.reason);
+      } else {
+        signal.addEventListener('abort', () => controller.abort(signal.reason), { once: true });
+      }
+    }
 
     const fetchHeaders = new Headers(headers);
 
@@ -95,7 +111,8 @@ export class HTTPTransport {
         throw new Error(`Запрос завершен со статусом: ${response.status}, ${errorResponseText}`);
       }
     } catch (error) {
-      console.log('Ошибка запроса: ', error);
+      console.log(error);
+      throw error;
     } finally {
       clearTimeout(timeoutId);
     }

@@ -1,10 +1,12 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector, useStore } from '../store';
 import {
   setPageHasBeenInitializedOnServer,
   selectPageHasBeenInitializedOnServer,
 } from '../slices/ssrSlice';
 import { PageInitArgs, PageInitContext } from '../routes';
+import { useOAuth } from './useOAuth';
+import { userApi } from '@/api/userApi';
 
 const getCookie = (name: string) => {
   const matches = document.cookie.match(
@@ -31,14 +33,57 @@ export const usePage = ({ initPage }: PageProps) => {
   const dispatch = useDispatch();
   const pageHasBeenInitializedOnServer = useSelector(selectPageHasBeenInitializedOnServer);
   const store = useStore();
+  const [isPageInitialized, setIsPageInitialized] = useState(false);
+
+  const { isLoading: isOAuthLoading, error: oAuthError, isAuthenticated } = useOAuth();
 
   useEffect(() => {
-    if (pageHasBeenInitializedOnServer) {
-      dispatch(setPageHasBeenInitializedOnServer(false));
-
+    if (isOAuthLoading) {
       return;
     }
 
-    initPage({ dispatch, state: store.getState(), ctx: createContext() });
-  }, []);
+    if (!isAuthenticated) {
+      return;
+    }
+
+    initializePage();
+  }, [isOAuthLoading, isAuthenticated]);
+
+  const initializePage = async () => {
+    if (isPageInitialized) {
+      return;
+    }
+
+    try {
+      if (pageHasBeenInitializedOnServer) {
+        dispatch(setPageHasBeenInitializedOnServer(false));
+        setIsPageInitialized(true);
+
+        return;
+      }
+
+      await initPage({
+        dispatch,
+        state: store.getState(),
+        ctx: createContext(),
+      });
+      setIsPageInitialized(true);
+
+      const user = store.getState().user.data;
+
+      if (user) {
+        const { id, login, displayName } = user;
+        await userApi.createOrUpdateUser({ yaId: id, login, displayName });
+      }
+    } catch (error) {
+      console.error('Page initialization failed:', error);
+    }
+  };
+
+  return {
+    isLoading: isOAuthLoading,
+    error: oAuthError,
+    isAuthenticated,
+    isPageInitialized,
+  };
 };

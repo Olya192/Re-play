@@ -1,0 +1,153 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - deploy
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build and push images
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    permissions:
+      contents: read
+      packages: write
+
+    outputs:
+      client-image: ${{ steps.images.outputs.client }}
+      server-image: ${{ steps.images.outputs.server }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Resolve image names
+        id: images
+        run: |
+          prefix="ghcr.io/$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')"
+          echo "prefix=$prefix" >> "$GITHUB_OUTPUT"
+          echo "client=$prefix/client:${{ github.sha }}" >> "$GITHUB_OUTPUT"
+          echo "server=$prefix/server:${{ github.sha }}" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push client image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile.client
+          push: true
+          tags: |
+            ${{ steps.images.outputs.client }}
+            ${{ steps.images.outputs.prefix }}/client:latest
+          build-args: |
+            EXTERNAL_SERVER_URL=${{ vars.EXTERNAL_SERVER_URL || format('https://{0}', vars.APP_HOST) }}
+            INTERNAL_SERVER_URL=http://server:${{ vars.SERVER_PORT || '3001' }}
+          cache-from: type=gha,scope=client
+          cache-to: type=gha,mode=max,scope=client
+
+      - name: Build and push server image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile.server
+          push: true
+          tags: |
+            ${{ steps.images.outputs.server }}
+            ${{ steps.images.outputs.prefix }}/server:latest
+          cache-from: type=gha,scope=server
+          cache-to: type=gha,mode=max,scope=server
+
+  deploy:
+    name: Update VM spec in Yandex Cloud
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Render docker compose spec
+        env:
+          CLIENT_IMAGE: ${{ needs.build.outputs.client-image }}
+          SERVER_IMAGE: ${{ needs.build.outputs.server-image }}
+          CLIENT_PORT: ${{ vars.CLIENT_PORT || '3000' }}
+          SERVER_PORT: ${{ vars.SERVER_PORT || '3001' }}
+          INTERNAL_SERVER_URL: http://server:${{ vars.SERVER_PORT || '3001' }}
+          EXTERNAL_SERVER_URL: ${{ vars.EXTERNAL_SERVER_URL || format('https://{0}', vars.APP_HOST) }}
+          ALLOWED_ORIGINS: ${{ vars.ALLOWED_ORIGINS || format('https://{0},http://{0},http://{0}:{1},http://{0}:{2}', vars.APP_HOST, vars.CLIENT_PORT || '3000', vars.SERVER_PORT || '3001') }}
+          POSTGRES_DB: ${{ vars.POSTGRES_DB || 'postgres' }}
+          POSTGRES_USER: ${{ vars.POSTGRES_USER || 'postgres' }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+        run: |
+          test -n "$POSTGRES_PASSWORD" || {
+            echo "Не задан секрет POSTGRES_PASSWORD"
+            exit 1
+          }
+
+          envsubst < docker-compose.production.yml > "$RUNNER_TEMP/docker-compose.yaml"
+
+          # В спецификации есть пароль БД, поэтому печатаем только образы.
+          grep 'image:' "$RUNNER_TEMP/docker-compose.yaml"
+
+      - name: Install Yandex Cloud CLI
+        run: |
+          curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh |
+            bash -s -- -i "$HOME/yandex-cloud" -n
+          echo "$HOME/yandex-cloud/bin" >> "$GITHUB_PATH"
+
+      - name: Authenticate in Yandex Cloud
+        env:
+          YC_SA_JSON_CREDENTIALS: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+          YC_FOLDER_ID: ${{ secrets.YC_FOLDER_ID }}
+        run: |
+          printf '%s' "$YC_SA_JSON_CREDENTIALS" > "$RUNNER_TEMP/sa-key.json"
+          yc config set service-account-key "$RUNNER_TEMP/sa-key.json"
+          yc config set folder-id "$YC_FOLDER_ID"
+
+      - name: Apply spec to VM
+        run: |
+          yc compute instance update-container '${{ vars.YC_VM_NAME }}' \
+            --docker-compose-file="$RUNNER_TEMP/docker-compose.yaml"
+
+      - name: Remove credentials from runner
+        if: always()
+        run: rm -f "$RUNNER_TEMP/sa-key.json"
+
+      - name: Wait for the app to answer
+        env:
+          APP_URL: ${{ vars.APP_URL || format('https://{0}', vars.APP_HOST) }}
+        run: |
+          if [ -z '${{ vars.APP_HOST }}${{ vars.APP_URL }}' ]; then
+            echo "Не задана ни APP_URL, ни APP_HOST — пропускаю проверку"
+            exit 0
+          fi
+
+          for _ in $(seq 1 40); do
+            if curl -fsSL -o /dev/null --max-time 10 "$APP_URL"; then
+              echo "Приложение отвечает: $APP_URL"
+              exit 0
+            fi
+
+            sleep 15
+          done
+
+          echo "Приложение не ответило за 10 минут: $APP_URL"
+          echo "Проверьте на ВМ, что контейнеры стартовали: sudo docker ps -a"
+          exit 1

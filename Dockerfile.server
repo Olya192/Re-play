@@ -1,27 +1,25 @@
-ARG NODE_VERSION=18
-ARG SERVER_PORT=3001
+ARG NODE_VERSION=22-alpine
 
-FROM node:$NODE_VERSION-buster as base
+FROM node:${NODE_VERSION} AS builder
 
 WORKDIR /app
 
-FROM base as builder
-
-COPY package.json yarn.lock ./
-RUN yarn install --frozen-lockfile
-
 COPY . .
 
-RUN yarn lerna bootstrap
+RUN yarn install --frozen-lockfile --network-timeout 600000 --ignore-engines --prefer-offline --no-progress
+
 RUN rm -rf /app/packages/server/dist/ && yarn build --scope=server
 
+FROM node:${NODE_VERSION} AS production
 
-FROM node:$NODE_VERSION-buster-slim as production
 WORKDIR /app
 
 COPY --from=builder /app/packages/server/dist/ /app/
 COPY --from=builder /app/packages/server/package.json /app/package.json
-RUN yarn install --production=true
+COPY --from=builder /app/yarn.lock /app/yarn.lock
 
-EXPOSE $SERVER_PORT
-CMD [ "node", "/app/index.js" ]
+RUN yarn install --production=true --frozen-lockfile --network-timeout 600000 --ignore-engines --prefer-offline --no-progress
+
+EXPOSE 3001
+
+CMD ["node", "/app/index.js"]

@@ -1,47 +1,80 @@
-import { Avatar, Card, Flex, Pagination, Space, Typography } from 'antd';
-import { CommentOutlined, FieldTimeOutlined, UserOutlined } from '@ant-design/icons';
+import { Avatar, Card, Flex, Space, Typography } from 'antd';
+import { FieldTimeOutlined, UserOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import s from '../../forum/Forum.module.css';
+import { ForumReactions } from './ForumReactions';
+import { topic, useForum } from '@/pages/forum/useForum';
+import { useMemo, useState } from 'react';
+import userAvatarIcon from '@/assets/icons/user-avatar-icon.svg';
 
 const { Title } = Typography;
 
+const formatDate = (date: string) => {
+  const newDate = new Date(date);
+
+  return `${String(newDate.getDay()).padStart(2, '0')}.${String(newDate.getMonth() + 1).padStart(
+    2,
+    '0'
+  )}.${newDate.getFullYear()} ${newDate.getHours()}:${newDate.getMinutes()}`;
+};
+
 export const ForumList = () => {
-  const actions: React.ReactNode[] = [
-    <Flex gap="medium" justify="center">
-      <UserOutlined key="user" /> Иван Иванов
-    </Flex>,
-    <Flex gap="medium" justify="center">
-      <FieldTimeOutlined key="createdAt" /> 10 минут назад
-    </Flex>,
-    <Flex gap="medium" justify="center">
-      <CommentOutlined key="messagesCount" /> 0
-    </Flex>,
-  ];
+  const { getTopics } = useForum();
+
+  const [topics, setTopics] = useState<topic[]>([]);
+
+  useMemo(() => {
+    getTopics()
+      .then((response) => {
+        setTopics(response);
+      })
+      .catch((error: unknown) => {
+        console.log(error);
+      });
+  }, []);
 
   return (
-    <div className="forum-list">
-      <div className={s.forumHeader}>
-        <Title level={1}>Форум</Title>
-      </div>
-      <Space orientation="vertical" size="medium" style={{ display: 'flex' }}>
-        {
-          /*mock data*/
-          Array.from({ length: 10 }, (_, i) => i).map((el) => (
-            <Card hoverable actions={actions} key={el}>
-              <Card.Meta
-                avatar={<Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" />}
-                title={<Link to="/forum/1">топик</Link>}
-                description={
-                  <>
-                    <p>Сокращенное описание топика...</p>
-                  </>
-                }
-              />
+    <div className={s.forum}>
+      <div className="forum-list">
+        <div className={s.forumHeader}>
+          <Title level={1}>Форум</Title>
+        </div>
+        <Space orientation="vertical" size="medium" style={{ display: 'flex' }}>
+          {topics.length ? (
+            <>
+              {topics.map((el: topic) => (
+                <Card
+                  hoverable
+                  actions={[
+                    <Flex gap="medium" justify="center">
+                      <UserOutlined key="user" /> {el.user?.displayName}
+                    </Flex>,
+                    <Flex gap="medium" justify="center">
+                      <FieldTimeOutlined key="createdAt" /> {<>{formatDate(el.createdAt)}</>}
+                    </Flex>,
+                  ]}
+                  key={el.id}
+                >
+                  <Card.Meta
+                    avatar={<Avatar src={userAvatarIcon} />}
+                    title={<Link to={`/forum/${el.id}`}>{el.title}</Link>}
+                    description={
+                      <>
+                        {el.content}
+                        <ForumReactions topicId={el.id} />
+                      </>
+                    }
+                  />
+                </Card>
+              ))}
+            </>
+          ) : (
+            <Card>
+              <Card.Meta title={'Пусто'} description={'Нет топиков, нет проблем'} />
             </Card>
-          ))
-        }
-        <Pagination align="center" defaultCurrent={6} total={500} />
-      </Space>
+          )}
+        </Space>
+      </div>
     </div>
   );
 };

@@ -1,0 +1,105 @@
+import { Op } from 'sequelize';
+import { User } from '../models/User';
+
+interface CreateRequest {
+  yaId: number;
+  login: string;
+  displayName: string | null;
+}
+
+type UpdateRequest = Partial<CreateRequest>;
+
+const escapeLike = (str: string): string => {
+  return str.replace(/[%_]/g, '\\$&');
+};
+
+export class UserService {
+  public find = async (params: {
+    id?: number;
+    ya_id?: number;
+    login?: string;
+    displayName?: string;
+  }): Promise<User | null> => {
+    if (params.id != null) {
+      return await User.findByPk(params.id);
+    }
+
+    if (params.ya_id) {
+      return await User.findOne({
+        where: {
+          ya_id: params.ya_id,
+        },
+      });
+    }
+
+    if (params.login) {
+      const escaped = escapeLike(params.login.trim());
+
+      return await User.findOne({
+        where: {
+          login: { [Op.iLike]: `%${escaped}%` },
+        },
+      });
+    }
+
+    if (params.displayName) {
+      const escaped = escapeLike(params.displayName.trim());
+
+      return await User.findOne({
+        where: {
+          displayName: { [Op.iLike]: `%${escaped}%` },
+        },
+      });
+    }
+
+    return null;
+  };
+
+  public findAll = async (): Promise<User[]> => {
+    return await User.findAll();
+  };
+
+  public create = async (data: {
+    yaId: number | string;
+    login: string;
+    displayName?: string | null;
+  }): Promise<User> => {
+    const yaId = Number(data.yaId);
+    const login = data.login.trim();
+    const displayName = data.displayName?.trim() || null;
+
+    const [user] = await User.findOrCreate({
+      where: { ya_id: yaId },
+      defaults: { ya_id: yaId, login, displayName },
+    });
+
+    return user;
+  };
+
+  public update = async (id: number, data: UpdateRequest): Promise<User | null> => {
+    const [affectedCount, affectedRows] = await User.update(data, {
+      where: { id },
+      returning: true,
+    });
+
+    if (affectedCount === 0 || !affectedRows || affectedRows.length === 0) {
+      return null;
+    }
+
+    return affectedRows[0];
+  };
+
+  public upsert = async (data: CreateRequest): Promise<[User, boolean | null]> => {
+    const yaId = Number(data.yaId);
+    const login = data.login.trim();
+    const displayName = data.displayName?.trim() || null;
+
+    return await User.upsert({ ya_id: yaId, login, displayName });
+  };
+
+  public delete = async (id: number): Promise<boolean> => {
+    const deletedCount = await User.destroy({ where: { id } });
+
+    return deletedCount > 0;
+  };
+}

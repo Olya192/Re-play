@@ -1,4 +1,5 @@
-import { convertKeysToCamelCase } from '../utils/convert/convertKeysToCamelCase';
+import { AUTH_ROUTES } from '@/constants/api/apiConstants';
+import { convertKeysToCamelCase } from '@/utils/convert/convertKeysToCamelCase';
 import { HTTPTransport } from './httpTransport';
 
 interface SignupData {
@@ -9,6 +10,10 @@ interface SignupData {
   password: string;
   phone: string;
 }
+
+type ServiceID = {
+  service_id: string;
+};
 
 interface SigninData {
   login: string;
@@ -30,21 +35,47 @@ const authApiInstance = new HTTPTransport();
 
 class AuthApi {
   signup(data: SignupData): Promise<{ id: number }> {
-    return authApiInstance.post('/api/v2/auth/signup', {
+    return authApiInstance.post(AUTH_ROUTES.SIGNUP, {
       data: { ...data },
     });
   }
 
-  signin(data: SigninData) {
-    return authApiInstance.post('/api/v2/auth/signin', {
+  signin(data: SigninData): Promise<unknown> {
+    return authApiInstance.post(AUTH_ROUTES.SIGNIN, {
       data: { ...data },
     });
   }
 
-  async getCurrentUser(): Promise<User> {
-    const response = await authApiInstance.get('/api/v2/auth/user');
+  logout(): Promise<unknown> {
+    return authApiInstance.post(AUTH_ROUTES.LOGOUT);
+  }
+
+  async getCurrentUser(signal?: AbortSignal): Promise<User> {
+    const response = await authApiInstance.get(AUTH_ROUTES.USER, { signal });
 
     return convertKeysToCamelCase(response) as unknown as User;
+  }
+
+  //остаила на доработку на неделе доработок.
+  async getServiceID(redirectUri: string): Promise<string> {
+    const response = await fetch(
+      encodeURI(
+        `https://ya-praktikum.tech/api/v2/oauth/yandex/service-id?redirect_uri=${redirectUri}`
+      )
+    );
+
+    const data: ServiceID = await response.json();
+
+    return data.service_id;
+  }
+
+  async exchangeCodeForToken(code: string, redirectUri: string): Promise<unknown> {
+    return authApiInstance.post(AUTH_ROUTES.OAUTH_TOKEN, {
+      data: {
+        code,
+        redirect_uri: redirectUri,
+      },
+    });
   }
 }
 

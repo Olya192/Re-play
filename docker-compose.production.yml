@@ -1,0 +1,90 @@
+# Спецификация для ВМ с Container Optimized Image.
+# Файл не запускается локально: значения подставляет deploy-workflow (envsubst),
+# после чего результат уезжает в ВМ через `yc compute instance update-container`.
+# Для локального запуска есть docker-compose.yml.
+services:
+  postgres:
+    image: postgres:14-alpine
+    container_name: re-play-postgres
+
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    restart: always
+
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+    networks:
+      - app_network
+
+  server:
+    image: ${SERVER_IMAGE}
+    container_name: prakticum-server
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    restart: always
+
+    ports:
+      - '${SERVER_PORT}:${SERVER_PORT}'
+
+    environment:
+      NODE_ENV: production
+      SERVER_PORT: ${SERVER_PORT}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://localhost:${SERVER_PORT}/health || exit 1']
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
+    networks:
+      - app_network
+
+  client:
+    image: ${CLIENT_IMAGE}
+    container_name: prakticum-client
+
+    depends_on:
+      server:
+        condition: service_healthy
+
+    restart: unless-stopped
+
+    ports:
+      - '${CLIENT_PORT}:80'
+
+    environment:
+      NODE_ENV: production
+      PORT: 80
+      INTERNAL_SERVER_URL: ${INTERNAL_SERVER_URL}
+      EXTERNAL_SERVER_URL: ${EXTERNAL_SERVER_URL}
+
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge
+
+volumes:
+  postgres_data:

@@ -1,6 +1,6 @@
 import s from './AvatarForm.module.css';
 import { BaseButton } from '../BaseButton';
-import { ChangeEventHandler, FormEvent, FormEventHandler, useRef, useState } from 'react';
+import { ChangeEventHandler, FormEvent, FormEventHandler, useState } from 'react';
 
 interface AvatarFormProps {
   avatarUrl: string | null;
@@ -52,7 +52,7 @@ export const AvatarForm = ({
             accept="image/*"
             onChange={onChange}
           />
-          <BaseButton title="Сохранить" type="submit" size="small" disabled={isBtnDisabled} />
+          <BaseButton title="Сохранить" type="submit" size="default" disabled={isBtnDisabled} />
         </div>
       </div>
     </form>
