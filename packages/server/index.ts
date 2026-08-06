@@ -9,10 +9,15 @@ import router from './router/router';
 import { notFound } from './middleware/notFound';
 import * as console from 'console';
 
+const DEFAULT_ALLOWED_ORIGINS = ['http://localhost:3000', 'http://localhost:3001'];
+
+// Прод-origin'ы приезжают из ALLOWED_ORIGINS (через запятую) — их подставляет деплой.
 const allowedOrigins = [
-  'http://localhost:3000',
-  'http://localhost:3001',
-  // TODO добавить прод
+  ...DEFAULT_ALLOWED_ORIGINS,
+  ...(process.env.ALLOWED_ORIGINS || '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean),
 ];
 
 const app = express();
